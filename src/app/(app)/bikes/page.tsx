@@ -11,7 +11,7 @@ export default async function BikesPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="mx-auto max-w-5xl pt-8">
+    <div className="pt-8">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold">Bikes</h1>

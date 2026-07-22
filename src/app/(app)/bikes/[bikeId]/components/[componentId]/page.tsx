@@ -50,7 +50,7 @@ export default async function ComponentDetailPage({
           : undefined;
 
   return (
-    <div className="mx-auto max-w-3xl pt-8">
+    <div className="pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
           Bikes

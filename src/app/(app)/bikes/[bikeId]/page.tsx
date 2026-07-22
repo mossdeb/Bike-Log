@@ -26,7 +26,7 @@ export default async function BikeDetailPage({
     .order("created_at", { ascending: true });
 
   return (
-    <div className="mx-auto max-w-4xl pt-8">
+    <div className="pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
           Bikes

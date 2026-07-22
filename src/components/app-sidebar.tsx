@@ -1,0 +1,93 @@
+"use client";
+
+import { useState, useSyncExternalStore } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Bike, PanelLeftClose, PanelLeft } from "lucide-react";
+import { LogoMark } from "@/components/logo";
+import { cn } from "@/lib/utils";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/bikes", label: "Bikes", icon: Bike },
+];
+
+const STORAGE_KEY = "bikelog_sidebar_expanded";
+const emptySubscribe = () => () => {};
+
+/** Same hydration-safety pattern as ThemeToggle: the server can't know
+ * localStorage, so render the collapsed default until the client mounts. */
+function useMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
+
+export function AppSidebar() {
+  const pathname = usePathname();
+  const mounted = useMounted();
+  const [override, setOverride] = useState<boolean | null>(null);
+
+  const expanded = mounted && (override ?? localStorage.getItem(STORAGE_KEY) === "1");
+
+  function toggle() {
+    const next = !expanded;
+    localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+    setOverride(next);
+  }
+
+  return (
+    <aside
+      className={cn(
+        "hidden shrink-0 flex-col bg-sidebar py-6 text-sidebar-foreground transition-[width] duration-150 sm:flex",
+        expanded ? "w-[232px] items-stretch px-4" : "w-[84px] items-center px-0"
+      )}
+    >
+      <div className="mb-8 flex items-center gap-2.5 px-1">
+        <LogoMark />
+        {expanded && <span className="font-display text-lg font-bold">BikeLog</span>}
+      </div>
+
+      <nav className="flex flex-1 flex-col gap-1.5">
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(`${href}/`);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex h-11 items-center gap-3 rounded-2xl text-sm font-semibold transition-colors",
+                expanded ? "justify-start px-3.5" : "w-11 justify-center",
+                active
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
+              )}
+            >
+              <Icon className="size-5 shrink-0" />
+              {expanded && <span>{label}</span>}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <button
+        type="button"
+        onClick={toggle}
+        title={expanded ? "Collapse menu" : "Expand menu"}
+        className={cn(
+          "flex h-11 items-center gap-3 rounded-2xl text-sm font-semibold text-sidebar-foreground/60 transition-colors hover:text-sidebar-foreground",
+          expanded ? "justify-start px-3.5" : "w-11 justify-center"
+        )}
+      >
+        {expanded ? (
+          <PanelLeftClose className="size-5 shrink-0" />
+        ) : (
+          <PanelLeft className="size-5 shrink-0" />
+        )}
+        {expanded && <span>Collapse</span>}
+      </button>
+    </aside>
+  );
+}

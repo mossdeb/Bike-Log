@@ -95,7 +95,7 @@ export default async function DashboardPage() {
         </Button>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <div className="rounded-lg bg-emphasis p-5 text-emphasis-foreground">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-emphasis-foreground/10">
             <Bike className="size-4" />

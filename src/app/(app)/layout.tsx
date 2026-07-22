@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { logout } from "@/lib/actions/auth";
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { LogoMark } from "@/components/logo";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBell } from "@/components/notification-bell";
+import { UserMenu } from "@/components/user-menu";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -29,14 +29,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <span className="hidden text-sm text-muted-foreground sm:inline">
-              {user.email as string}
-            </span>
-            <form action={logout}>
-              <Button type="submit" variant="outline" size="sm">
-                Log out
-              </Button>
-            </form>
+            <NotificationBell />
+            <UserMenu name={user.user_metadata?.full_name} email={user.email as string} />
           </div>
         </header>
         <main className="flex-1 px-6 pb-24 sm:pb-10">{children}</main>

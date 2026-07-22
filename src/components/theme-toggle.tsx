@@ -23,7 +23,7 @@ export function ThemeToggle() {
   const mounted = useMounted();
 
   return (
-    <div className="inline-flex items-center gap-0.5 rounded-full border border-border bg-card p-1 shadow-sm">
+    <div className="inline-flex items-center gap-0.5 rounded-full border border-border bg-card p-1">
       <Button
         type="button"
         size="icon"

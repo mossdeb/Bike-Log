@@ -52,7 +52,7 @@ export default async function NewComponentPage({
 
       <form
         action={createComponent.bind(null, bike.id)}
-        className="rounded-3xl border border-border bg-card p-6"
+        className="rounded-lg border border-border bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
@@ -78,7 +78,7 @@ export default async function NewComponentPage({
               id="category"
               name="category"
               defaultValue="Suspension"
-              className="flex h-8 w-full items-center rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-8 w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {COMPONENT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>

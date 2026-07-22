@@ -59,7 +59,7 @@ export default async function NewInterventionPage({
 
       <form
         action={createIntervention.bind(null, bike.id, component.id)}
-        className="rounded-3xl border border-border bg-card p-6"
+        className="rounded-lg border border-border bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
@@ -68,7 +68,7 @@ export default async function NewInterventionPage({
               {(["service", "repair", "replacement"] as const).map((type, i) => (
                 <label
                   key={type}
-                  className="flex flex-1 items-center justify-center rounded-lg border border-input px-3 py-2 text-sm font-semibold capitalize has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
+                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold capitalize has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
                 >
                   <input
                     type="radio"

@@ -54,7 +54,7 @@ export default async function EditBikePage({
 
       <form
         action={updateBike.bind(null, bike.id)}
-        className="rounded-3xl border border-border bg-card p-6"
+        className="rounded-lg border border-border bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
@@ -80,7 +80,7 @@ export default async function EditBikePage({
               id="type"
               name="type"
               defaultValue={bike.type ?? "Enduro"}
-              className="flex h-8 w-full items-center rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-8 w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {BIKE_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -119,7 +119,7 @@ export default async function EditBikePage({
         </div>
       </form>
 
-      <div className="mt-6 rounded-3xl border border-destructive/30 bg-card p-6">
+      <div className="mt-6 rounded-lg border border-destructive/30 bg-card p-6">
         <p className="text-sm font-semibold">Delete this bike</p>
         <p className="mt-1 text-sm text-muted-foreground">
           {`Permanently deletes ${bike.name} and all ${componentCount ?? 0} of its components and their maintenance history. This can't be undone.`}

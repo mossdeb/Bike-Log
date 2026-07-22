@@ -49,10 +49,11 @@
   --color-indigo-foreground: var(--indigo-foreground);
   --color-emphasis: var(--emphasis);
   --color-emphasis-foreground: var(--emphasis-foreground);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  /* Matches design/bikelog_dashboard.html's --radius-sm/md/lg/xl scale exactly (11/15/22/32px). */
+  --radius-sm: 0.6875rem;
+  --radius-md: 0.9375rem;
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-xl: 2rem;
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);

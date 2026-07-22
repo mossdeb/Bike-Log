@@ -35,7 +35,7 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-3xl border border-border bg-card p-6">
+      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg border border-border bg-card p-6">
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{bike.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -79,14 +79,14 @@ export default async function BikeDetailPage({
       </div>
 
       {!components || components.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border p-10 text-center">
+        <div className="rounded-lg border border-dashed border-border p-10 text-center">
           <p className="text-sm text-muted-foreground">
             No components yet. Add suspension, drivetrain, brakes — anything you want to track
             maintenance for.
           </p>
         </div>
       ) : (
-        <div className="rounded-3xl border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card">
           {components.map((component, i) => {
             const { status } = calculateComponentStatus({
               intervalMonths: component.interval_months,

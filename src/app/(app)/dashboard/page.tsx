@@ -96,21 +96,21 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-3xl bg-emphasis p-5 text-emphasis-foreground">
+        <div className="rounded-lg bg-emphasis p-5 text-emphasis-foreground">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-emphasis-foreground/10">
             <Bike className="size-4" />
           </div>
           <p className="text-xs text-emphasis-foreground/60">Total bikes</p>
           <p className="font-display text-2xl font-bold">{totalBikes}</p>
         </div>
-        <div className="rounded-3xl border border-border bg-card p-5">
+        <div className="rounded-lg border border-border bg-card p-5">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-muted">
             <Cog className="size-4 text-muted-foreground" />
           </div>
           <p className="text-xs text-muted-foreground">Components tracked</p>
           <p className="font-display text-2xl font-bold">{totalComponents}</p>
         </div>
-        <div className="rounded-3xl border border-border bg-card p-5">
+        <div className="rounded-lg border border-border bg-card p-5">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-muted">
             <ClipboardList className="size-4 text-muted-foreground" />
           </div>
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
       </div>
 
       {!bikes || bikes.length === 0 ? (
-        <div className="mb-6 rounded-3xl border border-dashed border-border p-10 text-center">
+        <div className="mb-6 rounded-lg border border-dashed border-border p-10 text-center">
           <p className="mb-4 text-sm text-muted-foreground">
             No bikes yet. Add your first one to start tracking maintenance.
           </p>
@@ -142,7 +142,7 @@ export default async function DashboardPage() {
             <Link
               key={bike.id}
               href={`/bikes/${bike.id}`}
-              className="rounded-3xl border border-border bg-card p-5 transition-colors hover:border-foreground/20"
+              className="rounded-lg border border-border bg-card p-5 transition-colors hover:border-foreground/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl border border-border bg-card p-5">
+        <div className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-3 font-display font-bold">Needs attention</h2>
           {needsAttention.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
@@ -191,7 +191,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-3xl border border-border bg-card p-5">
+        <div className="rounded-lg border border-border bg-card p-5">
           <h2 className="mb-3 font-display font-bold">Recent interventions</h2>
           {!recentRaw || recentRaw.length === 0 ? (
             <div className="py-6 text-center">

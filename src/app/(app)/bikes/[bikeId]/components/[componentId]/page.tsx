@@ -63,7 +63,7 @@ export default async function ComponentDetailPage({
         <span className="text-foreground">{component.name}</span>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-3xl border border-border bg-card p-6">
+      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg border border-border bg-card p-6">
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{component.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -111,14 +111,14 @@ export default async function ComponentDetailPage({
       </div>
 
       {!interventions || interventions.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border p-10 text-center">
+        <div className="rounded-lg border border-dashed border-border p-10 text-center">
           <Inbox className="mx-auto mb-2 size-6 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
             No interventions logged yet for this component.
           </p>
         </div>
       ) : (
-        <div className="rounded-3xl border border-border bg-card">
+        <div className="rounded-lg border border-border bg-card">
           {interventions.map((iv, i) => (
             <Link
               key={iv.id}
@@ -138,7 +138,7 @@ export default async function ComponentDetailPage({
                   {iv.hours_used != null && <span>{formatNumber(iv.hours_used)} h</span>}
                 </div>
                 {iv.notes && (
-                  <p className="mt-2 rounded-lg bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+                  <p className="mt-2 rounded-sm bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
                     {iv.notes}
                   </p>
                 )}

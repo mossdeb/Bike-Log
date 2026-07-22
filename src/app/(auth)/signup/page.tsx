@@ -15,7 +15,7 @@ export default async function SignupPage({
 
   if (success) {
     return (
-      <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
+      <div className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
         <LogoMark className="mx-auto mb-4" />
         <h1 className="text-xl font-display font-bold tracking-tight">Check your email</h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -35,7 +35,7 @@ export default async function SignupPage({
   }
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
       <div className="mb-6 flex flex-col items-center text-center">
         <LogoMark className="mb-4" />
         <h1 className="text-xl font-display font-bold tracking-tight">Create your account</h1>
@@ -45,7 +45,7 @@ export default async function SignupPage({
       </div>
 
       {error && (
-        <p className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="mb-4 rounded-sm bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
       )}

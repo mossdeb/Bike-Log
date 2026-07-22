@@ -26,7 +26,7 @@ export default async function BikesPage() {
       </div>
 
       {!bikes || bikes.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border p-12 text-center">
+        <div className="rounded-lg border border-dashed border-border p-12 text-center">
           <p className="text-sm text-muted-foreground">
             No bikes yet. Add your first one to start tracking maintenance.
           </p>
@@ -37,7 +37,7 @@ export default async function BikesPage() {
             <Link
               key={bike.id}
               href={`/bikes/${bike.id}`}
-              className="rounded-3xl border border-border bg-card p-5 transition-colors hover:border-foreground/20"
+              className="rounded-lg border border-border bg-card p-5 transition-colors hover:border-foreground/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

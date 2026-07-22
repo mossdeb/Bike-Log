@@ -68,7 +68,7 @@ export default async function EditInterventionPage({
 
       <form
         action={updateIntervention.bind(null, bike.id, component.id, intervention.id)}
-        className="rounded-3xl border border-border bg-card p-6"
+        className="rounded-lg border border-border bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
@@ -77,7 +77,7 @@ export default async function EditInterventionPage({
               {(["service", "repair", "replacement"] as const).map((type) => (
                 <label
                   key={type}
-                  className="flex flex-1 items-center justify-center rounded-lg border border-input px-3 py-2 text-sm font-semibold capitalize has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
+                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold capitalize has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
                 >
                   <input
                     type="radio"
@@ -143,7 +143,7 @@ export default async function EditInterventionPage({
         </div>
       </form>
 
-      <div className="mt-6 rounded-3xl border border-destructive/30 bg-card p-6">
+      <div className="mt-6 rounded-lg border border-destructive/30 bg-card p-6">
         <p className="text-sm font-semibold">Delete this entry</p>
         <p className="mt-1 text-sm text-muted-foreground">
           {`Permanently deletes this ${intervention.type} entry. This can't be undone.`}

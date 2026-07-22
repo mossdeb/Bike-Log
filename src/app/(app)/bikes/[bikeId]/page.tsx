@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { calculateComponentStatus } from "@/lib/maintenance/calculation";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/status-badge";
 
 export default async function BikeDetailPage({
   params,
@@ -15,9 +17,11 @@ export default async function BikeDetailPage({
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
 
+  // components_status joins in each component's most recent intervention
+  // date so status can be computed here without an N+1 query per row.
   const { data: components } = await supabase
-    .from("components")
-    .select("id, name, category, brand, model, interval_months")
+    .from("components_status")
+    .select("id, name, category, brand, model, interval_months, install_date, last_intervention_date")
     .eq("bike_id", bikeId)
     .order("created_at", { ascending: true });
 
@@ -83,29 +87,37 @@ export default async function BikeDetailPage({
         </div>
       ) : (
         <div className="rounded-3xl border border-border bg-card">
-          {components.map((component, i) => (
-            <Link
-              key={component.id}
-              href={`/bikes/${bike.id}/components/${component.id}`}
-              className={`flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/50 ${
-                i > 0 ? "border-t border-border" : ""
-              }`}
-            >
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold">{component.name}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {[
-                    component.category,
-                    component.interval_months ? `every ${component.interval_months} mo` : null,
-                    [component.brand, component.model].filter(Boolean).join(" "),
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-              </div>
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-            </Link>
-          ))}
+          {components.map((component, i) => {
+            const { status } = calculateComponentStatus({
+              intervalMonths: component.interval_months,
+              installDate: component.install_date,
+              lastInterventionDate: component.last_intervention_date,
+            });
+            return (
+              <Link
+                key={component.id}
+                href={`/bikes/${bike.id}/components/${component.id}`}
+                className={`flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/50 ${
+                  i > 0 ? "border-t border-border" : ""
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold">{component.name}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {[
+                      component.category,
+                      component.interval_months ? `every ${component.interval_months} mo` : null,
+                      [component.brand, component.model].filter(Boolean).join(" "),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                </div>
+                <StatusBadge status={status} />
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

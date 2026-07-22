@@ -130,9 +130,95 @@ export type Database = {
           },
         ]
       }
+      interventions: {
+        Row: {
+          component_id: string
+          created_at: string
+          date: string
+          description: string | null
+          hours_used: number | null
+          id: string
+          kms: number | null
+          notes: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          component_id: string
+          created_at?: string
+          date: string
+          description?: string | null
+          hours_used?: number | null
+          id?: string
+          kms?: number | null
+          notes?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          component_id?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          hours_used?: number | null
+          id?: string
+          kms?: number | null
+          notes?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interventions_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interventions_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components_status"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      components_status: {
+        Row: {
+          active: boolean | null
+          bike_id: string | null
+          brand: string | null
+          category: string | null
+          created_at: string | null
+          id: string | null
+          install_date: string | null
+          interval_hours: number | null
+          interval_km: number | null
+          interval_months: number | null
+          last_intervention_date: string | null
+          model: string | null
+          name: string | null
+          notes: string | null
+          serial_number: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "components_bike_id_fkey"
+            columns: ["bike_id"]
+            isOneToOne: false
+            referencedRelation: "bikes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

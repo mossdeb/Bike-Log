@@ -1,0 +1,1635 @@
+<title>BikeLog</title>
+<style>
+  :root {
+    --bg: #EFEFEF;
+    --surface: #FFFFFF;
+    --surface-2: #F1F1F1;
+    --sidebar-bg: #1C1C1C;
+    --ink: #101014;
+    --ink-soft: #35363C;
+    --muted: #8A8D93;
+    --border: rgba(16,16,20,0.09);
+    --border-strong: rgba(16,16,20,0.14);
+
+    --lime: #43F3AF;
+    --lime-ink: #062A20;
+    --indigo: #6C5CE0;
+    --indigo-ink: #FFFFFF;
+
+    --good: #2E9E5B;
+    --good-tint: rgba(46,158,91,0.13);
+    --warn: #D2860F;
+    --warn-tint: rgba(210,134,15,0.14);
+    --danger: #E0442F;
+    --danger-tint: rgba(224,68,47,0.13);
+
+    --block-bg: #1C1C1C;
+    --block-ink: #F5F3EE;
+    --block-muted: #94969C;
+
+    --shadow: 0 1px 2px rgba(16,16,20,0.04), 0 10px 28px -14px rgba(16,16,20,0.18);
+    --radius-xl: 32px;
+    --radius-lg: 22px;
+    --radius-md: 15px;
+    --radius-sm: 11px;
+
+    --font-display: ui-rounded, 'SF Pro Rounded', 'Century Gothic', 'Avenir Next', ui-sans-serif, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, ui-sans-serif, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181B; --surface: #1D1F23; --surface-2: #24262B;
+      --sidebar-bg: #1C1C1C;
+      --ink: #F2F1EC; --ink-soft: #D3D2CC; --muted: #93969C;
+      --border: rgba(242,241,236,0.08); --border-strong: rgba(242,241,236,0.15);
+
+      --lime: #43F3AF; --lime-ink: #062A20;
+      --indigo: #8879F5; --indigo-ink: #10101A;
+
+      --good: #5FC488; --good-tint: rgba(95,196,136,0.16);
+      --warn: #EDAA4E; --warn-tint: rgba(237,170,78,0.16);
+      --danger: #EC8271; --danger-tint: rgba(236,130,113,0.16);
+
+      --block-bg: #1C1C1C; --block-ink: #F5F3EE; --block-muted: #7C7E84;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 32px -16px rgba(0,0,0,0.65);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17181B; --surface: #1D1F23; --surface-2: #24262B;
+    --sidebar-bg: #1C1C1C;
+    --ink: #F2F1EC; --ink-soft: #D3D2CC; --muted: #93969C;
+    --border: rgba(242,241,236,0.08); --border-strong: rgba(242,241,236,0.15);
+    --lime: #43F3AF; --lime-ink: #062A20;
+    --indigo: #8879F5; --indigo-ink: #10101A;
+    --good: #5FC488; --good-tint: rgba(95,196,136,0.16);
+    --warn: #EDAA4E; --warn-tint: rgba(237,170,78,0.16);
+    --danger: #EC8271; --danger-tint: rgba(236,130,113,0.16);
+    --block-bg: #1C1C1C; --block-ink: #F5F3EE; --block-muted: #7C7E84;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 32px -16px rgba(0,0,0,0.65);
+  }
+  :root[data-theme="light"] {
+    --bg: #EFEFEF; --surface: #FFFFFF; --surface-2: #F1F1F1;
+    --sidebar-bg: #1C1C1C;
+    --ink: #101014; --ink-soft: #35363C; --muted: #8A8D93;
+    --border: rgba(16,16,20,0.09); --border-strong: rgba(16,16,20,0.14);
+    --lime: #43F3AF; --lime-ink: #062A20;
+    --indigo: #6C5CE0; --indigo-ink: #FFFFFF;
+    --good: #2E9E5B; --good-tint: rgba(46,158,91,0.13);
+    --warn: #D2860F; --warn-tint: rgba(210,134,15,0.14);
+    --danger: #E0442F; --danger-tint: rgba(224,68,47,0.13);
+    --block-bg: #1C1C1C; --block-ink: #F5F3EE; --block-muted: #94969C;
+    --shadow: 0 1px 2px rgba(16,16,20,0.04), 0 10px 28px -14px rgba(16,16,20,0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { min-height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  ::selection { background: rgba(198,245,58,0.35); }
+  a { color: inherit; }
+
+  .app-frame { width: 100%; display: flex; background: var(--bg); min-height: 100vh; }
+  .main-inner { max-width: 1440px; margin: 0 auto; }
+
+  /* ---------- Icon rail ---------- */
+  .sidebar { width: 84px; flex-shrink: 0; background: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; padding: 26px 16px 20px; transition: width 0.18s ease, padding 0.18s ease; overflow: hidden; }
+  .sidebar.expanded { width: 232px; align-items: stretch; }
+  .sidebar-top { display: flex; align-items: center; gap: 12px; margin-bottom: 34px; flex-shrink: 0; }
+  .sidebar-logo { width: 42px; height: 42px; border-radius: 13px; background: var(--lime); display: grid; place-items: center; flex-shrink: 0; }
+  .sidebar-logo svg { width: 22px; height: 22px; }
+  .sidebar-wordmark {
+    font-family: var(--font-display); font-weight: 800; font-size: 1.02rem; color: var(--block-ink);
+    white-space: nowrap; opacity: 0; width: 0; overflow: hidden; transition: opacity 0.12s ease;
+  }
+  .sidebar.expanded .sidebar-wordmark { opacity: 1; width: auto; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; width: 100%; }
+  .nav-btn {
+    width: 46px; height: 46px; border-radius: 14px; border: none; background: transparent;
+    color: #6C6E76; display: flex; align-items: center; justify-content: center; gap: 12px;
+    cursor: pointer; text-decoration: none; overflow: hidden; white-space: nowrap; padding: 0; flex-shrink: 0;
+  }
+  .sidebar.expanded .nav-btn { width: 100%; justify-content: flex-start; padding: 0 13px; }
+  .nav-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .nav-btn.active { background: var(--lime); color: var(--lime-ink); }
+  .nav-btn:not(.active):hover { color: #C9CACE; }
+  .nav-btn[disabled] { cursor: default; opacity: 0.4; }
+  .nav-btn[disabled]:hover { color: #6C6E76; }
+  .nav-label { display: none; font-size: 0.86rem; font-weight: 630; }
+  .sidebar.expanded .nav-label { display: inline; }
+  .sidebar-foot { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .sidebar-toggle .toggle-icon { transition: transform 0.18s ease; }
+  .sidebar.expanded .sidebar-toggle .toggle-icon { transform: rotate(180deg); }
+
+  /* ---------- Main ---------- */
+  .main { flex: 1; min-width: 0; padding: 30px 34px 34px; background: var(--bg); }
+  .global-topbar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 22px; }
+
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+  h1 {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(1.6rem, 2.4vw, 2rem);
+    letter-spacing: -0.01em; margin: 0 0 4px; text-wrap: balance;
+  }
+  h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+  h3 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+  .eyebrow { color: var(--muted); margin: 0; font-size: 0.95rem; }
+
+  .theme-toggle { display: inline-flex; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; gap: 2px; }
+  .theme-toggle button { border: none; background: transparent; color: var(--muted); width: 30px; height: 28px; border-radius: 999px; display: grid; place-items: center; cursor: pointer; }
+  .theme-toggle button.active { background: var(--block-bg); color: var(--block-ink); }
+  .theme-toggle svg { width: 14px; height: 14px; }
+
+  .icon-btn-round { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: grid; place-items: center; color: var(--ink-soft); cursor: pointer; flex-shrink: 0; position: relative; }
+  .icon-btn-round svg { width: 17px; height: 17px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--indigo); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; color: #fff; font-size: 0.82rem; flex-shrink: 0; border: none; cursor: pointer; padding: 0; }
+  .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--surface); display: none; }
+
+  /* ---------- Topbar dropdowns ---------- */
+  .topbar-item { position: relative; }
+  .dropdown-panel {
+    display: none; position: absolute; top: calc(100% + 10px); right: 0; z-index: 40;
+    width: 280px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+    box-shadow: var(--shadow); padding: 8px;
+  }
+  .dropdown-panel.open { display: block; }
+  .notif-panel-head { padding: 8px 10px 10px; font-weight: 700; font-size: 0.86rem; }
+  .notif-empty { padding: 22px 10px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+  .notif-footer { padding: 8px 10px 2px; border-top: 1px solid var(--border); margin-top: 4px; }
+  .notif-footer a { font-size: 0.8rem; color: var(--muted); text-decoration: none; }
+  .notif-footer a:hover { color: var(--ink); }
+
+  .user-menu-head { display: flex; align-items: center; gap: 12px; padding: 8px 10px 14px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+  .user-menu-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--indigo); display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 0.8rem; flex-shrink: 0; }
+  .user-menu-name { font-weight: 650; font-size: 0.88rem; }
+  .user-menu-email { font-size: 0.76rem; color: var(--muted); }
+  .dropdown-link {
+    display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 9px;
+    font-size: 0.85rem; font-family: var(--font-body); color: var(--ink); text-decoration: none;
+    cursor: pointer; background: none; border: none; width: 100%; text-align: left;
+  }
+  .dropdown-link:hover { background: var(--surface-2); }
+  .dropdown-link svg { width: 16px; height: 16px; color: var(--ink-soft); flex-shrink: 0; }
+  .dropdown-link.danger { color: var(--danger); }
+  .dropdown-link.danger svg { color: var(--danger); }
+
+  .btn-pill { font-family: var(--font-body); font-weight: 650; font-size: 0.84rem; border: none; border-radius: 999px; padding: 10px 16px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; text-decoration: none; }
+  .btn-pill.ghost { background: var(--surface); border: 1px solid var(--border-strong); color: var(--ink); }
+  .btn-pill.solid { background: var(--block-bg); color: var(--block-ink); }
+  .btn-pill svg { width: 14px; height: 14px; }
+
+  /* ---------- Stat row ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius-lg); padding: 20px; position: relative; }
+  .stat-card.emphasis { background: var(--block-bg); color: var(--block-ink); }
+  .stat-menu { position: absolute; top: 18px; right: 18px; color: var(--muted); }
+  .stat-card.emphasis .stat-menu { color: var(--block-muted); }
+  .stat-menu svg { width: 16px; height: 16px; }
+  .stat-icon { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 22px; background: var(--surface-2); color: var(--ink-soft); }
+  .stat-icon svg { width: 19px; height: 19px; }
+  .stat-card.emphasis .stat-icon { background: rgba(245,243,238,0.12); color: var(--block-ink); }
+  .stat-label { font-size: 0.82rem; color: var(--muted); margin: 0 0 4px; }
+  .stat-card.emphasis .stat-label { color: var(--block-muted); }
+  .stat-value { font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Section / bike cards ---------- */
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+  .section-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; }
+  .section-link { font-size: 0.8rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border-strong); padding-bottom: 1px; }
+
+  .bike-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .bike-preview-card { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; cursor: pointer; }
+  .bike-preview-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .bike-preview-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0; }
+  .bike-preview-icon svg { width: 21px; height: 21px; }
+  .bike-preview-name { font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-bottom: 2px; }
+  .bike-preview-type { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
+  .bike-preview-meta { display: flex; align-items: center; justify-content: space-between; }
+  .bike-preview-km { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); }
+
+  /* ---------- Two-column lists ---------- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .panel { background: var(--surface); border-radius: var(--radius-lg); padding: 20px; }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .panel-title { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; letter-spacing: -0.01em; }
+  .panel-link { font-size: 0.8rem; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border-strong); padding-bottom: 1px; }
+  .chip-select { font-size: 0.78rem; color: var(--muted); background: var(--surface-2); border-radius: 999px; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; }
+  .chip-select svg { width: 11px; height: 11px; }
+
+  .list-row { display: flex; align-items: center; gap: 13px; padding: 11px 6px; text-decoration: none; color: inherit; }
+  .list-row + .list-row { border-top: 1px solid var(--border); }
+  .row-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0; background: var(--surface-2); color: var(--ink-soft); }
+  .row-icon svg { width: 18px; height: 18px; }
+  .row-body { flex: 1; min-width: 0; }
+  .row-title { font-weight: 650; font-size: 0.9rem; }
+  .row-sub { color: var(--muted); font-size: 0.78rem; margin-top: 1px; }
+  .row-right { text-align: right; flex-shrink: 0; }
+  .row-value { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 650; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 650; padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .pill.ok { background: var(--good-tint); color: var(--good); }
+  .pill.soon { background: var(--warn-tint); color: var(--warn); }
+  .pill.overdue { background: var(--danger-tint); color: var(--danger); }
+  .pill.none { background: var(--surface-2); color: var(--muted); }
+
+  /* ---------- Pages / router ---------- */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ---------- Breadcrumb ---------- */
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; flex-wrap: wrap; }
+  .breadcrumb a { color: var(--muted); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--ink); }
+  .breadcrumb .current { color: var(--ink); font-weight: 650; }
+  .breadcrumb .sep { color: var(--border-strong); }
+
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+
+  /* ---------- Detail header card ---------- */
+  .detail-header { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .detail-icon { width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; flex-shrink: 0; }
+  .detail-icon svg { width: 28px; height: 28px; }
+  .detail-title-group { flex: 1; min-width: 200px; }
+  .detail-title-group h2 { font-weight: 700; font-size: 1.4rem; margin: 0 0 3px; }
+  .detail-sub { color: var(--muted); font-size: 0.86rem; }
+  .detail-stats { display: flex; gap: 22px; flex-wrap: wrap; }
+  .detail-stat-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
+  .detail-stat-value { font-family: var(--font-mono); font-weight: 650; font-size: 0.92rem; }
+  .detail-actions { display: flex; align-items: center; flex-shrink: 0; }
+
+  /* ---------- Clickable rows ---------- */
+  .click-row { display: flex; align-items: center; gap: 14px; padding: 15px 10px; border-radius: var(--radius-sm); cursor: pointer; }
+  .click-row:hover { background: var(--surface-2); }
+  .click-row + .click-row { border-top: 1px solid var(--border); }
+  .click-chevron { color: var(--muted); flex-shrink: 0; display: inline-flex; }
+  .click-chevron svg { width: 16px; height: 16px; }
+  .row-quick-log {
+    width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--ink-soft); display: grid; place-items: center; cursor: pointer; flex-shrink: 0;
+  }
+  .row-quick-log:hover { border-color: var(--ink-soft); }
+  .row-quick-log svg { width: 14px; height: 14px; }
+
+  /* ---------- Type badge ---------- */
+  .type-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: capitalize; }
+  .type-badge.service { background: var(--indigo); color: #fff; }
+  .type-badge.repair { background: var(--lime); color: var(--lime-ink); }
+  .type-badge.replacement { background: var(--block-bg); color: var(--block-ink); }
+
+  /* ---------- Intervention timeline ---------- */
+  .intervention-row { display: flex; gap: 16px; padding: 16px 8px; }
+  .intervention-row + .intervention-row { border-top: 1px solid var(--border); }
+  .intervention-date { width: 84px; flex-shrink: 0; font-family: var(--font-mono); font-size: 0.76rem; color: var(--muted); padding-top: 4px; }
+  .intervention-body { flex: 1; min-width: 0; }
+  .intervention-top { margin-bottom: 6px; }
+  .intervention-desc { font-weight: 650; font-size: 0.92rem; margin-top: 6px; }
+  .intervention-meta { font-size: 0.79rem; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; margin: 4px 0 6px; }
+  .intervention-notes { font-size: 0.82rem; color: var(--ink-soft); background: var(--surface-2); padding: 9px 11px; border-radius: var(--radius-sm); }
+
+  .empty-state { text-align: center; padding: 44px 20px; color: var(--muted); }
+  .empty-state svg { width: 32px; height: 32px; margin-bottom: 10px; opacity: 0.5; }
+  .empty-state p { margin: 0 0 16px; font-size: 0.88rem; }
+
+  /* ---------- Forms ---------- */
+  .form-panel { background: var(--surface); border-radius: var(--radius-lg); padding: 26px; max-width: 680px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  .field label { font-size: 0.82rem; font-weight: 650; color: var(--ink-soft); }
+  .field .hint { font-size: 0.74rem; color: var(--muted); }
+  input, select, textarea {
+    font-family: var(--font-body); font-size: 0.9rem; padding: 10px 12px;
+    border-radius: var(--radius-sm); border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--ink); width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--lime); outline-offset: 1px; border-color: transparent; }
+  textarea { resize: vertical; min-height: 84px; font-family: inherit; }
+  .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+  .btn { font-family: var(--font-body); font-weight: 650; font-size: 0.88rem; border-radius: 999px; padding: 11px 20px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+  .btn.primary { background: var(--block-bg); color: var(--block-ink); }
+  .btn.ghost { background: var(--surface); border: 1px solid var(--border-strong); color: var(--ink); }
+  .btn.danger { background: var(--danger); color: #fff; }
+  .btn.small { padding: 8px 14px; font-size: 0.8rem; }
+  .btn svg { width: 14px; height: 14px; }
+
+  .segmented { display: flex; gap: 8px; }
+  .segmented label { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; padding: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); cursor: pointer; font-size: 0.85rem; font-weight: 650; color: var(--ink-soft); }
+  .segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .segmented label:has(input:checked) { background: var(--block-bg); color: var(--block-ink); border-color: transparent; }
+  .segmented input:focus-visible + span { outline: 2px solid var(--lime); outline-offset: 3px; border-radius: 4px; }
+
+  /* ---------- Combobox (brand picker) ---------- */
+  .combobox { position: relative; }
+  .combobox-panel {
+    display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+    max-height: 220px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow); padding: 4px;
+  }
+  .combobox-panel.open { display: block; }
+  .combobox-option { padding: 9px 11px; font-size: 0.86rem; border-radius: 7px; cursor: pointer; }
+  .combobox-option:hover, .combobox-option.active { background: var(--surface-2); }
+  .combobox-empty { padding: 10px 11px; font-size: 0.82rem; color: var(--muted); }
+  .combobox-hint {
+    display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--muted); margin-top: 6px;
+  }
+  .combobox-hint strong { color: var(--ink-soft); font-weight: 650; }
+
+  /* ---------- Danger zone (in edit forms) ---------- */
+  .danger-zone { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .danger-zone-label { font-size: 0.82rem; font-weight: 650; margin-bottom: 3px; }
+  .danger-zone-desc { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(10,10,10,0.5); z-index: 100;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card { background: var(--surface); border-radius: var(--radius-lg); padding: 26px; max-width: 380px; width: 100%; }
+  .modal-card h3 { font-size: 1.05rem; margin-bottom: 8px; }
+  .modal-card p { font-size: 0.86rem; color: var(--muted); margin: 0; line-height: 1.5; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+
+  /* ---------- Settings ---------- */
+  .settings-grid { display: flex; flex-direction: column; gap: 16px; max-width: 720px; }
+  .settings-section { background: var(--surface); border-radius: var(--radius-lg); padding: 24px 26px; }
+  .settings-section-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .settings-section-desc { color: var(--muted); font-size: 0.82rem; margin-bottom: 18px; }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 0; }
+  .settings-row + .settings-row { border-top: 1px solid var(--border); }
+  .settings-row-label { font-weight: 630; font-size: 0.88rem; }
+  .settings-row-sub { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+
+  .profile-row { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; }
+  .profile-avatar-lg { width: 64px; height: 64px; border-radius: 50%; background: var(--indigo); display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; flex-shrink: 0; }
+  .profile-name { font-weight: 700; font-size: 0.95rem; }
+  .profile-email { color: var(--muted); font-size: 0.8rem; }
+
+  .switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .switch .slider { position: absolute; inset: 0; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 999px; transition: background 0.15s ease; cursor: pointer; }
+  .switch .slider::before { content: ""; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; background: #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.25); transition: transform 0.15s ease; }
+  .switch input:checked + .slider { background: var(--lime); border-color: transparent; }
+  .switch input:checked + .slider::before { transform: translateX(18px); }
+  .switch input:focus-visible + .slider { outline: 2px solid var(--lime); outline-offset: 2px; }
+
+  .account-chip { display: flex; align-items: center; gap: 12px; padding: 13px 15px; background: var(--surface-2); border-radius: var(--radius-sm); }
+  .account-chip-icon { width: 32px; height: 32px; border-radius: 8px; background: #fff; display: grid; place-items: center; flex-shrink: 0; box-shadow: 0 0 0 1px var(--border-strong) inset; }
+  .account-chip-name { font-size: 0.86rem; font-weight: 630; }
+  .badge-connected { margin-left: auto; font-size: 0.72rem; font-weight: 650; color: var(--good); background: var(--good-tint); padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+
+  /* ---------- Auth ---------- */
+  .auth-shell { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 24px; background: var(--bg); }
+  .auth-card { width: 100%; max-width: 400px; background: var(--surface); border-radius: var(--radius-lg); padding: 34px 30px; }
+  .auth-logo { width: 42px; height: 42px; border-radius: 13px; background: var(--lime); display: grid; place-items: center; margin: 0 auto 18px; }
+  .auth-logo svg { width: 22px; height: 22px; }
+  .auth-head { text-align: center; margin-bottom: 24px; }
+  .auth-head h1 { font-size: 1.35rem; margin-bottom: 4px; }
+  .auth-head p { color: var(--muted); font-size: 0.86rem; margin: 0; }
+  .auth-field { margin-bottom: 14px; }
+  .auth-field label { display: block; font-size: 0.82rem; font-weight: 650; color: var(--ink-soft); margin-bottom: 6px; }
+  .auth-row-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.8rem; }
+  .auth-row-between a { color: var(--muted); text-decoration: none; }
+  .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 999px; padding: 11px; font-weight: 650; font-size: 0.88rem; color: var(--ink); cursor: pointer; }
+  .auth-divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.76rem; margin: 18px 0; }
+  .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .auth-switch { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 20px; }
+  .auth-switch a { color: var(--ink); font-weight: 650; text-decoration: none; border-bottom: 1px solid var(--border-strong); }
+
+  /* ---------- Prototype quick nav ---------- */
+  .proto-nav { position: fixed; bottom: 16px; right: 16px; z-index: 50; background: var(--surface); border-radius: var(--radius-md); box-shadow: var(--shadow); border: 1px solid var(--border); max-width: 220px; }
+  .proto-nav summary { list-style: none; padding: 10px 14px; font-size: 0.78rem; font-weight: 650; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--ink-soft); }
+  .proto-nav summary::-webkit-details-marker { display: none; }
+  .proto-nav-list { display: flex; flex-direction: column; padding: 4px 8px 10px; gap: 1px; max-height: 280px; overflow-y: auto; }
+  .proto-nav-list a { font-size: 0.78rem; color: var(--muted); text-decoration: none; padding: 6px 8px; border-radius: 7px; }
+  .proto-nav-list a:hover { background: var(--surface-2); color: var(--ink); }
+
+  @media (max-width: 1040px) {
+    .bike-cards { grid-template-columns: 1fr 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 860px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .bike-cards { grid-template-columns: 1fr; }
+    .app-frame { flex-direction: column; }
+    .sidebar, .sidebar.expanded { width: 100%; flex-direction: row; align-items: center; padding: 14px 18px; }
+    .sidebar-top { margin: 0 18px 0 0; }
+    .sidebar-nav { flex-direction: row; flex: 1; }
+    .sidebar-foot { flex-direction: row; width: auto; }
+    .sidebar .nav-btn, .sidebar.expanded .nav-btn { width: 46px; justify-content: center; padding: 0; }
+    .sidebar .nav-label, .sidebar-wordmark { display: none !important; }
+    .sidebar-toggle { display: none; }
+    .detail-header { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="app-frame" id="app-shell">
+  <aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="6" cy="17" r="3.2" stroke="#101014" stroke-width="1.7"/>
+          <circle cx="18" cy="17" r="3.2" stroke="#101014" stroke-width="1.7"/>
+          <path d="M6 17L10 8H14M18 17L14 8M10 8L14 13.5H18L14 8" stroke="#101014" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="sidebar-wordmark">BikeLog</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#/dashboard" class="nav-btn" data-route="dashboard" title="Dashboard" aria-label="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 11.5 12 4l8 7.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10.5V20h12v-9.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="#/bikes" class="nav-btn" data-route="bikes" title="Bikes" aria-label="Bikes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17L10 8H14M18 17L14 8" stroke-linejoin="round"/></svg>
+        <span class="nav-label">Bikes</span>
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="nav-btn sidebar-toggle" id="sidebar-toggle-btn" title="Expand menu" aria-label="Expand menu">
+        <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15"/><path d="m14 10 2 2-2 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="nav-label">Collapse</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="main-inner">
+
+      <div class="global-topbar">
+        <div class="theme-toggle" role="group" aria-label="Theme">
+          <button type="button" data-theme-btn="light" aria-label="Light theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke-linecap="round"/></svg>
+          </button>
+          <button type="button" data-theme-btn="dark" aria-label="Dark theme">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.4 14.7A8.6 8.6 0 0 1 9.3 3.6 8.6 8.6 0 1 0 20.4 14.7Z"/></svg>
+          </button>
+        </div>
+        <div class="topbar-item">
+          <button class="icon-btn-round" id="notif-btn" title="Notifications" aria-label="Notifications" aria-haspopup="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.4 5.5 1.4 5.5H4.6S6 14 6 10Z" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+            <span class="notif-dot" id="notif-dot"></span>
+          </button>
+          <div class="dropdown-panel" id="notif-panel">
+            <h3 class="notif-panel-head">Notifications</h3>
+            <div id="notif-list"></div>
+            <div class="notif-footer"><a href="#/dashboard">View all on dashboard</a></div>
+          </div>
+        </div>
+        <div class="topbar-item">
+          <button class="avatar" id="user-btn" title="Account" aria-label="Account" aria-haspopup="true">MG</button>
+          <div class="dropdown-panel" id="user-panel">
+            <div class="user-menu-head">
+              <span class="user-menu-avatar">MG</span>
+              <div>
+                <div class="user-menu-name">Miguel Gomes</div>
+                <div class="user-menu-email">miguel.gomes@nexgencloud.com</div>
+              </div>
+            </div>
+            <a class="dropdown-link" href="#/settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" stroke-linecap="round"/></svg>
+              Settings
+            </a>
+            <button class="dropdown-link danger" type="button" onclick="location.hash='#/login'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Log out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= DASHBOARD ================= -->
+      <section class="page" id="page-dashboard">
+        <div class="topbar">
+          <div>
+            <h1>Welcome back, Miguel!</h1>
+            <p class="eyebrow">Dashboard</p>
+          </div>
+          <a class="btn-pill ghost" href="#/bikes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 3.5 20.5 9.5M4 20l.9-4.3a2 2 0 0 1 .55-1.02L15.6 4.5a1.4 1.4 0 0 1 2 0l1.9 1.9a1.4 1.4 0 0 1 0 2L9.32 18.55a2 2 0 0 1-1.02.55L4 20Z" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            Log maintenance
+          </a>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card emphasis">
+            <span class="stat-menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17L10 8H14M18 17L14 8" stroke-linejoin="round"/></svg>
+            </span>
+            <p class="stat-label">Total bikes</p>
+            <div class="stat-value" id="stat-total-bikes">—</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2" stroke-linecap="round"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <p class="stat-label">Components tracked</p>
+            <div class="stat-value" id="stat-components">—</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-menu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>
+            <span class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 4h11l3 3v13H5z" stroke-linejoin="round"/><path d="M9 10h6M9 14h6" stroke-linecap="round"/></svg>
+            </span>
+            <p class="stat-label">Logged this year</p>
+            <div class="stat-value" id="stat-logged">—</div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <h3 class="section-title">Your bikes</h3>
+          <a class="section-link" href="#/bikes">View all</a>
+        </div>
+        <div class="bike-cards" id="dash-bike-cards"></div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <h3 class="panel-title">Needs attention</h3>
+              <a class="panel-link" href="#/bikes">View all</a>
+            </div>
+            <div id="dash-needs-attention"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3 class="panel-title">Recent interventions</h3>
+              <span class="chip-select">This month
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+            <div id="dash-recent"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BIKES LIST ================= -->
+      <section class="page" id="page-bikes">
+        <div class="page-head">
+          <div>
+            <h1>Bikes</h1>
+            <p class="eyebrow" id="bikes-list-count">—</p>
+          </div>
+          <a class="btn-pill solid" href="#/bikes/new">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            Add bike
+          </a>
+        </div>
+        <div class="bike-cards" id="bikes-list-grid"></div>
+      </section>
+
+      <!-- ================= BIKE DETAIL ================= -->
+      <section class="page" id="page-bike-detail">
+        <div class="breadcrumb" id="bike-detail-breadcrumb"></div>
+        <div class="detail-header" id="bike-detail-header"></div>
+        <div class="section-head">
+          <h3 class="section-title">Components</h3>
+          <a class="btn-pill ghost" id="bike-detail-add-component" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            Add component
+          </a>
+        </div>
+        <div class="panel" id="bike-detail-components-panel"></div>
+      </section>
+
+      <!-- ================= COMPONENT DETAIL ================= -->
+      <section class="page" id="page-component-detail">
+        <div class="breadcrumb" id="component-detail-breadcrumb"></div>
+        <div class="detail-header" id="component-detail-header"></div>
+        <div class="section-head">
+          <h3 class="section-title">History</h3>
+          <a class="btn-pill solid" id="component-detail-log-btn" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            Log intervention
+          </a>
+        </div>
+        <div class="panel" id="component-detail-history"></div>
+      </section>
+
+      <!-- ================= ADD / EDIT BIKE FORM ================= -->
+      <section class="page" id="page-bike-form">
+        <div class="breadcrumb" id="bike-form-breadcrumb"></div>
+        <div class="page-head">
+          <div>
+            <h1 id="bike-form-title">Add a bike</h1>
+            <p class="eyebrow" id="bike-form-sub">Tell us about your bike so you can start tracking its components.</p>
+          </div>
+        </div>
+        <div class="form-panel">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Name *</label>
+              <input type="text" id="bike-form-name" placeholder="e.g. Canyon Spectral CF 8">
+            </div>
+            <div class="field">
+              <label>Brand</label>
+              <div class="combobox">
+                <input type="text" id="bike-form-brand" placeholder="Start typing a brand…" autocomplete="off">
+                <div class="combobox-panel" id="bike-form-brand-panel"></div>
+              </div>
+              <span class="combobox-hint">Brand list from <strong>BikeIndex.org</strong></span>
+            </div>
+            <div class="field">
+              <label>Model</label>
+              <input type="text" id="bike-form-model" placeholder="e.g. Spectral CF 8">
+            </div>
+            <div class="field">
+              <label>Year</label>
+              <input type="number" id="bike-form-year" placeholder="2024">
+            </div>
+            <div class="field">
+              <label>Type</label>
+              <select id="bike-form-type">
+                <option>Road</option>
+                <option>Gravel</option>
+                <option>Endurance road</option>
+                <option>Enduro</option>
+                <option>XC</option>
+                <option>Downhill</option>
+                <option>E-MTB</option>
+                <option>Urban / Commuter</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Color</label>
+              <input type="text" id="bike-form-color" placeholder="e.g. Raw Carbon">
+            </div>
+            <div class="field">
+              <label>Serial number</label>
+              <input type="text" id="bike-form-serial" placeholder="Optional">
+            </div>
+            <div class="field full">
+              <label>Notes</label>
+              <textarea id="bike-form-notes" placeholder="Anything worth remembering about this bike"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <a class="btn ghost" id="bike-form-cancel" href="#/bikes">Cancel</a>
+            <button class="btn primary" type="button" id="bike-form-save">Save bike</button>
+          </div>
+          <div class="danger-zone" id="bike-form-danger" style="display:none">
+            <div class="danger-zone-label">Delete this bike</div>
+            <div class="danger-zone-desc">Permanently deletes the bike and all of its components and maintenance history. This can't be undone.</div>
+            <button class="btn danger small" type="button" id="bike-form-delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Delete bike
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ADD / EDIT COMPONENT FORM ================= -->
+      <section class="page" id="page-component-form">
+        <div class="breadcrumb" id="component-form-breadcrumb"></div>
+        <div class="page-head">
+          <div>
+            <h1 id="component-form-title">Add a component</h1>
+            <p class="eyebrow" id="component-form-sub">—</p>
+          </div>
+        </div>
+        <div class="form-panel">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Name *</label>
+              <input type="text" id="component-form-name" list="component-suggestions" placeholder="e.g. Rear shock">
+              <datalist id="component-suggestions">
+                <option value="Suspension fork">
+                <option value="Rear shock">
+                <option value="Drivetrain">
+                <option value="Brakes (front)">
+                <option value="Brakes (rear)">
+                <option value="Chain">
+                <option value="Cassette">
+                <option value="Tires">
+                <option value="Inner tubes">
+                <option value="Wheel bearings">
+                <option value="Cables & housing">
+                <option value="Saddle">
+                <option value="Handlebar">
+                <option value="Bottom bracket">
+              </datalist>
+            </div>
+            <div class="field">
+              <label>Category</label>
+              <select id="component-form-category">
+                <option>Suspension</option>
+                <option>Transmission</option>
+                <option>Brakes</option>
+                <option>Wheels</option>
+                <option>Cockpit</option>
+                <option>Frame</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Brand</label>
+              <div class="combobox">
+                <input type="text" id="component-form-brand" placeholder="Start typing a brand…" autocomplete="off">
+                <div class="combobox-panel" id="component-form-brand-panel"></div>
+              </div>
+              <span class="combobox-hint">Brand list from <strong>BikeIndex.org</strong></span>
+            </div>
+            <div class="field">
+              <label>Model</label>
+              <input type="text" id="component-form-model" placeholder="e.g. Float X2">
+            </div>
+            <div class="field">
+              <label>Serial number</label>
+              <input type="text" id="component-form-serial" placeholder="Optional">
+            </div>
+            <div class="field">
+              <label>Install date</label>
+              <input type="date" id="component-form-install-date">
+            </div>
+            <div class="field full">
+              <label>Service interval</label>
+              <input type="number" id="component-form-interval" placeholder="e.g. 6" style="max-width:140px">
+              <span class="hint">Months between services, used to calculate the next due date.</span>
+            </div>
+            <div class="field full">
+              <label>Notes</label>
+              <textarea id="component-form-notes" placeholder="Optional"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <a class="btn ghost" id="component-form-cancel" href="#">Cancel</a>
+            <button class="btn primary" type="button" id="component-form-save">Save component</button>
+          </div>
+          <div class="danger-zone" id="component-form-danger" style="display:none">
+            <div class="danger-zone-label">Delete this component</div>
+            <div class="danger-zone-desc">Permanently deletes the component and its maintenance history. This can't be undone.</div>
+            <button class="btn danger small" type="button" id="component-form-delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Delete component
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= LOG INTERVENTION FORM ================= -->
+      <section class="page" id="page-intervention-form">
+        <div class="breadcrumb" id="intervention-form-breadcrumb"></div>
+        <div class="page-head">
+          <div>
+            <h1>Log an intervention</h1>
+            <p class="eyebrow" id="intervention-form-sub">—</p>
+          </div>
+        </div>
+        <div class="form-panel">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Type *</label>
+              <div class="segmented" role="radiogroup" aria-label="Intervention type">
+                <label><input type="radio" name="itype" value="service" checked><span>Service</span></label>
+                <label><input type="radio" name="itype" value="repair"><span>Repair</span></label>
+                <label><input type="radio" name="itype" value="replacement"><span>Replacement</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label>Date *</label>
+              <input type="date">
+            </div>
+            <div class="field"></div>
+            <div class="field">
+              <label>Hours of use</label>
+              <input type="number" placeholder="Optional">
+            </div>
+            <div class="field">
+              <label>Kms</label>
+              <input type="number" placeholder="Optional">
+            </div>
+            <div class="field full">
+              <label>Description *</label>
+              <input type="text" placeholder="e.g. Full service, new seals and oil">
+            </div>
+            <div class="field full">
+              <label>Notes</label>
+              <textarea placeholder="Anything else worth remembering"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <a class="btn ghost" id="intervention-form-cancel" href="#">Cancel</a>
+            <button class="btn primary" type="button" id="intervention-form-save">Save entry</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SETTINGS ================= -->
+      <section class="page" id="page-settings">
+        <div class="page-head">
+          <div>
+            <h1>Settings</h1>
+            <p class="eyebrow">Manage your account and preferences.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="settings-section">
+            <h3 class="settings-section-title">Profile</h3>
+            <div class="settings-section-desc">This information is only visible to you.</div>
+            <div class="profile-row">
+              <span class="profile-avatar-lg">MG</span>
+              <div>
+                <div class="profile-name">Miguel Gomes</div>
+                <div class="profile-email">miguel.gomes@nexgencloud.com</div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Full name</label>
+                <input type="text" value="Miguel Gomes">
+              </div>
+              <div class="field">
+                <label>Email</label>
+                <input type="email" value="miguel.gomes@nexgencloud.com" disabled>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" type="button">Save changes</button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section-title">Email notifications</h3>
+            <div class="settings-section-desc">Choose when BikeLog should email you about upcoming maintenance.</div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row-label">Service due soon</div>
+                <div class="settings-row-sub">Get an email when a component enters its "due soon" window.</div>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row-label">Service overdue</div>
+                <div class="settings-row-sub">Get an email as soon as a component becomes overdue.</div>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-row-label">Weekly summary</div>
+                <div class="settings-row-sub">A weekly digest of your fleet's maintenance status.</div>
+              </div>
+              <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section-title">Preferences</h3>
+            <div class="settings-section-desc">Units and appearance.</div>
+            <div class="form-grid">
+              <div class="field">
+                <label>Distance unit</label>
+                <select>
+                  <option>Kilometers (km)</option>
+                  <option>Miles (mi)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Theme</label>
+                <select>
+                  <option>System</option>
+                  <option>Light</option>
+                  <option>Dark</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section-title">Connected accounts</h3>
+            <div class="settings-section-desc">Sign-in methods linked to your account.</div>
+            <div class="account-chip">
+              <span class="account-chip-icon">
+                <svg viewBox="0 0 20 20" width="16" height="16"><path fill="#4285F4" d="M19.6 10.23c0-.68-.06-1.36-.18-2H10v3.79h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.9-1.75 2.99-4.32 2.99-7.31z"/><path fill="#34A853" d="M10 20c2.7 0 4.96-.9 6.61-2.44l-3.23-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H1.06v2.59A10 10 0 0 0 10 20z"/><path fill="#FBBC05" d="M4.41 11.9A6 6 0 0 1 4.09 10c0-.66.11-1.3.32-1.9V5.51H1.06A10 10 0 0 0 0 10c0 1.61.39 3.14 1.06 4.49l3.35-2.59z"/><path fill="#EA4335" d="M10 3.98c1.47 0 2.79.5 3.82 1.49l2.87-2.87C14.95.99 12.7 0 10 0 6.09 0 2.7 2.24 1.06 5.51l3.35 2.59C5.2 5.74 7.4 3.98 10 3.98z"/></svg>
+              </span>
+              <span class="account-chip-name">Google</span>
+              <span class="badge-connected">Connected</span>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3 class="settings-section-title">Danger zone</h3>
+            <div class="settings-section-desc">Permanently delete your account and all logged maintenance data.</div>
+            <button class="btn ghost" type="button" style="color:var(--danger); border-color:var(--danger-tint);">Delete account</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= AUTH ================= -->
+<div class="auth-shell" id="auth-shell">
+  <div class="auth-card page" id="page-login">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="17" r="3.2" stroke="#101014" stroke-width="1.7"/>
+        <circle cx="18" cy="17" r="3.2" stroke="#101014" stroke-width="1.7"/>
+        <path d="M6 17L10 8H14M18 17L14 8M10 8L14 13.5H18L14 8" stroke="#101014" stroke-width="1.7" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="auth-head">
+      <h1>Welcome back</h1>
+      <p>Sign in to keep your bikes on schedule.</p>
+    </div>
+    <button class="btn-google" type="button" onclick="location.hash='#/dashboard'">
+      <svg viewBox="0 0 20 20" width="16" height="16"><path fill="#4285F4" d="M19.6 10.23c0-.68-.06-1.36-.18-2H10v3.79h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.9-1.75 2.99-4.32 2.99-7.31z"/><path fill="#34A853" d="M10 20c2.7 0 4.96-.9 6.61-2.44l-3.23-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H1.06v2.59A10 10 0 0 0 10 20z"/><path fill="#FBBC05" d="M4.41 11.9A6 6 0 0 1 4.09 10c0-.66.11-1.3.32-1.9V5.51H1.06A10 10 0 0 0 0 10c0 1.61.39 3.14 1.06 4.49l3.35-2.59z"/><path fill="#EA4335" d="M10 3.98c1.47 0 2.79.5 3.82 1.49l2.87-2.87C14.95.99 12.7 0 10 0 6.09 0 2.7 2.24 1.06 5.51l3.35 2.59C5.2 5.74 7.4 3.98 10 3.98z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-divider">or</div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" placeholder="••••••••">
+    </div>
+    <div class="auth-row-between">
+      <span></span>
+      <a href="#">Forgot password?</a>
+    </div>
+    <button class="btn primary" style="width:100%; justify-content:center" type="button" onclick="location.hash='#/dashboard'">Sign in</button>
+    <p class="auth-switch">New to BikeLog? <a href="#/signup">Create an account</a></p>
+  </div>
+
+  <div class="auth-card page" id="page-signup">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="17" r="3.2" stroke="#101014" stroke-width="1.7"/>
+        <circle cx="18" cy="17" r="3.2" stroke="#101014" stroke-width="1.7"/>
+        <path d="M6 17L10 8H14M18 17L14 8M10 8L14 13.5H18L14 8" stroke="#101014" stroke-width="1.7" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="auth-head">
+      <h1>Create your account</h1>
+      <p>Start logging your bikes' maintenance in minutes.</p>
+    </div>
+    <button class="btn-google" type="button" onclick="location.hash='#/dashboard'">
+      <svg viewBox="0 0 20 20" width="16" height="16"><path fill="#4285F4" d="M19.6 10.23c0-.68-.06-1.36-.18-2H10v3.79h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.9-1.75 2.99-4.32 2.99-7.31z"/><path fill="#34A853" d="M10 20c2.7 0 4.96-.9 6.61-2.44l-3.23-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H1.06v2.59A10 10 0 0 0 10 20z"/><path fill="#FBBC05" d="M4.41 11.9A6 6 0 0 1 4.09 10c0-.66.11-1.3.32-1.9V5.51H1.06A10 10 0 0 0 0 10c0 1.61.39 3.14 1.06 4.49l3.35-2.59z"/><path fill="#EA4335" d="M10 3.98c1.47 0 2.79.5 3.82 1.49l2.87-2.87C14.95.99 12.7 0 10 0 6.09 0 2.7 2.24 1.06 5.51l3.35 2.59C5.2 5.74 7.4 3.98 10 3.98z"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-divider">or</div>
+    <div class="auth-field">
+      <label>Name</label>
+      <input type="text" placeholder="Miguel Gomes">
+    </div>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" placeholder="you@example.com">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" placeholder="At least 8 characters">
+    </div>
+    <div class="auth-field">
+      <label>Confirm password</label>
+      <input type="password" placeholder="••••••••">
+    </div>
+    <button class="btn primary" style="width:100%; justify-content:center; margin-top:4px" type="button" onclick="location.hash='#/dashboard'">Create account</button>
+    <p class="auth-switch">Already have an account? <a href="#/login">Sign in</a></p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-card">
+    <h3 id="modal-title">Delete item?</h3>
+    <p id="modal-desc">This can't be undone.</p>
+    <div class="modal-actions">
+      <button class="btn ghost" type="button" id="modal-cancel">Cancel</button>
+      <button class="btn danger" type="button" id="modal-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<details class="proto-nav">
+  <summary>
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+    Preview pages
+  </summary>
+  <div class="proto-nav-list">
+    <a href="#/dashboard">Dashboard</a>
+    <a href="#/bikes">Bikes (list)</a>
+    <a href="#/bikes/new">Add bike</a>
+    <a href="#/bikes/canyon">Bike detail</a>
+    <a href="#/bikes/canyon/edit">Edit bike</a>
+    <a href="#/bikes/canyon/components/rear-shock">Component detail</a>
+    <a href="#/bikes/canyon/components/new">Add component</a>
+    <a href="#/bikes/canyon/components/rear-shock/edit">Edit component</a>
+    <a href="#/bikes/canyon/components/rear-shock/interventions/new">Log intervention</a>
+    <a href="#/login">Login</a>
+    <a href="#/signup">Sign up</a>
+  </div>
+</details>
+
+<script>
+  /* ---------- Theme ---------- */
+  const root = document.documentElement;
+  const themeButtons = document.querySelectorAll('[data-theme-btn]');
+  function applyTheme(mode) {
+    root.setAttribute('data-theme', mode);
+    themeButtons.forEach(b => b.classList.toggle('active', b.dataset.themeBtn === mode));
+  }
+  applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  themeButtons.forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.themeBtn)));
+
+  /* ---------- Sidebar expand / collapse ---------- */
+  const sidebarEl = document.getElementById('app-sidebar');
+  const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+  const sidebarToggleLabel = sidebarToggleBtn.querySelector('.nav-label');
+  function setSidebarExpanded(expanded) {
+    sidebarEl.classList.toggle('expanded', expanded);
+    const title = expanded ? 'Collapse menu' : 'Expand menu';
+    sidebarToggleBtn.title = title;
+    sidebarToggleBtn.setAttribute('aria-label', title);
+    sidebarToggleLabel.textContent = expanded ? 'Collapse' : 'Expand';
+    try { localStorage.setItem('bikelog_sidebar_expanded', expanded ? '1' : '0'); } catch (e) {}
+  }
+  sidebarToggleBtn.addEventListener('click', () => setSidebarExpanded(!sidebarEl.classList.contains('expanded')));
+  let savedExpanded = '0';
+  try { savedExpanded = localStorage.getItem('bikelog_sidebar_expanded') || '0'; } catch (e) {}
+  setSidebarExpanded(savedExpanded === '1');
+
+  /* ---------- Icons ---------- */
+  const BIKE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17L10 8H14M18 17L14 8" stroke-linejoin="round"/></svg>';
+  const COMPONENT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2" stroke-linecap="round"/><circle cx="12" cy="12" r="3"/></svg>';
+  const ICON_WARNING = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4 3 20h18L12 4Z" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke-linecap="round"/></svg>';
+  const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5l3 2" stroke-linecap="round"/></svg>';
+  const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>';
+  const ICON_CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON_EMPTY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M4 12h16M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
+  const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 20h9" stroke-linecap="round"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke-linejoin="round"/></svg>';
+  const STATUS_ICON = { overdue: ICON_WARNING, soon: ICON_CLOCK };
+
+  /* ---------- Brand data (mirrors GET bikeindex.org/api/v3/manufacturers) ---------- */
+  const BIKE_INDEX_BRANDS = [
+    'Cannondale', 'Canyon', 'Trek', 'Specialized', 'Giant', 'Cervélo', 'Scott', 'Cube', 'Merida', 'Orbea',
+    'Pinarello', 'Bianchi', 'BMC', 'Focus', 'Ghost', 'Kona', 'Marin', 'Norco', 'Rocky Mountain', 'Yeti',
+    'Ibis', 'Pivot', 'Transition', 'Commencal', 'YT Industries', 'Nukeproof', 'Vitus', 'Ridley', 'Colnago',
+    'De Rosa', 'Wilier', 'Lapierre', 'Look', 'Time', 'Fuji', 'GT', 'Mongoose', 'Diamondback', 'Felt',
+    'Raleigh', 'Surly', 'Salsa', 'All-City', 'Genesis', 'Whyte', 'Boardman', 'Santa Cruz',
+    'Fox', 'RockShox', 'SRAM', 'Shimano', 'Bontrager', 'DT Swiss', 'Mavic', 'Zipp', 'Chris King', 'Hope',
+    'Hunt', 'Reynolds', 'Ritchey', 'Thomson', 'ENVE', 'Race Face', 'FSA', 'Praxis Works'
+  ];
+
+  /* ---------- Data ---------- */
+  const TODAY = new Date('2026-07-22T00:00:00');
+
+  const DB = {
+    bikes: [
+      {
+        id: 'canyon', name: 'Canyon Spectral CF 8', type: 'Enduro', brand: 'Canyon', model: 'Spectral CF 8',
+        year: 2023, color: 'Raw Carbon', serial: 'CY23-88213', km: 1842, notes: 'Main trail bike, tubeless setup.',
+        iconBg: 'var(--lime)', iconInk: 'var(--lime-ink)',
+        components: [
+          { id: 'rear-shock', name: 'Rear shock', category: 'Suspension', brand: 'Fox', model: 'Float X2', serial: 'FX22-0091133', installDate: '2023-04-10', intervalMonths: 6,
+            interventions: [
+              { type: 'service', date: '2026-01-10', hours: 38, km: 610, desc: 'Full service, new seals and oil', notes: 'Slight oil residue on stanchion noticed before service.' },
+              { type: 'replacement', date: '2023-04-10', hours: 0, km: 0, desc: 'Installed new rear shock', notes: 'Upgraded from stock unit.' }
+            ] },
+          { id: 'drivetrain', name: 'Drivetrain', category: 'Transmission', brand: 'SRAM', model: 'GX Eagle', serial: 'SR23-GX88214', installDate: '2023-04-10', intervalMonths: 4,
+            interventions: [
+              { type: 'service', date: '2026-06-01', hours: 22, km: 390, desc: 'Cleaned and lubricated, adjusted derailleur', notes: '' }
+            ] },
+          { id: 'brakes-front', name: 'Front brake', category: 'Brakes', brand: 'SRAM', model: 'Code RSC', serial: 'SR23-CD40217', installDate: '2023-04-10', intervalMonths: 8,
+            interventions: [
+              { type: 'repair', date: '2026-02-01', hours: 0, km: 1200, desc: 'Bled brake, replaced pads', notes: 'Pads worn unevenly.' }
+            ] },
+          { id: 'fork', name: 'Fork', category: 'Suspension', brand: 'Fox', model: '36 Factory', serial: 'FX22-3609921', installDate: '2023-04-10', intervalMonths: 12,
+            interventions: [
+              { type: 'service', date: '2026-01-15', hours: 96, km: 0, desc: 'Lower leg service', notes: '' }
+            ] }
+        ]
+      },
+      {
+        id: 'trek', name: 'Trek Domane SL 6', type: 'Endurance road', brand: 'Trek', model: 'Domane SL 6',
+        year: 2022, color: 'Matte Black', serial: 'TR22-40456', km: 3015, notes: 'Road bike for long rides.',
+        iconBg: 'var(--indigo)', iconInk: '#fff',
+        components: [
+          { id: 'chain', name: 'Chain', category: 'Transmission', brand: 'Shimano', model: 'Ultegra', serial: null, installDate: '2024-01-05', intervalMonths: 8,
+            interventions: [
+              { type: 'replacement', date: '2025-11-27', hours: 0, km: 1842, desc: 'Replaced worn chain', notes: 'Chain wear at 0.75%.' }
+            ] },
+          { id: 'brakes-rear', name: 'Rear brake', category: 'Brakes', brand: 'Shimano', model: 'Ultegra hydraulic', serial: 'SH24-UL77302', installDate: '2022-05-01', intervalMonths: 10,
+            interventions: [
+              { type: 'service', date: '2026-03-01', hours: 0, km: 2100, desc: 'Bled brake line', notes: '' }
+            ] },
+          { id: 'wheels', name: 'Wheelset', category: 'Wheels', brand: 'Bontrager', model: 'Aeolus Comp 5', serial: 'BT22-AC50519', installDate: '2022-05-01', intervalMonths: 12,
+            interventions: [
+              { type: 'service', date: '2026-02-01', hours: 0, km: 1400, desc: 'Trued wheels, repacked hubs', notes: '' }
+            ] }
+        ]
+      },
+      {
+        id: 'specialized', name: 'Specialized Turbo Levo', type: 'E-MTB', brand: 'Specialized', model: 'Turbo Levo Comp',
+        year: 2024, color: 'Blue Tint', serial: 'SP24-77120', km: 412, notes: 'E-MTB — motor and battery tracked separately under warranty.',
+        iconBg: '#3B3D42', iconInk: '#fff',
+        components: [
+          { id: 'brakes-both', name: 'Brakes (front & rear)', category: 'Brakes', brand: 'SRAM', model: 'Code RE', serial: 'SR24-CDRE1187', installDate: '2024-03-01', intervalMonths: 6,
+            interventions: [
+              { type: 'service', date: '2026-02-09', hours: 0, km: 412, desc: 'Bled both brakes', notes: 'Spongy lever feel resolved.' }
+            ] },
+          { id: 'suspension', name: 'Suspension (front & rear)', category: 'Suspension', brand: 'RockShox', model: 'ZEB / Super Deluxe', serial: 'RS24-ZEB40092', installDate: '2024-03-01', intervalMonths: 12,
+            interventions: [
+              { type: 'service', date: '2026-01-05', hours: 0, km: 0, desc: 'Suspension setup and sag check', notes: '' }
+            ] },
+          { id: 'drivetrain-2', name: 'Drivetrain', category: 'Transmission', brand: 'SRAM', model: 'GX Eagle T-Type', serial: 'SR24-GXTT2205', installDate: '2024-03-01', intervalMonths: 4,
+            interventions: [
+              { type: 'service', date: '2026-06-15', hours: 0, km: 380, desc: 'Cleaned and lubricated', notes: '' }
+            ] },
+          { id: 'tires', name: 'Tires', category: 'Wheels', brand: 'Specialized', model: 'Butcher / Eliminator', serial: null, installDate: '2024-03-01', intervalMonths: 8,
+            interventions: [
+              { type: 'replacement', date: '2026-01-20', hours: 0, km: 200, desc: 'New tire set fitted', notes: '' }
+            ] }
+        ]
+      }
+    ]
+  };
+
+  /* ---------- Helpers ---------- */
+  function addMonths(dateStr, months) { const d = new Date(dateStr + 'T00:00:00'); d.setMonth(d.getMonth() + months); return d; }
+  function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+  function fmtKm(n) { return n.toLocaleString('en-US') + ' km'; }
+  function fmtDate(d) { return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function fmtDateShort(dateStr) { return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function relativeTime(dateStr) {
+    const days = daysBetween(new Date(dateStr + 'T00:00:00'), TODAY);
+    if (days <= 0) return 'today';
+    if (days === 1) return '1 day ago';
+    if (days < 14) return days + ' days ago';
+    if (days < 60) return Math.round(days / 7) + ' weeks ago';
+    return Math.round(days / 30) + ' months ago';
+  }
+
+  function componentStatus(comp) {
+    if (!comp.intervalMonths) return { status: 'none', due: null, delta: null };
+    const latest = comp.interventions[0];
+    const baseDate = latest ? latest.date : comp.installDate;
+    const due = addMonths(baseDate, comp.intervalMonths);
+    const delta = daysBetween(TODAY, due);
+    const status = delta <= 0 ? 'overdue' : delta <= 14 ? 'soon' : 'ok';
+    return { status, due, delta };
+  }
+  function bikeStatus(bike) {
+    const statuses = bike.components.map(c => componentStatus(c).status);
+    if (statuses.includes('overdue')) return 'overdue';
+    if (statuses.includes('soon')) return 'soon';
+    if (statuses.includes('ok')) return 'ok';
+    return 'none';
+  }
+  function dueText(cs) {
+    if (cs.status === 'none') return 'No interval set';
+    if (cs.status === 'overdue') return `Overdue ${Math.abs(cs.delta)}d`;
+    if (cs.status === 'soon') return `Due in ${cs.delta}d`;
+    return `Due ${fmtDate(cs.due)}`;
+  }
+  function pillHTML(status, textOverride) {
+    const label = textOverride || ({ overdue: 'Overdue', soon: 'Due soon', ok: 'On schedule', none: 'Not set' })[status];
+    return `<span class="pill ${status}">${label}</span>`;
+  }
+
+  /* ---------- Renderers ---------- */
+  function bikeCardHTML(bike) {
+    const st = bikeStatus(bike);
+    return `
+      <div class="bike-preview-card" onclick="location.hash='#/bikes/${bike.id}'">
+        <div class="bike-preview-top">
+          <span class="bike-preview-icon" style="background:${bike.iconBg};color:${bike.iconInk}">${BIKE_ICON}</span>
+          ${pillHTML(st)}
+        </div>
+        <div class="bike-preview-name">${bike.name}</div>
+        <div class="bike-preview-type">${bike.type}</div>
+        <div class="bike-preview-meta">
+          <span class="bike-preview-km">${fmtKm(bike.km)}</span>
+          <span class="click-chevron">${ICON_CHEVRON}</span>
+        </div>
+      </div>`;
+  }
+
+  function getAttentionItems() {
+    let attn = [];
+    DB.bikes.forEach(bike => bike.components.forEach(comp => {
+      const cs = componentStatus(comp);
+      if (cs.status === 'overdue' || cs.status === 'soon') attn.push({ bike, comp, cs });
+    }));
+    attn.sort((a, b) => a.cs.status !== b.cs.status ? (a.cs.status === 'overdue' ? -1 : 1) : a.cs.delta - b.cs.delta);
+    return attn;
+  }
+
+  function renderNotifDropdown() {
+    const items = getAttentionItems();
+    const dot = document.getElementById('notif-dot');
+    dot.style.display = items.length ? 'block' : 'none';
+    const list = document.getElementById('notif-list');
+    list.innerHTML = items.length ? items.slice(0, 4).map(({ bike, comp, cs }) => `
+      <a class="list-row click-row" href="#/bikes/${bike.id}/components/${comp.id}">
+        <span class="row-icon">${STATUS_ICON[cs.status]}</span>
+        <div class="row-body">
+          <div class="row-title">${comp.name}</div>
+          <div class="row-sub">${bike.name}</div>
+        </div>
+        <div class="row-right">${pillHTML(cs.status, dueText(cs))}</div>
+      </a>`).join('') : `<div class="notif-empty">You're all caught up.</div>`;
+  }
+
+  function renderDashboard() {
+    document.getElementById('stat-total-bikes').textContent = DB.bikes.length;
+    document.getElementById('stat-components').textContent = DB.bikes.reduce((n, b) => n + b.components.length, 0);
+    const loggedThisYear = DB.bikes.flatMap(b => b.components.flatMap(c => c.interventions))
+      .filter(i => new Date(i.date + 'T00:00:00').getFullYear() === TODAY.getFullYear()).length;
+    document.getElementById('stat-logged').textContent = loggedThisYear;
+
+    document.getElementById('dash-bike-cards').innerHTML = DB.bikes.map(bikeCardHTML).join('');
+
+    const attn = getAttentionItems();
+    document.getElementById('dash-needs-attention').innerHTML = attn.length ? attn.map(({ bike, comp, cs }) => `
+      <a class="list-row click-row" href="#/bikes/${bike.id}/components/${comp.id}">
+        <span class="row-icon">${STATUS_ICON[cs.status]}</span>
+        <div class="row-body">
+          <div class="row-title">${comp.name}</div>
+          <div class="row-sub">${bike.name}</div>
+        </div>
+        <div class="row-right">${pillHTML(cs.status, dueText(cs))}</div>
+      </a>`).join('') : `<div class="empty-state"><p>Nothing needs attention right now.</p></div>`;
+
+    let all = [];
+    DB.bikes.forEach(bike => bike.components.forEach(comp => comp.interventions.forEach(iv => all.push({ bike, comp, iv }))));
+    all.sort((a, b) => new Date(b.iv.date) - new Date(a.iv.date));
+    document.getElementById('dash-recent').innerHTML = all.slice(0, 3).map(({ bike, comp, iv }) => `
+      <a class="list-row click-row" href="#/bikes/${bike.id}/components/${comp.id}">
+        <span class="row-icon">${COMPONENT_ICON}</span>
+        <div class="row-body">
+          <div class="row-title">${capitalize(iv.type)} — ${comp.name}</div>
+          <div class="row-sub">${bike.name} · ${relativeTime(iv.date)}</div>
+        </div>
+        <div class="row-right"><div class="row-value">${iv.km ? fmtKm(iv.km) : (iv.hours ? iv.hours + ' h' : '')}</div></div>
+      </a>`).join('');
+  }
+
+  function renderBikesList() {
+    document.getElementById('bikes-list-count').textContent = `${DB.bikes.length} ${DB.bikes.length === 1 ? 'bike' : 'bikes'} in your fleet`;
+    document.getElementById('bikes-list-grid').innerHTML = DB.bikes.map(bikeCardHTML).join('');
+  }
+
+  function renderBikeDetail(bikeId) {
+    const bike = DB.bikes.find(b => b.id === bikeId);
+    if (!bike) { location.hash = '#/bikes'; return; }
+    const st = bikeStatus(bike);
+    document.getElementById('bike-detail-breadcrumb').innerHTML =
+      `<a href="#/bikes">Bikes</a><span class="sep">/</span><span class="current">${bike.name}</span>`;
+    document.getElementById('bike-detail-header').innerHTML = `
+      <span class="detail-icon" style="background:${bike.iconBg};color:${bike.iconInk}">${BIKE_ICON}</span>
+      <div class="detail-title-group">
+        <h2>${bike.name}</h2>
+        <div class="detail-sub">${bike.type} · ${bike.brand} ${bike.model} · ${bike.year} · ${bike.color}</div>
+      </div>
+      <div class="detail-stats">
+        <div><div class="detail-stat-label">Odometer</div><div class="detail-stat-value">${fmtKm(bike.km)}</div></div>
+        <div><div class="detail-stat-label">Components</div><div class="detail-stat-value">${bike.components.length}</div></div>
+        <div><div class="detail-stat-label">Serial</div><div class="detail-stat-value">${bike.serial || '—'}</div></div>
+        <div><div class="detail-stat-label">Status</div>${pillHTML(st)}</div>
+      </div>
+      <div class="detail-actions">
+        <a class="btn ghost small" href="#/bikes/${bike.id}/edit">${ICON_EDIT} Edit</a>
+      </div>`;
+    document.getElementById('bike-detail-add-component').href = `#/bikes/${bike.id}/components/new`;
+    document.getElementById('bike-detail-components-panel').innerHTML = bike.components.map(comp => {
+      const cs = componentStatus(comp);
+      return `
+      <div class="click-row" onclick="location.hash='#/bikes/${bike.id}/components/${comp.id}'">
+        <span class="row-icon">${COMPONENT_ICON}</span>
+        <div class="row-body">
+          <div class="row-title">${comp.name}</div>
+          <div class="row-sub">${comp.category} · every ${comp.intervalMonths} mo · ${comp.brand} ${comp.model}</div>
+        </div>
+        <div class="row-right">${pillHTML(cs.status, dueText(cs))}</div>
+        <button class="row-quick-log" title="Log intervention" aria-label="Log intervention for ${comp.name}"
+          onclick="event.stopPropagation(); location.hash='#/bikes/${bike.id}/components/${comp.id}/interventions/new'">${ICON_PLUS}</button>
+      </div>`;
+    }).join('');
+  }
+
+  function renderComponentDetail(bikeId, componentId) {
+    const bike = DB.bikes.find(b => b.id === bikeId);
+    if (!bike) { location.hash = '#/bikes'; return; }
+    const comp = bike.components.find(c => c.id === componentId);
+    if (!comp) { location.hash = `#/bikes/${bikeId}`; return; }
+    const cs = componentStatus(comp);
+    document.getElementById('component-detail-breadcrumb').innerHTML =
+      `<a href="#/bikes">Bikes</a><span class="sep">/</span><a href="#/bikes/${bike.id}">${bike.name}</a><span class="sep">/</span><span class="current">${comp.name}</span>`;
+    document.getElementById('component-detail-header').innerHTML = `
+      <span class="detail-icon" style="background:var(--surface-2);color:var(--ink-soft)">${COMPONENT_ICON}</span>
+      <div class="detail-title-group">
+        <h2>${comp.name}</h2>
+        <div class="detail-sub">${comp.category} · ${comp.brand} ${comp.model} · installed ${fmtDate(new Date(comp.installDate + 'T00:00:00'))}</div>
+      </div>
+      <div class="detail-stats">
+        <div><div class="detail-stat-label">Interval</div><div class="detail-stat-value">Every ${comp.intervalMonths} mo</div></div>
+        <div><div class="detail-stat-label">Serial</div><div class="detail-stat-value">${comp.serial || '—'}</div></div>
+        <div><div class="detail-stat-label">Status</div>${pillHTML(cs.status, dueText(cs))}</div>
+      </div>
+      <div class="detail-actions">
+        <a class="btn ghost small" href="#/bikes/${bike.id}/components/${comp.id}/edit">${ICON_EDIT} Edit</a>
+      </div>`;
+    document.getElementById('component-detail-log-btn').href = `#/bikes/${bike.id}/components/${comp.id}/interventions/new`;
+    const historyEl = document.getElementById('component-detail-history');
+    if (!comp.interventions.length) {
+      historyEl.innerHTML = `<div class="empty-state">${ICON_EMPTY}<p>No interventions logged yet for this component.</p>
+        <a class="btn primary" href="#/bikes/${bike.id}/components/${comp.id}/interventions/new">${ICON_PLUS} Log first intervention</a></div>`;
+    } else {
+      historyEl.innerHTML = comp.interventions.map(iv => `
+        <div class="intervention-row">
+          <div class="intervention-date">${fmtDateShort(iv.date)}</div>
+          <div class="intervention-body">
+            <div class="intervention-top"><span class="type-badge ${iv.type}">${capitalize(iv.type)}</span></div>
+            <div class="intervention-desc">${iv.desc}</div>
+            <div class="intervention-meta">
+              ${iv.km ? `<span>${fmtKm(iv.km)}</span>` : ''}
+              ${iv.hours ? `<span>${iv.hours} h</span>` : ''}
+            </div>
+            ${iv.notes ? `<div class="intervention-notes">${iv.notes}</div>` : ''}
+          </div>
+        </div>`).join('');
+    }
+  }
+
+  function renderInterventionForm(bikeId, componentId) {
+    const bike = DB.bikes.find(b => b.id === bikeId);
+    if (!bike) { location.hash = '#/bikes'; return; }
+    const comp = bike.components.find(c => c.id === componentId);
+    if (!comp) { location.hash = `#/bikes/${bikeId}`; return; }
+    document.getElementById('intervention-form-breadcrumb').innerHTML =
+      `<a href="#/bikes">Bikes</a><span class="sep">/</span><a href="#/bikes/${bike.id}">${bike.name}</a><span class="sep">/</span><a href="#/bikes/${bike.id}/components/${comp.id}">${comp.name}</a><span class="sep">/</span><span class="current">Log intervention</span>`;
+    document.getElementById('intervention-form-sub').textContent = `Log a service, repair or replacement for ${comp.name}.`;
+    document.getElementById('intervention-form-cancel').href = `#/bikes/${bike.id}/components/${comp.id}`;
+    document.getElementById('intervention-form-save').onclick = () => { location.hash = `#/bikes/${bike.id}/components/${comp.id}`; };
+  }
+
+  /* ---------- Form helpers ---------- */
+  function setVal(id, value) { const el = document.getElementById(id); if (el) el.value = value == null ? '' : value; }
+  function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  function slugify(str) { return (str || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'item'; }
+  function uniqueSlug(base, existingIds) {
+    const slug = slugify(base);
+    let candidate = slug, n = 2;
+    while (existingIds.includes(candidate)) { candidate = `${slug}-${n}`; n++; }
+    return candidate;
+  }
+  function todayISO() {
+    const y = TODAY.getFullYear(), m = String(TODAY.getMonth() + 1).padStart(2, '0'), d = String(TODAY.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const BIKE_ICON_PALETTE = [
+    { bg: 'var(--lime)', ink: 'var(--lime-ink)' },
+    { bg: 'var(--indigo)', ink: '#fff' },
+    { bg: '#3B3D42', ink: '#fff' }
+  ];
+
+  /* ---------- Modal ---------- */
+  function openModal(title, desc, onConfirm) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-desc').textContent = desc;
+    const oldBtn = document.getElementById('modal-confirm');
+    const newBtn = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+    newBtn.addEventListener('click', () => { closeModal(); onConfirm(); });
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+  /* ---------- Brand combobox (BikeIndex) ---------- */
+  function initCombobox(inputId, panelId) {
+    const input = document.getElementById(inputId);
+    const panel = document.getElementById(panelId);
+    function renderOptions() {
+      const q = input.value.trim().toLowerCase();
+      const matches = (q ? BIKE_INDEX_BRANDS.filter(b => b.toLowerCase().includes(q)) : BIKE_INDEX_BRANDS).slice(0, 8);
+      panel.innerHTML = matches.length
+        ? matches.map(b => `<div class="combobox-option" data-brand="${b}">${b}</div>`).join('')
+        : `<div class="combobox-empty">No match in BikeIndex — you can still save it as typed.</div>`;
+      panel.querySelectorAll('.combobox-option').forEach(opt => {
+        opt.addEventListener('mousedown', e => {
+          e.preventDefault();
+          input.value = opt.dataset.brand;
+          panel.classList.remove('open');
+        });
+      });
+    }
+    input.addEventListener('focus', () => { renderOptions(); panel.classList.add('open'); });
+    input.addEventListener('input', () => { renderOptions(); panel.classList.add('open'); });
+    input.addEventListener('blur', () => { setTimeout(() => panel.classList.remove('open'), 120); });
+  }
+
+  /* ---------- Bike form (add / edit) ---------- */
+  function renderBikeForm(mode, bikeId) {
+    const isEdit = mode === 'edit';
+    const bike = isEdit ? DB.bikes.find(b => b.id === bikeId) : null;
+    if (isEdit && !bike) { location.hash = '#/bikes'; return; }
+
+    document.getElementById('bike-form-breadcrumb').innerHTML = isEdit
+      ? `<a href="#/bikes">Bikes</a><span class="sep">/</span><a href="#/bikes/${bike.id}">${bike.name}</a><span class="sep">/</span><span class="current">Edit</span>`
+      : `<a href="#/bikes">Bikes</a><span class="sep">/</span><span class="current">Add bike</span>`;
+    document.getElementById('bike-form-title').textContent = isEdit ? 'Edit bike' : 'Add a bike';
+    document.getElementById('bike-form-sub').textContent = isEdit
+      ? `Update details for ${bike.name}.`
+      : 'Tell us about your bike so you can start tracking its components.';
+
+    setVal('bike-form-name', isEdit ? bike.name : '');
+    setVal('bike-form-brand', isEdit ? bike.brand : '');
+    setVal('bike-form-model', isEdit ? bike.model : '');
+    setVal('bike-form-year', isEdit ? bike.year : '');
+    setVal('bike-form-type', isEdit ? bike.type : 'Enduro');
+    setVal('bike-form-color', isEdit ? bike.color : '');
+    setVal('bike-form-serial', isEdit ? bike.serial : '');
+    setVal('bike-form-notes', isEdit ? bike.notes : '');
+
+    document.getElementById('bike-form-cancel').href = isEdit ? `#/bikes/${bike.id}` : '#/bikes';
+    document.getElementById('bike-form-danger').style.display = isEdit ? 'block' : 'none';
+
+    document.getElementById('bike-form-save').onclick = () => {
+      const name = getVal('bike-form-name');
+      if (!name) { document.getElementById('bike-form-name').focus(); return; }
+      if (isEdit) {
+        Object.assign(bike, {
+          name, brand: getVal('bike-form-brand'), model: getVal('bike-form-model'),
+          year: Number(getVal('bike-form-year')) || bike.year, type: getVal('bike-form-type'),
+          color: getVal('bike-form-color'), serial: getVal('bike-form-serial'), notes: getVal('bike-form-notes')
+        });
+        location.hash = `#/bikes/${bike.id}`;
+      } else {
+        const id = uniqueSlug(name, DB.bikes.map(b => b.id));
+        const colors = BIKE_ICON_PALETTE[DB.bikes.length % BIKE_ICON_PALETTE.length];
+        DB.bikes.push({
+          id, name, brand: getVal('bike-form-brand'), model: getVal('bike-form-model'),
+          year: Number(getVal('bike-form-year')) || TODAY.getFullYear(), type: getVal('bike-form-type'),
+          color: getVal('bike-form-color'), serial: getVal('bike-form-serial'), km: 0,
+          notes: getVal('bike-form-notes'), iconBg: colors.bg, iconInk: colors.ink, components: []
+        });
+        location.hash = `#/bikes/${id}`;
+      }
+    };
+
+    document.getElementById('bike-form-delete').onclick = () => {
+      if (!isEdit) return;
+      openModal(
+        'Delete this bike?',
+        `This permanently deletes "${bike.name}" and all ${bike.components.length} of its components and their maintenance history.`,
+        () => { DB.bikes = DB.bikes.filter(b => b.id !== bike.id); location.hash = '#/bikes'; }
+      );
+    };
+  }
+
+  /* ---------- Component form (add / edit) ---------- */
+  function renderComponentForm(mode, bikeId, componentId) {
+    const isEdit = mode === 'edit';
+    const bike = DB.bikes.find(b => b.id === bikeId);
+    if (!bike) { location.hash = '#/bikes'; return; }
+    const comp = isEdit ? bike.components.find(c => c.id === componentId) : null;
+    if (isEdit && !comp) { location.hash = `#/bikes/${bike.id}`; return; }
+
+    document.getElementById('component-form-breadcrumb').innerHTML = isEdit
+      ? `<a href="#/bikes">Bikes</a><span class="sep">/</span><a href="#/bikes/${bike.id}">${bike.name}</a><span class="sep">/</span><a href="#/bikes/${bike.id}/components/${comp.id}">${comp.name}</a><span class="sep">/</span><span class="current">Edit</span>`
+      : `<a href="#/bikes">Bikes</a><span class="sep">/</span><a href="#/bikes/${bike.id}">${bike.name}</a><span class="sep">/</span><span class="current">Add component</span>`;
+    document.getElementById('component-form-title').textContent = isEdit ? 'Edit component' : 'Add a component';
+    document.getElementById('component-form-sub').textContent = isEdit
+      ? `Update details for ${comp.name}.`
+      : `Add a new component to ${bike.name}.`;
+
+    setVal('component-form-name', isEdit ? comp.name : '');
+    setVal('component-form-category', isEdit ? comp.category : 'Suspension');
+    setVal('component-form-brand', isEdit ? comp.brand : '');
+    setVal('component-form-model', isEdit ? comp.model : '');
+    setVal('component-form-serial', isEdit ? comp.serial : '');
+    setVal('component-form-install-date', isEdit ? comp.installDate : todayISO());
+    setVal('component-form-interval', isEdit ? comp.intervalMonths : '');
+    setVal('component-form-notes', isEdit ? comp.notes : '');
+
+    document.getElementById('component-form-cancel').href = isEdit ? `#/bikes/${bike.id}/components/${comp.id}` : `#/bikes/${bike.id}`;
+    document.getElementById('component-form-danger').style.display = isEdit ? 'block' : 'none';
+
+    document.getElementById('component-form-save').onclick = () => {
+      const name = getVal('component-form-name');
+      if (!name) { document.getElementById('component-form-name').focus(); return; }
+      if (isEdit) {
+        Object.assign(comp, {
+          name, category: getVal('component-form-category'), brand: getVal('component-form-brand'),
+          model: getVal('component-form-model'), serial: getVal('component-form-serial') || null,
+          installDate: getVal('component-form-install-date') || comp.installDate,
+          intervalMonths: Number(getVal('component-form-interval')) || null,
+          notes: getVal('component-form-notes')
+        });
+        location.hash = `#/bikes/${bike.id}/components/${comp.id}`;
+      } else {
+        const id = uniqueSlug(name, bike.components.map(c => c.id));
+        bike.components.push({
+          id, name, category: getVal('component-form-category'), brand: getVal('component-form-brand'),
+          model: getVal('component-form-model'), serial: getVal('component-form-serial') || null,
+          installDate: getVal('component-form-install-date') || todayISO(),
+          intervalMonths: Number(getVal('component-form-interval')) || null,
+          notes: getVal('component-form-notes'), interventions: []
+        });
+        location.hash = `#/bikes/${bike.id}/components/${id}`;
+      }
+    };
+
+    document.getElementById('component-form-delete').onclick = () => {
+      if (!isEdit) return;
+      openModal(
+        'Delete this component?',
+        `This permanently deletes "${comp.name}" and its maintenance history.`,
+        () => { bike.components = bike.components.filter(c => c.id !== comp.id); location.hash = `#/bikes/${bike.id}`; }
+      );
+    };
+  }
+
+  /* ---------- Router ---------- */
+  function parseHash() {
+    let h = location.hash.slice(1);
+    if (!h || h === '/') h = '/dashboard';
+    return h.split('/').filter(Boolean);
+  }
+  function setActiveNav(routeKey) {
+    document.querySelectorAll('.nav-btn[data-route]').forEach(el => el.classList.toggle('active', el.dataset.route === routeKey));
+  }
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  /* ---------- Topbar dropdowns ---------- */
+  function closeDropdowns() {
+    document.querySelectorAll('.dropdown-panel.open').forEach(p => p.classList.remove('open'));
+  }
+  function toggleDropdown(id) {
+    const panel = document.getElementById(id);
+    const wasOpen = panel.classList.contains('open');
+    closeDropdowns();
+    if (!wasOpen) panel.classList.add('open');
+  }
+  document.getElementById('notif-btn').addEventListener('click', e => {
+    e.stopPropagation(); renderNotifDropdown(); toggleDropdown('notif-panel');
+  });
+  document.getElementById('user-btn').addEventListener('click', e => {
+    e.stopPropagation(); toggleDropdown('user-panel');
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.topbar-item')) closeDropdowns(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDropdowns(); });
+
+  function router() {
+    closeDropdowns();
+    const parts = parseHash();
+    const top = parts[0];
+    const isAuth = top === 'login' || top === 'signup';
+    document.getElementById('app-shell').style.display = isAuth ? 'none' : 'flex';
+    document.getElementById('auth-shell').style.display = isAuth ? 'flex' : 'none';
+
+    if (top === 'dashboard') {
+      renderDashboard(); showPage('page-dashboard'); setActiveNav('dashboard');
+    } else if (top === 'bikes') {
+      const bikeId = parts[1];
+      if (!bikeId) { renderBikesList(); showPage('page-bikes'); setActiveNav('bikes'); }
+      else if (bikeId === 'new') { renderBikeForm('add'); showPage('page-bike-form'); setActiveNav('bikes'); }
+      else if (parts[2] === 'edit') { renderBikeForm('edit', bikeId); showPage('page-bike-form'); setActiveNav('bikes'); }
+      else if (parts[2] === 'components') {
+        const compId = parts[3];
+        if (compId === 'new') { renderComponentForm('add', bikeId); showPage('page-component-form'); setActiveNav('bikes'); }
+        else if (compId && parts[4] === 'edit') { renderComponentForm('edit', bikeId, compId); showPage('page-component-form'); setActiveNav('bikes'); }
+        else if (compId && parts[4] === 'interventions' && parts[5] === 'new') { renderInterventionForm(bikeId, compId); showPage('page-intervention-form'); setActiveNav('bikes'); }
+        else if (compId) { renderComponentDetail(bikeId, compId); showPage('page-component-detail'); setActiveNav('bikes'); }
+        else { renderBikeDetail(bikeId); showPage('page-bike-detail'); setActiveNav('bikes'); }
+      } else { renderBikeDetail(bikeId); showPage('page-bike-detail'); setActiveNav('bikes'); }
+    } else if (top === 'settings') {
+      showPage('page-settings'); setActiveNav('settings');
+    } else if (top === 'login') { showPage('page-login'); }
+    else if (top === 'signup') { showPage('page-signup'); }
+    else { location.hash = '#/dashboard'; return; }
+    window.scrollTo(0, 0);
+  }
+
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target.id === 'modal-overlay') closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  initCombobox('bike-form-brand', 'bike-form-brand-panel');
+  initCombobox('component-form-brand', 'component-form-brand-panel');
+
+  window.addEventListener('hashchange', router);
+  renderNotifDropdown();
+  router();
+</script>

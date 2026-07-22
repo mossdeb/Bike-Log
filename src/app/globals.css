@@ -104,7 +104,10 @@
   --chart-5: #8a8d93;
 
   /* Sidebar and "emphasis" cards (dashboard spotlight tiles) share one
-     near-black surface throughout the app, in both themes. */
+     near-black surface in light mode. In dark mode --emphasis gets its own
+     lighter value instead (see below) — the sidebar reads fine near-black
+     since it's a full-height rail, but an emphasis tile sits directly next
+     to regular cards and needs contrast against them specifically. */
   --sidebar: #1c1c1c;
   --sidebar-foreground: #f5f3ee;
   --sidebar-primary: #43f3af;
@@ -161,7 +164,7 @@
   --sidebar-accent-foreground: #f5f3ee;
   --sidebar-border: rgba(245, 243, 238, 0.08);
   --sidebar-ring: #43f3af;
-  --emphasis: #1c1c1c;
+  --emphasis: #2b2d32; /* lighter than --card so it still reads as the highlighted tile in dark mode */
   --emphasis-foreground: #f5f3ee;
 }
 

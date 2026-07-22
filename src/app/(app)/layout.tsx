@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/lib/actions/auth";
 import { AppSidebar } from "@/components/app-sidebar";
+import { MobileNav } from "@/components/mobile-nav";
+import { LogoMark } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -20,19 +22,26 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen bg-background">
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-end gap-3 px-6 py-5">
-          <ThemeToggle />
-          <span className="hidden text-sm text-muted-foreground sm:inline">
-            {user.email as string}
-          </span>
-          <form action={logout}>
-            <Button type="submit" variant="outline" size="sm">
-              Log out
-            </Button>
-          </form>
+        <header className="flex items-center justify-between gap-3 px-6 py-5 sm:justify-end">
+          <div className="flex items-center gap-2.5 sm:hidden">
+            <LogoMark className="size-8 rounded-xl" />
+            <span className="font-display text-lg font-bold">BikeLog</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              {user.email as string}
+            </span>
+            <form action={logout}>
+              <Button type="submit" variant="outline" size="sm">
+                Log out
+              </Button>
+            </form>
+          </div>
         </header>
-        <main className="flex-1 px-6 pb-10">{children}</main>
+        <main className="flex-1 px-6 pb-24 sm:pb-10">{children}</main>
       </div>
+      <MobileNav />
     </div>
   );
 }

@@ -93,6 +93,12 @@ const en = {
       title: "Danger zone",
       description: "Permanently delete your account and all logged maintenance data.",
       deleteAccount: "Delete account",
+      confirmTitle: "Delete your account?",
+      confirmDescription:
+        "This permanently deletes your account, all bikes, components, and maintenance history. This can't be undone.",
+      confirmHint: (email: string) => `Type "${email}" to confirm.`,
+      confirmButton: "Delete account",
+      cancel: "Cancel",
     },
   },
   bikes: {

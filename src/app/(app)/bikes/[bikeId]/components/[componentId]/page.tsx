@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { TypeBadge } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
+import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
+import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function ComponentDetailPage({
@@ -70,7 +72,7 @@ export default async function ComponentDetailPage({
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg bg-card p-6">
-        <ComponentIcon size="lg" />
+        <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{component.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">

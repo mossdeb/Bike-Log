@@ -1,7 +1,46 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export async function updateFullName(formData: FormData) {
+  const supabase = await createClient();
+
+  await supabase.auth.updateUser({
+    data: { full_name: formData.get("full-name") as string },
+  });
+
+  // Same JWT-staleness issue as updatePreferences — refresh so the new
+  // name shows immediately instead of on the next natural token refresh.
+  await supabase.auth.refreshSession();
+
+  revalidatePath("/", "layout");
+}
+
+export async function deleteAccount(formData: FormData) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const user = userData?.claims;
+  if (!user) redirect("/login");
+
+  const typedEmail = (formData.get("confirm-email") as string)?.trim().toLowerCase();
+  if (typedEmail !== (user.email as string).toLowerCase()) {
+    redirect(`/settings?error=${encodeURIComponent("Email didn't match — account not deleted.")}`);
+  }
+
+  // Deleting the auth user cascades to their bikes/components/interventions
+  // via the existing "on delete cascade" foreign keys — no manual cleanup.
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(user.sub as string);
+  if (error) {
+    redirect(`/settings?error=${encodeURIComponent(error.message)}`);
+  }
+
+  await supabase.auth.signOut();
+  redirect("/login");
+}
 
 export async function updatePreferences(formData: FormData) {
   const supabase = await createClient();

@@ -49,6 +49,19 @@
   --color-indigo-foreground: var(--indigo-foreground);
   --color-emphasis: var(--emphasis);
   --color-emphasis-foreground: var(--emphasis-foreground);
+  /* Bike-type accent colors — one hue per BIKE_TYPES entry, see bike-accent.ts */
+  --color-sky: var(--sky);
+  --color-sky-foreground: var(--sky-foreground);
+  --color-teal: var(--teal);
+  --color-teal-foreground: var(--teal-foreground);
+  --color-rose: var(--rose);
+  --color-rose-foreground: var(--rose-foreground);
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
+  --color-slate: var(--slate);
+  --color-slate-foreground: var(--slate-foreground);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-foreground: var(--terracotta-foreground);
   /* Matches design/bikelog_dashboard.html's --radius-sm/md/lg/xl scale exactly (11/15/22/32px). */
   --radius-sm: 0.6875rem;
   --radius-md: 0.9375rem;
@@ -93,6 +106,18 @@
   --warning-foreground: #ffffff;
   --indigo: #6c5ce0;
   --indigo-foreground: #ffffff;
+  --sky: #2f8fd6;
+  --sky-foreground: #ffffff;
+  --teal: #159488;
+  --teal-foreground: #ffffff;
+  --rose: #d94f86;
+  --rose-foreground: #ffffff;
+  --violet: #9d4de0;
+  --violet-foreground: #ffffff;
+  --slate: #64748b;
+  --slate-foreground: #ffffff;
+  --terracotta: #b5622f;
+  --terracotta-foreground: #ffffff;
 
   --border: rgba(16, 16, 20, 0.09);
   --input: rgba(16, 16, 20, 0.14);
@@ -146,6 +171,18 @@
   --warning-foreground: #2a1a00;
   --indigo: #8879f5;
   --indigo-foreground: #10101a;
+  --sky: #6ab6f0;
+  --sky-foreground: #052338;
+  --teal: #45d0bd;
+  --teal-foreground: #04332e;
+  --rose: #f28bbd;
+  --rose-foreground: #3a0e26;
+  --violet: #c88af5;
+  --violet-foreground: #2c0a40;
+  --slate: #9aa8bd;
+  --slate-foreground: #1c2333;
+  --terracotta: #d98f5f;
+  --terracotta-foreground: #3a1a08;
 
   --border: rgba(242, 241, 236, 0.08);
   --input: rgba(242, 241, 236, 0.15);

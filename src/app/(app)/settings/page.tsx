@@ -4,9 +4,12 @@ import { GoogleIcon } from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormError } from "@/components/form-error";
 import { ThemeSelect } from "@/components/theme-select";
 import { PreferencesForm } from "@/components/preferences-form";
+import { DeleteAccountButton } from "@/components/delete-account-button";
 import { getInitials } from "@/lib/initials";
+import { updateFullName, deleteAccount } from "@/lib/actions/settings";
 
 const selectClassName =
   "flex h-8 w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
@@ -45,7 +48,12 @@ function ToggleRow({ label, sub, defaultChecked }: { label: string; sub: string;
   );
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
@@ -65,6 +73,8 @@ export default async function SettingsPage() {
         <p className="mt-1 text-sm text-muted-foreground">{dict.settings.subtitle}</p>
       </div>
 
+      <FormError message={error} />
+
       <div className="flex max-w-[720px] flex-col gap-4">
         <SettingsSection title={dict.settings.profile.title} description={dict.settings.profile.description}>
           <div className="mb-5 flex items-center gap-4">
@@ -76,19 +86,21 @@ export default async function SettingsPage() {
               <p className="text-sm text-muted-foreground">{email}</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="full-name">{dict.settings.profile.fullName}</Label>
-              <Input id="full-name" name="full-name" defaultValue={name ?? ""} />
+          <form key={name} action={updateFullName}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="full-name">{dict.settings.profile.fullName}</Label>
+                <Input id="full-name" name="full-name" defaultValue={name ?? ""} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="settings-email">{dict.settings.profile.email}</Label>
+                <Input id="settings-email" name="email" defaultValue={email} disabled />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="settings-email">{dict.settings.profile.email}</Label>
-              <Input id="settings-email" name="email" defaultValue={email} disabled />
+            <div className="mt-5 flex justify-end">
+              <Button type="submit">{dict.common.save}</Button>
             </div>
-          </div>
-          <div className="mt-5 flex justify-end">
-            <Button type="button">{dict.common.save}</Button>
-          </div>
+          </form>
         </SettingsSection>
 
         <SettingsSection
@@ -150,9 +162,16 @@ export default async function SettingsPage() {
           title={dict.settings.dangerZone.title}
           description={dict.settings.dangerZone.description}
         >
-          <Button type="button" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
-            {dict.settings.dangerZone.deleteAccount}
-          </Button>
+          <DeleteAccountButton
+            action={deleteAccount}
+            email={email}
+            title={dict.settings.dangerZone.confirmTitle}
+            description={dict.settings.dangerZone.confirmDescription}
+            confirmHint={dict.settings.dangerZone.confirmHint(email)}
+            confirmLabel={dict.settings.dangerZone.confirmButton}
+            triggerLabel={dict.settings.dangerZone.deleteAccount}
+            cancelLabel={dict.settings.dangerZone.cancel}
+          />
         </SettingsSection>
       </div>
     </div>

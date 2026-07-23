@@ -61,7 +61,7 @@ export default async function BikesPage() {
               className="rounded-lg bg-card p-5 transition-colors hover:border-foreground/20"
             >
               <div className="mb-4 flex items-start justify-between gap-3">
-                <BikeIcon bikeId={bike.id} />
+                <BikeIcon type={bike.type} />
                 <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
               </div>
               <h2 className="font-display font-bold">{bike.name}</h2>

@@ -1,17 +1,20 @@
 import { Bike } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getBikeAccent } from "@/lib/bike-accent";
+import { BIKE_TYPE_ICON } from "@/components/bike-type-icon";
+import type { BikeType } from "@/lib/constants";
 
 export function BikeIcon({
-  bikeId,
+  type,
   size = "sm",
   className,
 }: {
-  bikeId: string;
+  type?: string | null;
   size?: "sm" | "lg";
   className?: string;
 }) {
-  const accent = getBikeAccent(bikeId);
+  const accent = getBikeAccent(type);
+  const Icon = BIKE_TYPE_ICON[type as BikeType] ?? Bike;
   return (
     <span
       className={cn(
@@ -22,7 +25,7 @@ export function BikeIcon({
         className
       )}
     >
-      <Bike className={size === "sm" ? "size-5" : "size-7"} />
+      <Icon className={size === "sm" ? "size-5" : "size-7"} />
     </span>
   );
 }

@@ -95,6 +95,12 @@ const pt: Dictionary = {
       title: "Zona de perigo",
       description: "Elimina permanentemente a sua conta e todo o histórico de manutenção registado.",
       deleteAccount: "Eliminar conta",
+      confirmTitle: "Eliminar a sua conta?",
+      confirmDescription:
+        "Isto elimina permanentemente a sua conta, todas as bicicletas, componentes e histórico de manutenção. Esta ação não pode ser desfeita.",
+      confirmHint: (email: string): string => `Escreva "${email}" para confirmar.`,
+      confirmButton: "Eliminar conta",
+      cancel: "Cancelar",
     },
   },
   bikes: {

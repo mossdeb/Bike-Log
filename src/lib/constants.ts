@@ -10,8 +10,11 @@ export const BIKE_TYPES = [
   "Other",
 ] as const;
 
+export type BikeType = (typeof BIKE_TYPES)[number];
+
 export const COMPONENT_CATEGORIES = [
-  "Suspension",
+  "Front Suspension (Fork)",
+  "Rear Suspension",
   "Transmission",
   "Brakes",
   "Wheels",
@@ -19,6 +22,8 @@ export const COMPONENT_CATEGORIES = [
   "Frame",
   "Other",
 ] as const;
+
+export type ComponentCategory = (typeof COMPONENT_CATEGORIES)[number];
 
 // Datalist suggestions for the component name field — not an enum, users
 // can type anything.

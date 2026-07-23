@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { BikeIcon } from "@/components/bike-icon";
 import { ComponentIcon } from "@/components/component-icon";
+import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
+import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function BikeDetailPage({
@@ -54,7 +56,7 @@ export default async function BikeDetailPage({
       </div>
 
       <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg bg-card p-6">
-        <BikeIcon bikeId={bike.id} size="lg" />
+        <BikeIcon type={bike.type} size="lg" />
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{bike.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -120,7 +122,7 @@ export default async function BikeDetailPage({
                   href={`/bikes/${bike.id}/components/${component.id}`}
                   className="flex min-w-0 flex-1 items-center gap-4"
                 >
-                  <ComponentIcon />
+                  <ComponentIcon icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{component.name}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">

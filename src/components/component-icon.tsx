@@ -1,4 +1,5 @@
-import { Cog, type LucideIcon } from "lucide-react";
+import { Cog } from "lucide-react";
+import type { ComponentType } from "react";
 import { cn } from "@/lib/utils";
 
 export function ComponentIcon({
@@ -6,7 +7,7 @@ export function ComponentIcon({
   size = "sm",
   className,
 }: {
-  icon?: LucideIcon;
+  icon?: ComponentType<{ className?: string }>;
   size?: "sm" | "lg";
   className?: string;
 }) {
@@ -18,7 +19,7 @@ export function ComponentIcon({
         className
       )}
     >
-      <Icon className={size === "sm" ? "size-[18px]" : "size-7"} />
+      <Icon className={size === "sm" ? "size-[22px]" : "size-[34px]"} />
     </span>
   );
 }

@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="mx-auto flex min-w-0 w-full max-w-[1440px] flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 px-6 py-5 sm:justify-end">
           <div className="flex items-center gap-2.5 sm:hidden">
-            <LogoMark className="size-8 rounded-xl" />
+            <LogoMark className="size-8 rounded-[8px]" />
             <span className="font-display text-lg font-bold">BikeLog</span>
           </div>
           <div className="flex items-center gap-3">

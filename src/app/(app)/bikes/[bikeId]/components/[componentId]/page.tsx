@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Pencil, Plus, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { TypeBadge } from "@/components/type-badge";
@@ -16,6 +16,9 @@ export default async function ComponentDetailPage({
 }) {
   const { bikeId, componentId } = await params;
   const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getClaims();
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
@@ -136,7 +139,7 @@ export default async function ComponentDetailPage({
                 <TypeBadge type={iv.type as "service" | "repair" | "replacement"} />
                 <p className="mt-1.5 font-semibold">{iv.description || "No description"}</p>
                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  {iv.kms != null && <span>{formatNumber(iv.kms)} km</span>}
+                  {iv.kms != null && <span>{formatDistance(iv.kms, distanceUnit)}</span>}
                   {iv.hours_used != null && <span>{formatNumber(iv.hours_used)} h</span>}
                 </div>
                 {iv.notes && (

@@ -1,12 +1,7 @@
 import type { ServiceStatus } from "@/lib/maintenance/calculation";
 import { cn } from "@/lib/utils";
-
-const LABELS: Record<ServiceStatus, string> = {
-  ok: "On schedule",
-  due_soon: "Due soon",
-  overdue: "Overdue",
-  not_configured: "Not set",
-};
+import { getDictionary } from "@/lib/i18n";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 const STYLES: Record<ServiceStatus, string> = {
   ok: "bg-success/10 text-success",
@@ -18,10 +13,12 @@ const STYLES: Record<ServiceStatus, string> = {
 export function StatusBadge({
   status,
   label,
+  dict = getDictionary("en"),
   className,
 }: {
   status: ServiceStatus;
   label?: string;
+  dict?: Dictionary;
   className?: string;
 }) {
   return (
@@ -32,7 +29,7 @@ export function StatusBadge({
         className
       )}
     >
-      {label ?? LABELS[status]}
+      {label ?? dict.status[status]}
     </span>
   );
 }

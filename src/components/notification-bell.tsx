@@ -2,8 +2,9 @@
 
 import { Bell } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function NotificationBell() {
+export function NotificationBell({ notifications }: { notifications: Dictionary["notifications"] }) {
   return (
     <Popover>
       <PopoverTrigger
@@ -13,10 +14,8 @@ export function NotificationBell() {
         <Bell className="size-4" />
       </PopoverTrigger>
       <PopoverContent className="p-2">
-        <p className="px-2 pt-1 pb-2 text-sm font-semibold">Notifications</p>
-        <div className="px-2 py-6 text-center text-sm text-muted-foreground">
-          You&apos;re all caught up. Nothing new to show yet.
-        </div>
+        <p className="px-2 pt-1 pb-2 text-sm font-semibold">{notifications.title}</p>
+        <div className="px-2 py-6 text-center text-sm text-muted-foreground">{notifications.empty}</div>
       </PopoverContent>
     </Popover>
   );

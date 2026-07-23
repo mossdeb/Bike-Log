@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Bike, Cog, ClipboardList, Plus, Wrench, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, worstStatus, type ServiceStatus } from "@/lib/maintenance/calculation";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { BikeIcon } from "@/components/bike-icon";
 import { ComponentIcon } from "@/components/component-icon";
 import { InterventionIcon } from "@/components/intervention-icon";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -18,6 +19,8 @@ export default async function DashboardPage() {
     (claims?.user_metadata as { full_name?: string } | undefined)?.full_name?.split(" ")[0] ??
     (claims?.email as string | undefined)?.split("@")[0] ??
     "there";
+  const dict = getDictionary(localeFromMetadata(claims?.user_metadata));
+  const distanceUnit = ((claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
   const [{ data: bikes }, { data: componentRows }, { data: recentRaw }] = await Promise.all([
     supabase.from("bikes").select("id, name, type, brand, model").order("created_at", { ascending: true }),
@@ -74,16 +77,16 @@ export default async function DashboardPage() {
     <div className="pt-8">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold">Welcome back, {displayName}!</h1>
+          <h1 className="text-2xl font-display font-bold">{dict.dashboard.welcome(displayName)}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {totalBikes} {totalBikes === 1 ? "bike" : "bikes"} · {totalComponents}{" "}
-            {totalComponents === 1 ? "component" : "components"} tracked
-            {needsAttention.length > 0 && ` · ${needsAttention.length} need${needsAttention.length === 1 ? "s" : ""} attention`}
+            {dict.dashboard.bikeCount(totalBikes)} · {dict.dashboard.componentCount(totalComponents)}{" "}
+            {dict.dashboard.tracked}
+            {needsAttention.length > 0 && ` · ${dict.dashboard.needsAttentionCount(needsAttention.length)}`}
           </p>
         </div>
         <Button render={<Link href="/bikes" />} nativeButton={false} variant="outline">
           <Wrench className="size-4" />
-          Log maintenance
+          {dict.dashboard.logMaintenance}
         </Button>
       </div>
 
@@ -92,40 +95,38 @@ export default async function DashboardPage() {
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-emphasis-foreground/10">
             <Bike className="size-4" />
           </div>
-          <p className="text-xs text-emphasis-foreground/60">Total bikes</p>
+          <p className="text-xs text-emphasis-foreground/60">{dict.dashboard.totalBikes}</p>
           <p className="font-display text-2xl font-bold">{totalBikes}</p>
         </div>
         <div className="rounded-lg bg-card p-5">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-muted">
             <Cog className="size-4 text-muted-foreground" />
           </div>
-          <p className="text-xs text-muted-foreground">Components tracked</p>
+          <p className="text-xs text-muted-foreground">{dict.dashboard.componentsTracked}</p>
           <p className="font-display text-2xl font-bold">{totalComponents}</p>
         </div>
         <div className="rounded-lg bg-card p-5">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-muted">
             <ClipboardList className="size-4 text-muted-foreground" />
           </div>
-          <p className="text-xs text-muted-foreground">Logged this year</p>
+          <p className="text-xs text-muted-foreground">{dict.dashboard.loggedThisYear}</p>
           <p className="font-display text-2xl font-bold">{loggedThisYear}</p>
         </div>
       </div>
 
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display font-bold">Your bikes</h2>
+        <h2 className="font-display font-bold">{dict.dashboard.yourBikes}</h2>
         <Link href="/bikes" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground">
-          View all
+          {dict.dashboard.viewAll}
         </Link>
       </div>
 
       {!bikes || bikes.length === 0 ? (
         <div className="mb-6 rounded-lg border border-dashed border-border p-10 text-center">
-          <p className="mb-4 text-sm text-muted-foreground">
-            No bikes yet. Add your first one to start tracking maintenance.
-          </p>
+          <p className="mb-4 text-sm text-muted-foreground">{dict.dashboard.noBikesYet}</p>
           <Button render={<Link href="/bikes/new" />} nativeButton={false}>
             <Plus className="size-4" />
-            Add bike
+            {dict.dashboard.addBike}
           </Button>
         </div>
       ) : (
@@ -138,7 +139,7 @@ export default async function DashboardPage() {
             >
               <div className="mb-4 flex items-start justify-between gap-3">
                 <BikeIcon bikeId={bike.id} />
-                <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} />
+                <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
               </div>
               <h3 className="font-display font-bold">{bike.name}</h3>
               <p className="mt-0.5 text-sm text-muted-foreground">{bike.type ?? "—"}</p>
@@ -149,10 +150,10 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-lg bg-card p-5">
-          <h2 className="mb-3 font-display font-bold">Needs attention</h2>
+          <h2 className="mb-3 font-display font-bold">{dict.dashboard.needsAttention}</h2>
           {needsAttention.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              Nothing needs attention right now.
+              {dict.dashboard.nothingNeedsAttention}
             </p>
           ) : (
             <div>
@@ -160,8 +161,8 @@ export default async function DashboardPage() {
                 const bike = bikeInfo.get(component.bike_id!);
                 const detail =
                   cs.status === "overdue"
-                    ? `Overdue ${Math.abs(cs.daysRemaining!)}d`
-                    : `Due in ${cs.daysRemaining}d`;
+                    ? dict.dashboard.overdueDays(Math.abs(cs.daysRemaining!))
+                    : dict.dashboard.dueInDays(cs.daysRemaining!);
                 return (
                   <Link
                     key={component.id}
@@ -184,17 +185,18 @@ export default async function DashboardPage() {
         </div>
 
         <div className="rounded-lg bg-card p-5">
-          <h2 className="mb-3 font-display font-bold">Recent interventions</h2>
+          <h2 className="mb-3 font-display font-bold">{dict.dashboard.recentInterventions}</h2>
           {!recentRaw || recentRaw.length === 0 ? (
             <div className="py-6 text-center">
               <Inbox className="mx-auto mb-2 size-5 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">No maintenance logged yet.</p>
+              <p className="text-sm text-muted-foreground">{dict.dashboard.noMaintenanceLogged}</p>
             </div>
           ) : (
             <div>
               {recentRaw.map((iv, i) => {
                 const component = componentInfo.get(iv.component_id);
                 const bike = component?.bike_id ? bikeInfo.get(component.bike_id) : undefined;
+                const type = iv.type as "service" | "repair" | "replacement";
                 return (
                   <Link
                     key={iv.id}
@@ -203,17 +205,17 @@ export default async function DashboardPage() {
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >
-                    <InterventionIcon type={iv.type as "service" | "repair" | "replacement"} />
+                    <InterventionIcon type={type} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold capitalize">
-                        {iv.type} — {component?.name ?? "—"}
+                      <p className="truncate text-sm font-semibold">
+                        {dict.interventionType[type]} — {component?.name ?? "—"}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
                         {bike?.name ?? "—"} · {formatDate(iv.date)}
                       </p>
                     </div>
                     <div className="shrink-0 font-mono text-xs text-muted-foreground">
-                      {iv.kms != null ? `${formatNumber(iv.kms)} km` : iv.hours_used != null ? `${formatNumber(iv.hours_used)} h` : ""}
+                      {iv.kms != null ? formatDistance(iv.kms, distanceUnit) : iv.hours_used != null ? `${formatNumber(iv.hours_used)} h` : ""}
                     </div>
                   </Link>
                 );

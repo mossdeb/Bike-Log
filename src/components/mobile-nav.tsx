@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function MobileNav() {
+export function MobileNav({ nav }: { nav: Dictionary["nav"] }) {
   const pathname = usePathname();
 
   return (
@@ -13,7 +14,7 @@ export function MobileNav() {
       className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-sidebar-border bg-sidebar pb-[env(safe-area-inset-bottom)] text-sidebar-foreground sm:hidden"
       aria-label="Primary"
     >
-      {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+      {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
@@ -25,7 +26,7 @@ export function MobileNav() {
             )}
           >
             <Icon className="size-5" />
-            {label}
+            {nav[labelKey]}
           </Link>
         );
       })}

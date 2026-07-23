@@ -7,6 +7,7 @@ import { PanelLeftClose, PanelLeft } from "lucide-react";
 import { LogoMark } from "@/components/logo";
 import { NAV_ITEMS } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 const STORAGE_KEY = "bikelog_sidebar_expanded";
 const emptySubscribe = () => () => {};
@@ -21,7 +22,7 @@ function useMounted() {
   );
 }
 
-export function AppSidebar() {
+export function AppSidebar({ nav }: { nav: Dictionary["nav"] }) {
   const pathname = usePathname();
   const mounted = useMounted();
   const [override, setOverride] = useState<boolean | null>(null);
@@ -47,7 +48,7 @@ export function AppSidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1.5">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link
@@ -62,7 +63,7 @@ export function AppSidebar() {
               )}
             >
               <Icon className="size-5 shrink-0" />
-              {expanded && <span>{label}</span>}
+              {expanded && <span>{nav[labelKey]}</span>}
             </Link>
           );
         })}
@@ -71,7 +72,7 @@ export function AppSidebar() {
       <button
         type="button"
         onClick={toggle}
-        title={expanded ? "Collapse menu" : "Expand menu"}
+        title={expanded ? nav.collapseMenu : nav.expandMenu}
         className={cn(
           "flex h-11 items-center gap-3 rounded-2xl text-sm font-semibold text-sidebar-foreground/60 transition-colors hover:text-sidebar-foreground",
           expanded ? "justify-start px-3.5" : "w-11 justify-center"
@@ -82,7 +83,7 @@ export function AppSidebar() {
         ) : (
           <PanelLeft className="size-5 shrink-0" />
         )}
-        {expanded && <span>Collapse</span>}
+        {expanded && <span>{nav.collapse}</span>}
       </button>
     </aside>
   );

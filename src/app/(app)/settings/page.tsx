@@ -1,8 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { GoogleIcon } from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ThemeSelect } from "@/components/theme-select";
+import { PreferencesForm } from "@/components/preferences-form";
 import { getInitials } from "@/lib/initials";
 
 const selectClassName =
@@ -48,18 +51,22 @@ export default async function SettingsPage() {
   const user = data?.claims;
   const email = (user?.email as string) ?? "";
   const name = user?.user_metadata?.full_name as string | undefined;
+  const distanceUnit = (user?.user_metadata?.distance_unit as string) ?? "km";
   const providers = (user?.app_metadata?.providers as string[] | undefined) ?? [];
   const isGoogleUser = providers.includes("google");
+
+  const locale = localeFromMetadata(user?.user_metadata);
+  const dict = getDictionary(locale);
 
   return (
     <div className="pt-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your account and preferences.</p>
+        <h1 className="text-2xl font-display font-bold">{dict.settings.title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{dict.settings.subtitle}</p>
       </div>
 
       <div className="flex max-w-[720px] flex-col gap-4">
-        <SettingsSection title="Profile" description="This information is only visible to you.">
+        <SettingsSection title={dict.settings.profile.title} description={dict.settings.profile.description}>
           <div className="mb-5 flex items-center gap-4">
             <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-indigo font-display text-lg font-bold text-indigo-foreground">
               {getInitials(name, email)}
@@ -71,86 +78,80 @@ export default async function SettingsPage() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="full-name">Full name</Label>
+              <Label htmlFor="full-name">{dict.settings.profile.fullName}</Label>
               <Input id="full-name" name="full-name" defaultValue={name ?? ""} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="settings-email">Email</Label>
+              <Label htmlFor="settings-email">{dict.settings.profile.email}</Label>
               <Input id="settings-email" name="email" defaultValue={email} disabled />
             </div>
           </div>
           <div className="mt-5 flex justify-end">
-            <Button type="button">Save changes</Button>
+            <Button type="button">{dict.common.save}</Button>
           </div>
         </SettingsSection>
 
         <SettingsSection
-          title="Email notifications"
-          description="Choose when BikeLog should email you about upcoming maintenance."
+          title={dict.settings.notifications.title}
+          description={dict.settings.notifications.description}
         >
           <ToggleRow
-            label="Service due soon"
-            sub={'Get an email when a component enters its "due soon" window.'}
+            label={dict.settings.notifications.dueSoon}
+            sub={dict.settings.notifications.dueSoonSub}
             defaultChecked
           />
           <ToggleRow
-            label="Service overdue"
-            sub="Get an email as soon as a component becomes overdue."
+            label={dict.settings.notifications.overdue}
+            sub={dict.settings.notifications.overdueSub}
             defaultChecked
           />
-          <ToggleRow label="Weekly summary" sub="A weekly digest of your fleet's maintenance status." />
+          <ToggleRow
+            label={dict.settings.notifications.weeklySummary}
+            sub={dict.settings.notifications.weeklySummarySub}
+          />
         </SettingsSection>
 
-        <SettingsSection title="Preferences" description="Units and appearance.">
+        <SettingsSection
+          title={dict.settings.preferences.title}
+          description={dict.settings.preferences.description}
+        >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <PreferencesForm
+              distanceUnit={distanceUnit}
+              language={locale}
+              prefs={dict.settings.preferences}
+              selectClassName={selectClassName}
+            />
             <div className="space-y-1.5">
-              <Label htmlFor="distance-unit">Distance unit</Label>
-              <select id="distance-unit" name="distance-unit" defaultValue="km" className={selectClassName}>
-                <option value="km">Kilometers (km)</option>
-                <option value="mi">Miles (mi)</option>
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="theme-preference">Theme</Label>
-              <select id="theme-preference" name="theme-preference" defaultValue="system" className={selectClassName}>
-                <option value="system">System</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="language-preference">Language</Label>
-              <select id="language-preference" name="language-preference" defaultValue="en" className={selectClassName}>
-                <option value="en">English</option>
-                <option value="pt">Português</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-              </select>
+              <Label htmlFor="theme-preference">{dict.settings.preferences.theme}</Label>
+              <ThemeSelect prefs={dict.settings.preferences} className={selectClassName} />
             </div>
           </div>
         </SettingsSection>
 
-        <SettingsSection title="Connected accounts" description="Sign-in methods linked to your account.">
+        <SettingsSection
+          title={dict.settings.connectedAccounts.title}
+          description={dict.settings.connectedAccounts.description}
+        >
           <div className="flex items-center gap-3 rounded-sm bg-muted px-3.5 py-3">
             <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white ring-1 ring-inset ring-border">
               <GoogleIcon className="size-4" />
             </span>
-            <span className="text-sm font-semibold">Google</span>
+            <span className="text-sm font-semibold">{dict.settings.connectedAccounts.google}</span>
             {isGoogleUser && (
               <span className="ml-auto shrink-0 rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
-                Connected
+                {dict.settings.connectedAccounts.connected}
               </span>
             )}
           </div>
         </SettingsSection>
 
         <SettingsSection
-          title="Danger zone"
-          description="Permanently delete your account and all logged maintenance data."
+          title={dict.settings.dangerZone.title}
+          description={dict.settings.dangerZone.description}
         >
           <Button type="button" variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
-            Delete account
+            {dict.settings.dangerZone.deleteAccount}
           </Button>
         </SettingsSection>
       </div>

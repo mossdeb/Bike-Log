@@ -5,8 +5,17 @@ import { Settings, LogOut } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { logout } from "@/lib/actions/auth";
 import { getInitials } from "@/lib/initials";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
-export function UserMenu({ name, email }: { name?: string | null; email: string }) {
+export function UserMenu({
+  name,
+  email,
+  common,
+}: {
+  name?: string | null;
+  email: string;
+  common: Dictionary["common"];
+}) {
   const initials = getInitials(name, email);
 
   return (
@@ -32,7 +41,7 @@ export function UserMenu({ name, email }: { name?: string | null; email: string 
           className="flex items-center gap-2.5 rounded-sm px-2 py-2 text-sm hover:bg-muted"
         >
           <Settings className="size-4 text-muted-foreground" />
-          Settings
+          {common.settings}
         </Link>
         <form action={logout}>
           <button
@@ -40,7 +49,7 @@ export function UserMenu({ name, email }: { name?: string | null; email: string 
             className="flex w-full items-center gap-2.5 rounded-sm px-2 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
           >
             <LogOut className="size-4" />
-            Log out
+            {common.logOut}
           </button>
         </form>
       </PopoverContent>

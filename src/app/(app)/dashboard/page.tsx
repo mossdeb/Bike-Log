@@ -1,21 +1,13 @@
 import Link from "next/link";
-import { Bike, Cog, ClipboardList, Plus, Wrench, Inbox } from "lucide-react";
+import { Bike, Cog, ClipboardList, Plus, Wrench, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus, type ServiceStatus } from "@/lib/maintenance/calculation";
+import { calculateComponentStatus, worstStatus, type ServiceStatus } from "@/lib/maintenance/calculation";
 import { formatDate, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
-
-const STATUS_RANK: Record<ServiceStatus, number> = {
-  overdue: 0,
-  due_soon: 1,
-  ok: 2,
-  not_configured: 3,
-};
-
-function worstStatus(statuses: ServiceStatus[]): ServiceStatus {
-  return statuses.reduce((worst, s) => (STATUS_RANK[s] < STATUS_RANK[worst] ? s : worst), "not_configured" as ServiceStatus);
-}
+import { BikeIcon } from "@/components/bike-icon";
+import { ComponentIcon } from "@/components/component-icon";
+import { InterventionIcon } from "@/components/intervention-icon";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -103,14 +95,14 @@ export default async function DashboardPage() {
           <p className="text-xs text-emphasis-foreground/60">Total bikes</p>
           <p className="font-display text-2xl font-bold">{totalBikes}</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-5">
+        <div className="rounded-lg bg-card p-5">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-muted">
             <Cog className="size-4 text-muted-foreground" />
           </div>
           <p className="text-xs text-muted-foreground">Components tracked</p>
           <p className="font-display text-2xl font-bold">{totalComponents}</p>
         </div>
-        <div className="rounded-lg border border-border bg-card p-5">
+        <div className="rounded-lg bg-card p-5">
           <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-muted">
             <ClipboardList className="size-4 text-muted-foreground" />
           </div>
@@ -142,22 +134,21 @@ export default async function DashboardPage() {
             <Link
               key={bike.id}
               href={`/bikes/${bike.id}`}
-              className="rounded-lg border border-border bg-card p-5 transition-colors hover:border-foreground/20"
+              className="rounded-lg bg-card p-5 transition-colors hover:border-foreground/20"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-display font-bold">{bike.name}</h3>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{bike.type ?? "—"}</p>
-                </div>
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <BikeIcon bikeId={bike.id} />
                 <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} />
               </div>
+              <h3 className="font-display font-bold">{bike.name}</h3>
+              <p className="mt-0.5 text-sm text-muted-foreground">{bike.type ?? "—"}</p>
             </Link>
           ))}
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card p-5">
+        <div className="rounded-lg bg-card p-5">
           <h2 className="mb-3 font-display font-bold">Needs attention</h2>
           {needsAttention.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
@@ -175,11 +166,12 @@ export default async function DashboardPage() {
                   <Link
                     key={component.id}
                     href={`/bikes/${component.bike_id}/components/${component.id}`}
-                    className={`flex items-center justify-between gap-3 py-3 transition-colors hover:bg-muted/50 ${
+                    className={`flex items-center gap-3 py-3 transition-colors hover:bg-muted/50 ${
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >
-                    <div className="min-w-0">
+                    <ComponentIcon icon={cs.status === "overdue" ? AlertTriangle : Clock} />
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{component.name}</p>
                       <p className="truncate text-xs text-muted-foreground">{bike?.name ?? "—"}</p>
                     </div>
@@ -191,7 +183,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-5">
+        <div className="rounded-lg bg-card p-5">
           <h2 className="mb-3 font-display font-bold">Recent interventions</h2>
           {!recentRaw || recentRaw.length === 0 ? (
             <div className="py-6 text-center">
@@ -207,11 +199,12 @@ export default async function DashboardPage() {
                   <Link
                     key={iv.id}
                     href={`/bikes/${component?.bike_id}/components/${iv.component_id}`}
-                    className={`flex items-center justify-between gap-3 py-3 transition-colors hover:bg-muted/50 ${
+                    className={`flex items-center gap-3 py-3 transition-colors hover:bg-muted/50 ${
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >
-                    <div className="min-w-0">
+                    <InterventionIcon type={iv.type as "service" | "repair" | "replacement"} />
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold capitalize">
                         {iv.type} — {component?.name ?? "—"}
                       </p>

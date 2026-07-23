@@ -58,3 +58,18 @@ export function calculateComponentStatus(
 
   return { status, nextDueDate: toDateOnlyString(nextDue), daysRemaining };
 }
+
+const STATUS_RANK: Record<ServiceStatus, number> = {
+  overdue: 0,
+  due_soon: 1,
+  ok: 2,
+  not_configured: 3,
+};
+
+/** The most urgent status among a bike's components — used to badge the bike itself. */
+export function worstStatus(statuses: ServiceStatus[]): ServiceStatus {
+  return statuses.reduce(
+    (worst, s) => (STATUS_RANK[s] < STATUS_RANK[worst] ? s : worst),
+    "not_configured" as ServiceStatus
+  );
+}

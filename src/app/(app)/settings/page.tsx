@@ -118,6 +118,16 @@ export default async function SettingsPage() {
                 <option value="dark">Dark</option>
               </select>
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="language-preference">Language</Label>
+              <select id="language-preference" name="language-preference" defaultValue="en" className={selectClassName}>
+                <option value="en">English</option>
+                <option value="pt">Português</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+              </select>
+            </div>
           </div>
         </SettingsSection>
 

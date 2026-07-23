@@ -37,7 +37,7 @@ export default async function EditComponentPage({
   const manufacturers = await getBikeIndexManufacturers();
 
   return (
-    <div className="mx-auto max-w-2xl pt-8">
+    <div className="max-w-2xl pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
           Bikes
@@ -63,7 +63,7 @@ export default async function EditComponentPage({
 
       <form
         action={updateComponent.bind(null, bike.id, component.id)}
-        className="rounded-lg border border-border bg-card p-6"
+        className="rounded-lg bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">

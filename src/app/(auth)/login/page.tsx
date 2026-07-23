@@ -14,7 +14,7 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
+    <div className="rounded-lg bg-card p-8 shadow-sm">
       <div className="mb-6 flex flex-col items-center text-center">
         <LogoMark className="mb-4" />
         <h1 className="text-xl font-display font-bold tracking-tight">Welcome back</h1>

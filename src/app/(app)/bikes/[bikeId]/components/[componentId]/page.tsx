@@ -7,6 +7,7 @@ import { formatDate, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { TypeBadge } from "@/components/type-badge";
+import { ComponentIcon } from "@/components/component-icon";
 
 export default async function ComponentDetailPage({
   params,
@@ -63,7 +64,8 @@ export default async function ComponentDetailPage({
         <span className="text-foreground">{component.name}</span>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg border border-border bg-card p-6">
+      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg bg-card p-6">
+        <ComponentIcon size="lg" />
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{component.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -118,7 +120,7 @@ export default async function ComponentDetailPage({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg bg-card">
           {interventions.map((iv, i) => (
             <Link
               key={iv.id}
@@ -127,7 +129,7 @@ export default async function ComponentDetailPage({
                 i > 0 ? "border-t border-border" : ""
               }`}
             >
-              <div className="w-24 shrink-0 pt-0.5 font-mono text-xs text-muted-foreground">
+              <div className="w-24 shrink-0 pt-0.5 font-mono text-sm text-muted-foreground">
                 {formatDate(iv.date)}
               </div>
               <div className="min-w-0 flex-1">

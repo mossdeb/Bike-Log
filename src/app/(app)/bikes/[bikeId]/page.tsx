@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { calculateComponentStatus, worstStatus } from "@/lib/maintenance/calculation";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
+import { BikeIcon } from "@/components/bike-icon";
+import { ComponentIcon } from "@/components/component-icon";
 
 export default async function BikeDetailPage({
   params,
@@ -25,6 +27,18 @@ export default async function BikeDetailPage({
     .eq("bike_id", bikeId)
     .order("created_at", { ascending: true });
 
+  const statusByComponent = new Map(
+    (components ?? []).map((c) => [
+      c.id,
+      calculateComponentStatus({
+        intervalMonths: c.interval_months,
+        installDate: c.install_date,
+        lastInterventionDate: c.last_intervention_date,
+      }).status,
+    ])
+  );
+  const bikeStatus = worstStatus([...statusByComponent.values()]);
+
   return (
     <div className="pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
@@ -35,7 +49,8 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg border border-border bg-card p-6">
+      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg bg-card p-6">
+        <BikeIcon bikeId={bike.id} size="lg" />
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{bike.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
@@ -52,6 +67,10 @@ export default async function BikeDetailPage({
           <div>
             <p className="text-xs text-muted-foreground">Serial</p>
             <p className="font-mono text-sm font-semibold">{bike.serial_number ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Status</p>
+            <StatusBadge status={bikeStatus} className="mt-0.5" />
           </div>
         </div>
         <Button
@@ -86,36 +105,44 @@ export default async function BikeDetailPage({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-border bg-card">
+        <div className="rounded-lg bg-card">
           {components.map((component, i) => {
-            const { status } = calculateComponentStatus({
-              intervalMonths: component.interval_months,
-              installDate: component.install_date,
-              lastInterventionDate: component.last_intervention_date,
-            });
+            const status = statusByComponent.get(component.id)!;
             return (
-              <Link
+              <div
                 key={component.id}
-                href={`/bikes/${bike.id}/components/${component.id}`}
                 className={`flex items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/50 ${
                   i > 0 ? "border-t border-border" : ""
                 }`}
               >
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold">{component.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {[
-                      component.category,
-                      component.interval_months ? `every ${component.interval_months} mo` : null,
-                      [component.brand, component.model].filter(Boolean).join(" "),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                </div>
-                <StatusBadge status={status} />
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-              </Link>
+                <Link
+                  href={`/bikes/${bike.id}/components/${component.id}`}
+                  className="flex min-w-0 flex-1 items-center gap-4"
+                >
+                  <ComponentIcon />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold">{component.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {[
+                        component.category,
+                        component.interval_months ? `every ${component.interval_months} mo` : null,
+                        [component.brand, component.model].filter(Boolean).join(" "),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  <StatusBadge status={status} />
+                </Link>
+                <Link
+                  href={`/bikes/${bike.id}/components/${component.id}/interventions/new`}
+                  title="Log intervention"
+                  aria-label={`Log intervention for ${component.name}`}
+                  className="flex size-9 shrink-0 items-center justify-center rounded-md border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+                >
+                  <Plus className="size-4" />
+                </Link>
+              </div>
             );
           })}
         </div>

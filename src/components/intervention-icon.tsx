@@ -7,17 +7,11 @@ const STYLES: Record<InterventionType, string> = {
   replacement: "bg-emphasis text-emphasis-foreground",
 };
 
-export function TypeBadge({ type }: { type: InterventionType }) {
+export function InterventionIcon({ type, className }: { type: InterventionType; className?: string }) {
   const Icon = INTERVENTION_TYPE_ICON[type];
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold capitalize",
-        STYLES[type]
-      )}
-    >
-      <Icon className="size-3" />
-      {type}
+    <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-md", STYLES[type], className)}>
+      <Icon className="size-[18px]" />
     </span>
   );
 }

@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import { INTERVENTION_TYPE_ICON, type InterventionType } from "@/lib/intervention-type";
+import { getDictionary } from "@/lib/i18n";
+import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 const STYLES: Record<InterventionType, string> = {
   service: "bg-indigo text-indigo-foreground",
@@ -7,17 +9,17 @@ const STYLES: Record<InterventionType, string> = {
   replacement: "bg-emphasis text-emphasis-foreground",
 };
 
-export function TypeBadge({ type }: { type: InterventionType }) {
+export function TypeBadge({ type, dict = getDictionary("en") }: { type: InterventionType; dict?: Dictionary }) {
   const Icon = INTERVENTION_TYPE_ICON[type];
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold capitalize",
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold",
         STYLES[type]
       )}
     >
       <Icon className="size-3" />
-      {type}
+      {dict.interventionType[type]}
     </span>
   );
 }

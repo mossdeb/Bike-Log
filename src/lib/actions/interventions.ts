@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { interventionSchema } from "@/lib/validations/intervention.schema";
+import { unitToKm } from "@/lib/format";
 
 function parseInterventionFormData(formData: FormData) {
   return interventionSchema.safeParse({
@@ -29,9 +30,12 @@ export async function createIntervention(bikeId: string, componentId: string, fo
     );
   }
 
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  const kms = parsed.data.kms != null ? unitToKm(parsed.data.kms, distanceUnit) : null;
+
   const { error } = await supabase
     .from("interventions")
-    .insert({ ...parsed.data, component_id: componentId, user_id: userId });
+    .insert({ ...parsed.data, kms, component_id: componentId, user_id: userId });
 
   if (error) {
     redirect(
@@ -51,6 +55,7 @@ export async function updateIntervention(
   formData: FormData
 ) {
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
 
   const parsed = parseInterventionFormData(formData);
   if (!parsed.success) {
@@ -59,9 +64,12 @@ export async function updateIntervention(
     );
   }
 
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  const kms = parsed.data.kms != null ? unitToKm(parsed.data.kms, distanceUnit) : null;
+
   const { error } = await supabase
     .from("interventions")
-    .update(parsed.data)
+    .update({ ...parsed.data, kms })
     .eq("id", interventionId);
 
   if (error) {

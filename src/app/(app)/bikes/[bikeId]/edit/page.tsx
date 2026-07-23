@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function EditBikePage({
   params,
@@ -23,6 +24,9 @@ export default async function EditBikePage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
 
@@ -35,19 +39,19 @@ export default async function EditBikePage({
     <div className="max-w-2xl pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
-          Bikes
+          {dict.bikes.breadcrumb}
         </Link>
         <span className="mx-1.5">/</span>
         <Link href={`/bikes/${bike.id}`} className="hover:text-foreground">
           {bike.name}
         </Link>
         <span className="mx-1.5">/</span>
-        <span className="text-foreground">Edit</span>
+        <span className="text-foreground">{dict.bikes.form.editBreadcrumb}</span>
       </div>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">Edit bike</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Update details for {bike.name}.</p>
+        <h1 className="text-2xl font-display font-bold">{dict.bikes.form.editTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.editSubtitle(bike.name)}</p>
       </div>
 
       <FormError message={error} />
@@ -58,24 +62,24 @@ export default async function EditBikePage({
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">{dict.bikes.form.name}</Label>
             <Input id="name" name="name" defaultValue={bike.name} required />
           </div>
 
-          <BrandField manufacturers={manufacturers} defaultValue={bike.brand} />
+          <BrandField manufacturers={manufacturers} defaultValue={bike.brand} dict={dict} />
 
           <div className="space-y-1.5">
-            <Label htmlFor="model">Model</Label>
+            <Label htmlFor="model">{dict.bikes.form.model}</Label>
             <Input id="model" name="model" defaultValue={bike.model ?? ""} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="year">Year</Label>
+            <Label htmlFor="year">{dict.bikes.form.year}</Label>
             <Input id="year" name="year" type="number" defaultValue={bike.year ?? ""} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="type">Type</Label>
+            <Label htmlFor="type">{dict.bikes.form.type}</Label>
             <select
               id="type"
               name="type"
@@ -91,17 +95,17 @@ export default async function EditBikePage({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="color">Color</Label>
+            <Label htmlFor="color">{dict.bikes.form.color}</Label>
             <Input id="color" name="color" defaultValue={bike.color ?? ""} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="serial_number">Serial number</Label>
+            <Label htmlFor="serial_number">{dict.bikes.form.serialNumber}</Label>
             <Input id="serial_number" name="serial_number" defaultValue={bike.serial_number ?? ""} />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{dict.bikes.form.notes}</Label>
             <Textarea id="notes" name="notes" defaultValue={bike.notes ?? ""} />
           </div>
         </div>
@@ -113,23 +117,24 @@ export default async function EditBikePage({
             type="button"
             variant="outline"
           >
-            Cancel
+            {dict.bikes.form.cancel}
           </Button>
-          <Button type="submit">Save changes</Button>
+          <Button type="submit">{dict.bikes.form.saveEdit}</Button>
         </div>
       </form>
 
       <div className="mt-6 rounded-lg border border-destructive/30 bg-card p-6">
-        <p className="text-sm font-semibold">Delete this bike</p>
+        <p className="text-sm font-semibold">{dict.bikes.form.deleteTitle}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {`Permanently deletes ${bike.name} and all ${componentCount ?? 0} of its components and their maintenance history. This can't be undone.`}
+          {dict.bikes.form.deleteDesc(bike.name, componentCount ?? 0)}
         </p>
         <div className="mt-4">
           <DeleteConfirmButton
             action={deleteBike.bind(null, bike.id)}
-            title="Delete this bike?"
-            description={`This permanently deletes "${bike.name}" and all ${componentCount ?? 0} of its components and their maintenance history.`}
-            triggerLabel="Delete bike"
+            title={dict.bikes.form.deleteConfirmTitle}
+            description={dict.bikes.form.deleteConfirmDesc(bike.name, componentCount ?? 0)}
+            triggerLabel={dict.bikes.form.deleteButton}
+            cancelLabel={dict.bikes.form.cancel}
           />
         </div>
       </div>

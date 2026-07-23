@@ -12,6 +12,15 @@ const KM_TO_MI = 0.621371;
 
 /** Distances are always stored in km; this is display-only conversion. */
 export function formatDistance(km: number, unit: "km" | "mi"): string {
-  const value = unit === "mi" ? km * KM_TO_MI : km;
-  return `${formatNumber(Math.round(value))} ${unit}`;
+  return `${formatNumber(Math.round(kmToUnit(km, unit)))} ${unit}`;
+}
+
+/** Converts a stored km value to the given display unit (unformatted, for form inputs). */
+export function kmToUnit(km: number, unit: "km" | "mi"): number {
+  return unit === "mi" ? km * KM_TO_MI : km;
+}
+
+/** Converts a value entered in the given unit back to km for storage. */
+export function unitToKm(value: number, unit: "km" | "mi"): number {
+  return unit === "mi" ? value / KM_TO_MI : value;
 }

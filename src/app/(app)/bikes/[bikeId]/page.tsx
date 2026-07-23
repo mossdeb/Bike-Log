@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { BikeIcon } from "@/components/bike-icon";
 import { ComponentIcon } from "@/components/component-icon";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function BikeDetailPage({
   params,
@@ -15,6 +16,9 @@ export default async function BikeDetailPage({
 }) {
   const { bikeId } = await params;
   const supabase = await createClient();
+
+  const { data: userData } = await supabase.auth.getClaims();
+  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
@@ -43,7 +47,7 @@ export default async function BikeDetailPage({
     <div className="pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
-          Bikes
+          {dict.bikes.breadcrumb}
         </Link>
         <span className="mx-1.5">/</span>
         <span className="text-foreground">{bike.name}</span>
@@ -56,21 +60,21 @@ export default async function BikeDetailPage({
           <p className="mt-0.5 text-sm text-muted-foreground">
             {[bike.type, bike.brand, bike.model, bike.year, bike.color]
               .filter(Boolean)
-              .join(" · ") || "No details yet"}
+              .join(" · ") || dict.bikes.noDetailsYet}
           </p>
         </div>
         <div className="flex gap-5">
           <div>
-            <p className="text-xs text-muted-foreground">Components</p>
+            <p className="text-xs text-muted-foreground">{dict.bikes.detail.components}</p>
             <p className="font-mono text-sm font-semibold">{components?.length ?? 0}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Serial</p>
+            <p className="text-xs text-muted-foreground">{dict.bikes.detail.serial}</p>
             <p className="font-mono text-sm font-semibold">{bike.serial_number ?? "—"}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Status</p>
-            <StatusBadge status={bikeStatus} className="mt-0.5" />
+            <p className="text-xs text-muted-foreground">{dict.bikes.detail.status}</p>
+            <StatusBadge status={bikeStatus} dict={dict} className="mt-0.5" />
           </div>
         </div>
         <Button
@@ -80,12 +84,12 @@ export default async function BikeDetailPage({
           size="sm"
         >
           <Pencil className="size-3.5" />
-          Edit
+          {dict.bikes.detail.edit}
         </Button>
       </div>
 
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display font-bold">Components</h2>
+        <h2 className="font-display font-bold">{dict.bikes.detail.componentsTitle}</h2>
         <Button
           render={<Link href={`/bikes/${bike.id}/components/new`} />}
           nativeButton={false}
@@ -93,16 +97,13 @@ export default async function BikeDetailPage({
           size="sm"
         >
           <Plus className="size-3.5" />
-          Add component
+          {dict.bikes.detail.addComponent}
         </Button>
       </div>
 
       {!components || components.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-10 text-center">
-          <p className="text-sm text-muted-foreground">
-            No components yet. Add suspension, drivetrain, brakes — anything you want to track
-            maintenance for.
-          </p>
+          <p className="text-sm text-muted-foreground">{dict.bikes.detail.noComponentsYet}</p>
         </div>
       ) : (
         <div className="rounded-lg bg-card">
@@ -125,19 +126,19 @@ export default async function BikeDetailPage({
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {[
                         component.category,
-                        component.interval_months ? `every ${component.interval_months} mo` : null,
+                        component.interval_months ? dict.bikes.detail.every(component.interval_months) : null,
                         [component.brand, component.model].filter(Boolean).join(" "),
                       ]
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
                   </div>
-                  <StatusBadge status={status} />
+                  <StatusBadge status={status} dict={dict} />
                 </Link>
                 <Link
                   href={`/bikes/${bike.id}/components/${component.id}/interventions/new`}
-                  title="Log intervention"
-                  aria-label={`Log intervention for ${component.name}`}
+                  title={dict.bikes.detail.logIntervention}
+                  aria-label={dict.bikes.detail.logInterventionFor(component.name ?? "")}
                   className="flex size-9 shrink-0 items-center justify-center rounded-md border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
                 >
                   <Plus className="size-4" />

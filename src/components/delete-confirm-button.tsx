@@ -18,11 +18,13 @@ export function DeleteConfirmButton({
   title,
   description,
   triggerLabel = "Delete",
+  cancelLabel = "Cancel",
 }: {
   action: () => Promise<void>;
   title: string;
   description: string;
   triggerLabel?: string;
+  cancelLabel?: string;
 }) {
   return (
     <AlertDialog>
@@ -35,7 +37,7 @@ export function DeleteConfirmButton({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
           <form action={action}>
             <AlertDialogAction type="submit" variant="destructive">
               {triggerLabel}

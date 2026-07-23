@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { TypeBadge } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function ComponentDetailPage({
   params,
@@ -19,6 +20,7 @@ export default async function ComponentDetailPage({
 
   const { data: userData } = await supabase.auth.getClaims();
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
@@ -46,18 +48,18 @@ export default async function ComponentDetailPage({
 
   const statusDetail =
     status === "overdue"
-      ? `Overdue by ${Math.abs(daysRemaining!)}d`
+      ? dict.dashboard.overdueDays(Math.abs(daysRemaining!))
       : status === "due_soon"
-        ? `Due in ${daysRemaining}d`
+        ? dict.dashboard.dueInDays(daysRemaining!)
         : status === "ok"
-          ? `Due ${formatDate(nextDueDate!)}`
+          ? dict.components.detail.dueOn(formatDate(nextDueDate!))
           : undefined;
 
   return (
     <div className="pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
-          Bikes
+          {dict.bikes.breadcrumb}
         </Link>
         <span className="mx-1.5">/</span>
         <Link href={`/bikes/${bike.id}`} className="hover:text-foreground">
@@ -73,23 +75,23 @@ export default async function ComponentDetailPage({
           <h1 className="text-xl font-display font-bold">{component.name}</h1>
           <p className="mt-0.5 text-sm text-muted-foreground">
             {[component.category, component.brand, component.model].filter(Boolean).join(" · ") ||
-              "No details yet"}
+              dict.bikes.noDetailsYet}
           </p>
         </div>
         <div className="flex gap-5">
           <div>
-            <p className="text-xs text-muted-foreground">Interval</p>
+            <p className="text-xs text-muted-foreground">{dict.components.detail.interval}</p>
             <p className="font-mono text-sm font-semibold">
-              {component.interval_months ? `Every ${component.interval_months} mo` : "—"}
+              {component.interval_months ? dict.components.detail.every(component.interval_months) : "—"}
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Serial</p>
+            <p className="text-xs text-muted-foreground">{dict.components.detail.serial}</p>
             <p className="font-mono text-sm font-semibold">{component.serial_number ?? "—"}</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Status</p>
-            <StatusBadge status={status} label={statusDetail} className="mt-0.5" />
+            <p className="text-xs text-muted-foreground">{dict.components.detail.status}</p>
+            <StatusBadge status={status} label={statusDetail} dict={dict} className="mt-0.5" />
           </div>
         </div>
         <Button
@@ -99,28 +101,26 @@ export default async function ComponentDetailPage({
           size="sm"
         >
           <Pencil className="size-3.5" />
-          Edit
+          {dict.components.detail.edit}
         </Button>
       </div>
 
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display font-bold">History</h2>
+        <h2 className="font-display font-bold">{dict.components.detail.history}</h2>
         <Button
           render={<Link href={`/bikes/${bike.id}/components/${component.id}/interventions/new`} />}
           nativeButton={false}
           size="sm"
         >
           <Plus className="size-3.5" />
-          Log intervention
+          {dict.components.detail.logIntervention}
         </Button>
       </div>
 
       {!interventions || interventions.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-10 text-center">
           <Inbox className="mx-auto mb-2 size-6 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            No interventions logged yet for this component.
-          </p>
+          <p className="text-sm text-muted-foreground">{dict.components.detail.noInterventionsYet}</p>
         </div>
       ) : (
         <div className="rounded-lg bg-card">
@@ -136,8 +136,8 @@ export default async function ComponentDetailPage({
                 {formatDate(iv.date)}
               </div>
               <div className="min-w-0 flex-1">
-                <TypeBadge type={iv.type as "service" | "repair" | "replacement"} />
-                <p className="mt-1.5 font-semibold">{iv.description || "No description"}</p>
+                <TypeBadge type={iv.type as "service" | "repair" | "replacement"} dict={dict} />
+                <p className="mt-1.5 font-semibold">{iv.description || dict.components.detail.noDescription}</p>
                 <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   {iv.kms != null && <span>{formatDistance(iv.kms, distanceUnit)}</span>}
                   {iv.hours_used != null && <span>{formatNumber(iv.hours_used)} h</span>}

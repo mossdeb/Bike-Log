@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function NewInterventionPage({
   params,
@@ -19,6 +20,10 @@ export default async function NewInterventionPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
 
@@ -34,7 +39,7 @@ export default async function NewInterventionPage({
     <div className="max-w-2xl pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
-          Bikes
+          {dict.bikes.breadcrumb}
         </Link>
         <span className="mx-1.5">/</span>
         <Link href={`/bikes/${bike.id}`} className="hover:text-foreground">
@@ -45,13 +50,13 @@ export default async function NewInterventionPage({
           {component.name}
         </Link>
         <span className="mx-1.5">/</span>
-        <span className="text-foreground">Log intervention</span>
+        <span className="text-foreground">{dict.components.detail.logIntervention}</span>
       </div>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">Log an intervention</h1>
+        <h1 className="text-2xl font-display font-bold">{dict.interventions.form.addTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Log a service, repair or replacement for {component.name}.
+          {dict.interventions.form.addSubtitle(component.name)}
         </p>
       </div>
 
@@ -63,12 +68,12 @@ export default async function NewInterventionPage({
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>Type *</Label>
+            <Label>{dict.interventions.form.type}</Label>
             <div className="flex gap-2">
               {(["service", "repair", "replacement"] as const).map((type, i) => (
                 <label
                   key={type}
-                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold capitalize has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
+                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
                 >
                   <input
                     type="radio"
@@ -77,41 +82,41 @@ export default async function NewInterventionPage({
                     defaultChecked={i === 0}
                     className="sr-only"
                   />
-                  {type}
+                  {dict.interventionType[type]}
                 </label>
               ))}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="date">Date *</Label>
+            <Label htmlFor="date">{dict.interventions.form.date}</Label>
             <Input id="date" name="date" type="date" required />
           </div>
           <div />
 
           <div className="space-y-1.5">
-            <Label htmlFor="hours_used">Hours of use</Label>
-            <Input id="hours_used" name="hours_used" type="number" step="0.1" placeholder="Optional" />
+            <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
+            <Input id="hours_used" name="hours_used" type="number" step="0.1" placeholder={dict.interventions.form.optional} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="kms">Kms</Label>
-            <Input id="kms" name="kms" type="number" step="0.1" placeholder="Optional" />
+            <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
+            <Input id="kms" name="kms" type="number" step="0.1" placeholder={dict.interventions.form.optional} />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">{dict.interventions.form.description}</Label>
             <Input
               id="description"
               name="description"
-              placeholder="e.g. Full service, new seals and oil"
+              placeholder={dict.interventions.form.descriptionPlaceholder}
               required
             />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" placeholder="Anything else worth remembering" />
+            <Label htmlFor="notes">{dict.interventions.form.notes}</Label>
+            <Textarea id="notes" name="notes" placeholder={dict.interventions.form.notesPlaceholder} />
           </div>
         </div>
 
@@ -122,9 +127,9 @@ export default async function NewInterventionPage({
             type="button"
             variant="outline"
           >
-            Cancel
+            {dict.interventions.form.cancel}
           </Button>
-          <Button type="submit">Save entry</Button>
+          <Button type="submit">{dict.interventions.form.saveNew}</Button>
         </div>
       </form>
     </div>

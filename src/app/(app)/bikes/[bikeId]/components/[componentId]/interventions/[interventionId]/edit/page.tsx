@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { kmToUnit } from "@/lib/format";
 
 export default async function EditInterventionPage({
   params,
@@ -20,6 +22,10 @@ export default async function EditInterventionPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
 
@@ -43,7 +49,7 @@ export default async function EditInterventionPage({
     <div className="max-w-2xl pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
-          Bikes
+          {dict.bikes.breadcrumb}
         </Link>
         <span className="mx-1.5">/</span>
         <Link href={`/bikes/${bike.id}`} className="hover:text-foreground">
@@ -54,13 +60,13 @@ export default async function EditInterventionPage({
           {component.name}
         </Link>
         <span className="mx-1.5">/</span>
-        <span className="text-foreground">Edit intervention</span>
+        <span className="text-foreground">{dict.interventions.form.editBreadcrumb}</span>
       </div>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">Edit intervention</h1>
+        <h1 className="text-2xl font-display font-bold">{dict.interventions.form.editTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Update this entry for {component.name}.
+          {dict.interventions.form.editSubtitle(component.name)}
         </p>
       </div>
 
@@ -72,12 +78,12 @@ export default async function EditInterventionPage({
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>Type *</Label>
+            <Label>{dict.interventions.form.type}</Label>
             <div className="flex gap-2">
               {(["service", "repair", "replacement"] as const).map((type) => (
                 <label
                   key={type}
-                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold capitalize has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
+                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
                 >
                   <input
                     type="radio"
@@ -86,20 +92,20 @@ export default async function EditInterventionPage({
                     defaultChecked={intervention.type === type}
                     className="sr-only"
                   />
-                  {type}
+                  {dict.interventionType[type]}
                 </label>
               ))}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="date">Date *</Label>
+            <Label htmlFor="date">{dict.interventions.form.date}</Label>
             <Input id="date" name="date" type="date" defaultValue={intervention.date} required />
           </div>
           <div />
 
           <div className="space-y-1.5">
-            <Label htmlFor="hours_used">Hours of use</Label>
+            <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
             <Input
               id="hours_used"
               name="hours_used"
@@ -110,12 +116,18 @@ export default async function EditInterventionPage({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="kms">Kms</Label>
-            <Input id="kms" name="kms" type="number" step="0.1" defaultValue={intervention.kms ?? ""} />
+            <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
+            <Input
+              id="kms"
+              name="kms"
+              type="number"
+              step="0.1"
+              defaultValue={intervention.kms != null ? Math.round(kmToUnit(intervention.kms, distanceUnit) * 10) / 10 : ""}
+            />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">{dict.interventions.form.description}</Label>
             <Input
               id="description"
               name="description"
@@ -125,7 +137,7 @@ export default async function EditInterventionPage({
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">{dict.interventions.form.notes}</Label>
             <Textarea id="notes" name="notes" defaultValue={intervention.notes ?? ""} />
           </div>
         </div>
@@ -137,23 +149,27 @@ export default async function EditInterventionPage({
             type="button"
             variant="outline"
           >
-            Cancel
+            {dict.interventions.form.cancel}
           </Button>
-          <Button type="submit">Save changes</Button>
+          <Button type="submit">{dict.interventions.form.saveEdit}</Button>
         </div>
       </form>
 
       <div className="mt-6 rounded-lg border border-destructive/30 bg-card p-6">
-        <p className="text-sm font-semibold">Delete this entry</p>
+        <p className="text-sm font-semibold">{dict.interventions.form.deleteTitle}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {`Permanently deletes this ${intervention.type} entry. This can't be undone.`}
+          {dict.interventions.form.deleteDesc(dict.interventionType[intervention.type as "service" | "repair" | "replacement"])}
         </p>
         <div className="mt-4">
           <DeleteConfirmButton
             action={deleteIntervention.bind(null, bike.id, component.id, intervention.id)}
-            title="Delete this entry?"
-            description={`This permanently deletes this ${intervention.type} entry from ${component.name}'s history.`}
-            triggerLabel="Delete entry"
+            title={dict.interventions.form.deleteConfirmTitle}
+            description={dict.interventions.form.deleteConfirmDesc(
+              dict.interventionType[intervention.type as "service" | "repair" | "replacement"],
+              component.name
+            )}
+            triggerLabel={dict.interventions.form.deleteButton}
+            cancelLabel={dict.interventions.form.cancel}
           />
         </div>
       </div>

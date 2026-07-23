@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function NewComponentPage({
   params,
@@ -22,6 +23,9 @@ export default async function NewComponentPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
 
@@ -31,21 +35,19 @@ export default async function NewComponentPage({
     <div className="max-w-2xl pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
-          Bikes
+          {dict.bikes.breadcrumb}
         </Link>
         <span className="mx-1.5">/</span>
         <Link href={`/bikes/${bike.id}`} className="hover:text-foreground">
           {bike.name}
         </Link>
         <span className="mx-1.5">/</span>
-        <span className="text-foreground">Add component</span>
+        <span className="text-foreground">{dict.bikes.detail.addComponent}</span>
       </div>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">Add a component</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Add a new component to {bike.name}.
-        </p>
+        <h1 className="text-2xl font-display font-bold">{dict.components.form.addTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.addSubtitle(bike.name)}</p>
       </div>
 
       <FormError message={error} />
@@ -56,13 +58,13 @@ export default async function NewComponentPage({
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name">{dict.components.form.name}</Label>
             <Input
               id="name"
               name="name"
               list="component-suggestions"
               autoComplete="off"
-              placeholder="e.g. Rear shock"
+              placeholder={dict.components.form.namePlaceholder}
               required
             />
             <datalist id="component-suggestions">
@@ -73,7 +75,7 @@ export default async function NewComponentPage({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{dict.components.form.category}</Label>
             <select
               id="category"
               name="category"
@@ -88,40 +90,38 @@ export default async function NewComponentPage({
             </select>
           </div>
 
-          <BrandField manufacturers={manufacturers} />
+          <BrandField manufacturers={manufacturers} dict={dict} />
 
           <div className="space-y-1.5">
-            <Label htmlFor="model">Model</Label>
-            <Input id="model" name="model" placeholder="e.g. Float X2" />
+            <Label htmlFor="model">{dict.components.form.model}</Label>
+            <Input id="model" name="model" placeholder={dict.components.form.modelPlaceholder} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="serial_number">Serial number</Label>
-            <Input id="serial_number" name="serial_number" placeholder="Optional" />
+            <Label htmlFor="serial_number">{dict.components.form.serialNumber}</Label>
+            <Input id="serial_number" name="serial_number" placeholder={dict.components.form.optional} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="install_date">Install date</Label>
+            <Label htmlFor="install_date">{dict.components.form.installDate}</Label>
             <Input id="install_date" name="install_date" type="date" />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="interval_months">Service interval (months)</Label>
+            <Label htmlFor="interval_months">{dict.components.form.intervalMonths}</Label>
             <Input
               id="interval_months"
               name="interval_months"
               type="number"
-              placeholder="e.g. 6"
+              placeholder={dict.components.form.intervalPlaceholder}
               className="max-w-[140px]"
             />
-            <p className="text-xs text-muted-foreground">
-              Used to calculate the next service due date.
-            </p>
+            <p className="text-xs text-muted-foreground">{dict.components.form.intervalHint}</p>
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea id="notes" name="notes" placeholder="Optional" />
+            <Label htmlFor="notes">{dict.components.form.notes}</Label>
+            <Textarea id="notes" name="notes" placeholder={dict.components.form.optional} />
           </div>
         </div>
 
@@ -132,9 +132,9 @@ export default async function NewComponentPage({
             type="button"
             variant="outline"
           >
-            Cancel
+            {dict.components.form.cancel}
           </Button>
-          <Button type="submit">Save component</Button>
+          <Button type="submit">{dict.components.form.saveNew}</Button>
         </div>
       </form>
     </div>

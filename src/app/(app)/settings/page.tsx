@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { FormError } from "@/components/form-error";
 import { ThemeSelect } from "@/components/theme-select";
 import { PreferencesForm } from "@/components/preferences-form";
+import { NotificationsForm } from "@/components/notifications-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { getInitials } from "@/lib/initials";
 import { updateFullName, deleteAccount } from "@/lib/actions/settings";
@@ -32,22 +33,6 @@ function SettingsSection({
   );
 }
 
-function ToggleRow({ label, sub, defaultChecked }: { label: string; sub: string; defaultChecked?: boolean }) {
-  return (
-    <div className="flex items-center justify-between gap-4 border-t border-border py-3.5 first:border-t-0 first:pt-0">
-      <div>
-        <p className="text-sm font-semibold">{label}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>
-      </div>
-      <label className="relative inline-flex h-6 w-[42px] shrink-0 cursor-pointer items-center">
-        <input type="checkbox" defaultChecked={defaultChecked} className="peer sr-only" />
-        <span className="absolute inset-0 rounded-full border border-input bg-muted transition-colors peer-checked:border-transparent peer-checked:bg-primary" />
-        <span className="absolute left-0.5 size-[18px] rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px]" />
-      </label>
-    </div>
-  );
-}
-
 export default async function SettingsPage({
   searchParams,
 }: {
@@ -60,6 +45,11 @@ export default async function SettingsPage({
   const email = (user?.email as string) ?? "";
   const name = user?.user_metadata?.full_name as string | undefined;
   const distanceUnit = (user?.user_metadata?.distance_unit as string) ?? "km";
+  const notificationPrefs = {
+    dueSoon: (user?.user_metadata?.notify_due_soon as boolean) ?? true,
+    overdue: (user?.user_metadata?.notify_overdue as boolean) ?? true,
+    weeklySummary: (user?.user_metadata?.notify_weekly_summary as boolean) ?? false,
+  };
   const providers = (user?.app_metadata?.providers as string[] | undefined) ?? [];
   const isGoogleUser = providers.includes("google");
 
@@ -107,20 +97,7 @@ export default async function SettingsPage({
           title={dict.settings.notifications.title}
           description={dict.settings.notifications.description}
         >
-          <ToggleRow
-            label={dict.settings.notifications.dueSoon}
-            sub={dict.settings.notifications.dueSoonSub}
-            defaultChecked
-          />
-          <ToggleRow
-            label={dict.settings.notifications.overdue}
-            sub={dict.settings.notifications.overdueSub}
-            defaultChecked
-          />
-          <ToggleRow
-            label={dict.settings.notifications.weeklySummary}
-            sub={dict.settings.notifications.weeklySummarySub}
-          />
+          <NotificationsForm prefs={notificationPrefs} dict={dict.settings.notifications} />
         </SettingsSection>
 
         <SettingsSection

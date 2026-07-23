@@ -227,6 +227,30 @@ const pt: Dictionary = {
     placeholder: "Comece a escrever uma marca…",
     hint: "Lista de marcas de",
   },
+  email: {
+    dueSoon: {
+      subject: (componentName: string): string => `${componentName} vai precisar de manutenção em breve`,
+      heading: "Manutenção brevemente",
+      body: (componentName: string, bikeName: string, dueDate: string): string =>
+        `${componentName} da ${bikeName} tem manutenção prevista para ${dueDate}.`,
+    },
+    overdue: {
+      subject: (componentName: string): string => `${componentName} está com a manutenção em atraso`,
+      heading: "Manutenção em atraso",
+      body: (componentName: string, bikeName: string, daysOverdue: number): string =>
+        `${componentName} da ${bikeName} está ${daysOverdue === 1 ? "há 1 dia" : `há ${daysOverdue} dias`} com a manutenção em atraso.`,
+    },
+    weeklySummary: {
+      subject: "O seu resumo semanal da BikeLog",
+      heading: "Resumo semanal",
+      intro: "Aqui está o estado de manutenção da sua frota esta semana.",
+      overdueSection: "Em atraso",
+      dueSoonSection: "Brevemente",
+      noneNeedAttention: "Está tudo em dia. Bom trabalho!",
+    },
+    cta: "Ver na BikeLog",
+    footer: "Está a receber este email porque ativou os alertas de manutenção nas definições da BikeLog.",
+  },
   auth: {
     login: {
       welcomeBack: "Bem-vindo de volta",

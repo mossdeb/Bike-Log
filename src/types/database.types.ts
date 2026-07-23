@@ -187,6 +187,48 @@ export type Database = {
           },
         ]
       }
+      notification_log: {
+        Row: {
+          component_id: string | null
+          episode_date: string | null
+          id: string
+          sent_at: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          component_id?: string | null
+          episode_date?: string | null
+          id?: string
+          sent_at?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          component_id?: string | null
+          episode_date?: string | null
+          id?: string
+          sent_at?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_log_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_log_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components_status"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       components_status: {

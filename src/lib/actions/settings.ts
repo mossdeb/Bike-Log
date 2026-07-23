@@ -61,3 +61,20 @@ export async function updatePreferences(formData: FormData) {
 
   revalidatePath("/", "layout");
 }
+
+export async function updateNotificationPreferences(formData: FormData) {
+  const supabase = await createClient();
+
+  await supabase.auth.updateUser({
+    data: {
+      // Unchecked checkboxes are simply absent from FormData.
+      notify_due_soon: formData.get("notify_due_soon") === "on",
+      notify_overdue: formData.get("notify_overdue") === "on",
+      notify_weekly_summary: formData.get("notify_weekly_summary") === "on",
+    },
+  });
+
+  await supabase.auth.refreshSession();
+
+  revalidatePath("/settings");
+}

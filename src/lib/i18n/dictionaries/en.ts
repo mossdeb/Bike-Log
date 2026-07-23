@@ -223,6 +223,30 @@ const en = {
     placeholder: "Start typing a brand…",
     hint: "Brand list from",
   },
+  email: {
+    dueSoon: {
+      subject: (componentName: string): string => `${componentName} is due for service soon`,
+      heading: "Service due soon",
+      body: (componentName: string, bikeName: string, dueDate: string): string =>
+        `${componentName} on ${bikeName} is due for service on ${dueDate}.`,
+    },
+    overdue: {
+      subject: (componentName: string): string => `${componentName} is overdue for service`,
+      heading: "Service overdue",
+      body: (componentName: string, bikeName: string, daysOverdue: number): string =>
+        `${componentName} on ${bikeName} is ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue for service.`,
+    },
+    weeklySummary: {
+      subject: "Your weekly BikeLog summary",
+      heading: "Weekly summary",
+      intro: "Here's the maintenance status of your fleet this week.",
+      overdueSection: "Overdue",
+      dueSoonSection: "Due soon",
+      noneNeedAttention: "Nothing needs attention right now. Nice work!",
+    },
+    cta: "View in BikeLog",
+    footer: "You're receiving this because you enabled maintenance email alerts in your BikeLog settings.",
+  },
   auth: {
     login: {
       welcomeBack: "Welcome back",

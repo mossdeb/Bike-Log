@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { LandingDictionary } from "@/components/landing/i18n/en";
 
 function Badge({ children }: { children: ReactNode }) {
   return (
@@ -68,68 +69,62 @@ function AlertRow({
   );
 }
 
-const historyEntries = [
-  {
-    date: "22 jul",
-    tag: "Serviço",
-    tagColor: "bg-[#6F5BE9] text-white",
-    title: "Revisão 62h",
-    note: "Oleo e Kit revisão",
-    icon: "/landing/icons/badge-service.svg",
-  },
-  {
-    date: "12 May",
-    tag: "Substituição",
-    tagColor: "bg-[#101014] text-white",
-    title: "Retentores",
-    note: "",
-    icon: "/landing/icons/badge-swap.svg",
-  },
-  {
-    date: "10 jan",
-    tag: "Reparação",
-    tagColor: "bg-[#43F3AF] text-[#101014]",
-    title: "Reparação das Bainhas",
-    note: "",
-    icon: "/landing/icons/badge-repair.svg",
-  },
-];
+export function LandingFeatures({ dict }: { dict: LandingDictionary["features"] }) {
+  const historyEntries = [
+    {
+      date: "22 Jul",
+      tag: dict.card3.entry1Tag,
+      tagColor: "bg-[#6F5BE9] text-white",
+      title: dict.card3.entry1Title,
+      note: dict.card3.entry1Note,
+      icon: "/landing/icons/badge-service.svg",
+    },
+    {
+      date: "12 May",
+      tag: dict.card3.entry2Tag,
+      tagColor: "bg-[#101014] text-white",
+      title: dict.card3.entry2Title,
+      note: "",
+      icon: "/landing/icons/badge-swap.svg",
+    },
+    {
+      date: "10 Jan",
+      tag: dict.card3.entry3Tag,
+      tagColor: "bg-[#43F3AF] text-[#101014]",
+      title: dict.card3.entry3Title,
+      note: "",
+      icon: "/landing/icons/badge-repair.svg",
+    },
+  ];
 
-export function LandingFeatures() {
   return (
     <section id="funcionalidades" className="bg-white px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto max-w-[1160px]">
         <div className="flex max-w-[620px] flex-col gap-3.5">
-          <Badge>Funcionalidades</Badge>
+          <Badge>{dict.badge}</Badge>
           <h2 className="font-[family-name:var(--font-landing-heading)] text-3xl font-bold leading-tight tracking-tight text-[#101014] sm:text-[36.8px]">
-            Tudo o que precisas para cuidar da tua bicicleta
+            {dict.title}
           </h2>
-          <p className="text-base leading-relaxed text-[#35363C] sm:text-[16.3px]">
-            Sem folhas de cálculo, sem post-its na garagem. Um sítio só para as tuas bicicletas, os teus
-            componentes e o histórico de tudo o que lhes fizeste.
-          </p>
+          <p className="text-base leading-relaxed text-[#35363C] sm:text-[16.3px]">{dict.subtitle}</p>
         </div>
 
         <div className="mt-10 flex flex-col gap-5">
           {/* Card 1 - green */}
           <div className="grid grid-cols-1 items-center gap-10 rounded-[32px] bg-[#43F3AF] p-6 sm:p-12 md:grid-cols-2">
             <div className="rounded-[22px] bg-white p-5 shadow-lg">
-              <p className="mb-1 text-sm font-bold text-[#101014] opacity-85">Componentes — A minha Bicicleta</p>
+              <p className="mb-1 text-sm font-bold text-[#101014] opacity-85">{dict.card1.panelTitle}</p>
               <div className="mt-4">
-                <ComponentRow icon="/landing/icons/shock.svg" title="Amortecedor — Fox Float X2" subtitle="Instalado há 8 meses" />
-                <ComponentRow icon="/landing/icons/disc.svg" title="Travões — Shimano XT" subtitle="Instalado há 2 meses" />
-                <ComponentRow icon="/landing/icons/chain.svg" title="Corrente — SRAM GX" subtitle="Instalada há 3 meses" last />
+                <ComponentRow icon="/landing/icons/shock.svg" title={dict.card1.row1Title} subtitle={dict.card1.row1Sub} />
+                <ComponentRow icon="/landing/icons/disc.svg" title={dict.card1.row2Title} subtitle={dict.card1.row2Sub} />
+                <ComponentRow icon="/landing/icons/chain.svg" title={dict.card1.row3Title} subtitle={dict.card1.row3Sub} last />
               </div>
             </div>
             <div className="flex flex-col gap-4">
               <img src="/landing/icons/wrench-mountain.svg" alt="" className="h-8 w-9" />
               <h3 className="font-[family-name:var(--font-landing-heading)] text-2xl font-bold leading-snug text-[#101014] sm:text-[28px]">
-                Cada bicicleta, cada componente, num só sítio
+                {dict.card1.heading}
               </h3>
-              <p className="text-[15px] leading-relaxed text-[#101014]/85">
-                Cria um perfil para cada bicicleta e regista suspensão, travões, transmissão, rodas — tudo. Sabes
-                sempre o que tens montado e há quanto tempo está lá.
-              </p>
+              <p className="text-[15px] leading-relaxed text-[#101014]/85">{dict.card1.body}</p>
             </div>
           </div>
 
@@ -138,19 +133,34 @@ export function LandingFeatures() {
             <div className="flex flex-col gap-4">
               <img src="/landing/icons/bell.svg" alt="" className="h-8 w-7" />
               <h3 className="font-[family-name:var(--font-landing-heading)] text-2xl font-bold leading-snug text-white sm:text-[28px]">
-                Alertas antes que seja tarde
+                {dict.card2.heading}
               </h3>
-              <p className="max-w-[400px] text-[15px] leading-relaxed text-white/85">
-                Define intervalos de manutenção por componente. O BikeLog acompanha os quilómetros e os meses, e
-                avisa-te quando algo se aproxima do limite.
-              </p>
+              <p className="max-w-[400px] text-[15px] leading-relaxed text-white/85">{dict.card2.body}</p>
             </div>
             <div className="rounded-[22px] bg-white/[0.06] p-5">
-              <p className="mb-1 text-sm font-bold text-white/60">Precisa de atenção</p>
+              <p className="mb-1 text-sm font-bold text-white/60">{dict.card2.panelTitle}</p>
               <div className="mt-3 divide-y divide-white/10">
-                <AlertRow icon="/landing/icons/tire.svg" title="Pneus — Trek Domane" subtitle="Ok, revisto há 1 mês" status="Em dia" statusColor="success" />
-                <AlertRow icon="/landing/icons/chain.svg" title="Corrente — Peugeot Gravel" subtitle="Desgaste a 0.5% do limite" status="Em breve" statusColor="warning" />
-                <AlertRow icon="/landing/icons/disc.svg" title="Travões — Canyon Spectral" subtitle="Serviço vencido há 12 dias" status="Atrasado" statusColor="danger" />
+                <AlertRow
+                  icon="/landing/icons/tire.svg"
+                  title={dict.card2.alert1Title}
+                  subtitle={dict.card2.alert1Sub}
+                  status={dict.card2.alert1Status}
+                  statusColor="success"
+                />
+                <AlertRow
+                  icon="/landing/icons/chain.svg"
+                  title={dict.card2.alert2Title}
+                  subtitle={dict.card2.alert2Sub}
+                  status={dict.card2.alert2Status}
+                  statusColor="warning"
+                />
+                <AlertRow
+                  icon="/landing/icons/disc.svg"
+                  title={dict.card2.alert3Title}
+                  subtitle={dict.card2.alert3Sub}
+                  status={dict.card2.alert3Status}
+                  statusColor="danger"
+                />
               </div>
             </div>
           </div>
@@ -162,14 +172,14 @@ export function LandingFeatures() {
                 <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#F1F1F1]">
                   <img src="/landing/icons/shock.svg" alt="" className="h-3.5 w-3.5" />
                 </span>
-                <p className="whitespace-nowrap text-sm font-bold text-[#101014]">fox float x2</p>
+                <p className="whitespace-nowrap text-sm font-bold text-[#101014]">{dict.card3.badgeName}</p>
                 <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#2E9E5B]/[0.13] px-2.5 py-1 text-xs font-bold text-[#2E9E5B]">
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                  Revisão até 22 Jan 2027
+                  {dict.card3.badgeStatus}
                 </span>
               </div>
               <div className="rounded-[22px] bg-white p-5 shadow-lg">
-                <p className="mb-2 text-sm font-bold text-[#101014]">Histórico</p>
+                <p className="mb-2 text-sm font-bold text-[#101014]">{dict.card3.panelTitle}</p>
                 <div className="mt-2 divide-y divide-[#101014]/[0.06]">
                   {historyEntries.map((entry) => (
                     <div key={entry.title} className="flex items-center gap-3 py-3">
@@ -191,12 +201,9 @@ export function LandingFeatures() {
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="font-[family-name:var(--font-landing-heading)] text-2xl font-bold leading-snug text-[#101014] sm:text-[28px]">
-                Histórico completo de intervenções
+                {dict.card3.heading}
               </h3>
-              <p className="text-[15px] leading-relaxed text-[#35363C]">
-                Serviço, reparação ou substituição — cada intervenção fica registada, com data, quilómetros e
-                notas. O histórico da tua bicicleta nunca se perde.
-              </p>
+              <p className="text-[15px] leading-relaxed text-[#35363C]">{dict.card3.body}</p>
             </div>
           </div>
         </div>

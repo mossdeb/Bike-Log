@@ -1,17 +1,7 @@
 import Link from "next/link";
+import type { LandingDictionary } from "@/components/landing/i18n/en";
 
-const PRODUCT_LINKS = [
-  { label: "Funcionalidades", href: "#funcionalidades" },
-  { label: "Preços", href: "#precos" },
-  { label: "FAQ", href: "#faq" },
-];
-
-const ACCOUNT_LINKS = [
-  { label: "Entrar", href: "/login" },
-  { label: "Criar conta", href: "/signup" },
-];
-
-export function LandingFooter() {
+export function LandingFooter({ dict }: { dict: LandingDictionary["footer"] }) {
   return (
     <footer className="bg-white px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto max-w-[1160px]">
@@ -23,35 +13,33 @@ export function LandingFooter() {
                 BikeLog
               </span>
             </div>
-            <p className="text-sm leading-relaxed text-[#8A8D93]">
-              Manutenção de bicicletas, sem folhas de cálculo. A ferramenta definitiva para ciclistas que cuidam
-              das suas máquinas.
-            </p>
+            <p className="text-sm leading-relaxed text-[#8A8D93]">{dict.tagline}</p>
           </div>
 
           <div className="flex gap-14 sm:gap-16">
             <div className="flex flex-col gap-2.5">
-              <p className="text-xs font-bold uppercase tracking-wide text-[#8A8D93]">Produto</p>
-              {PRODUCT_LINKS.map((link) => (
+              <p className="text-xs font-bold uppercase tracking-wide text-[#8A8D93]">{dict.productHeading}</p>
+              {dict.productLinks.map((link) => (
                 <a key={link.label} href={link.href} className="text-sm text-[#101014] hover:text-[#35363C]">
                   {link.label}
                 </a>
               ))}
             </div>
             <div className="flex flex-col gap-2.5">
-              <p className="text-xs font-bold uppercase tracking-wide text-[#8A8D93]">Conta</p>
-              {ACCOUNT_LINKS.map((link) => (
-                <Link key={link.label} href={link.href} className="text-sm text-[#101014] hover:text-[#35363C]">
-                  {link.label}
-                </Link>
-              ))}
+              <p className="text-xs font-bold uppercase tracking-wide text-[#8A8D93]">{dict.accountHeading}</p>
+              <Link href="/login" className="text-sm text-[#101014] hover:text-[#35363C]">
+                {dict.accountLogin}
+              </Link>
+              <Link href="/signup" className="text-sm text-[#101014] hover:text-[#35363C]">
+                {dict.accountSignup}
+              </Link>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-2 pt-4 text-xs text-[#8A8D93] sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 BikeLog. Todos os direitos reservados.</p>
-          <p>Feito para quem gosta de cuidar da própria bicicleta.</p>
+          <p>{dict.copyright}</p>
+          <p>{dict.madeFor}</p>
         </div>
       </div>
     </footer>

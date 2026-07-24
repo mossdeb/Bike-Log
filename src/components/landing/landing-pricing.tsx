@@ -1,55 +1,23 @@
 import Link from "next/link";
+import type { LandingDictionary } from "@/components/landing/i18n/en";
 
-const PLANS = [
-  {
-    name: "Grátis",
-    description: "Para experimentar sem compromisso.",
-    price: "€0",
-    period: "para sempre",
-    features: ["1 bicicleta", "Até 2 componentes", "Histórico de intervenções", "Alertas de manutenção"],
-    cta: "Começar grátis",
-    highlighted: false,
-  },
-  {
-    name: "Pessoal",
-    description: "Para quem tem mais que uma bicicleta.",
-    price: "€3,99",
-    period: "/ mês",
-    features: ["Até 3 bicicletas", "Componentes ilimitados", "Histórico de intervenções", "Alertas de manutenção"],
-    cta: "Escolher Pessoal",
-    highlighted: true,
-    badge: "Mais popular",
-  },
-  {
-    name: "Pro",
-    description: "Para coleções sem limites e mais controlo.",
-    price: "€7,99",
-    period: "/ mês",
-    features: ["Bicicletas ilimitadas", "Componentes ilimitados", "Histórico de intervenções", "Relatórios e exportação"],
-    cta: "Escolher Pro",
-    highlighted: false,
-  },
-];
-
-export function LandingPricing() {
+export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] }) {
   return (
     <section id="precos" className="bg-white px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto flex max-w-[1160px] flex-col items-center gap-12">
         <div className="flex max-w-[620px] flex-col items-center gap-3.5 text-center">
           <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[#43F3AF] px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-[#101014]">
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
-            Preços
+            {dict.badge}
           </span>
           <h2 className="font-[family-name:var(--font-landing-heading)] text-3xl font-bold leading-tight tracking-tight text-[#101014] sm:text-[36.8px]">
-            Escolhe o plano para o teu parque de bicicletas
+            {dict.title}
           </h2>
-          <p className="text-base leading-relaxed text-[#35363C] sm:text-[16.3px]">
-            Começa grátis. Sobe de plano quando tiveres mais que uma bicicleta para cuidar.
-          </p>
+          <p className="text-base leading-relaxed text-[#35363C] sm:text-[16.3px]">{dict.subtitle}</p>
         </div>
 
         <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-3">
-          {PLANS.map((plan) => (
+          {dict.plans.map((plan) => (
             <div
               key={plan.name}
               className={`flex flex-col rounded-[22px] border p-7 ${

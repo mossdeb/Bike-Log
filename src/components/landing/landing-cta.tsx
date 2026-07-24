@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { LandingDictionary } from "@/components/landing/i18n/en";
 
-export function LandingCTA() {
+export function LandingCTA({ dict }: { dict: LandingDictionary["cta"] }) {
   return (
     <section className="bg-[#E9EBF6] px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto max-w-[1160px]">
@@ -31,22 +32,20 @@ export function LandingCTA() {
             </div>
 
             <h2 className="max-w-[620px] font-[family-name:var(--font-landing-heading)] text-3xl font-bold leading-tight tracking-tight text-[#F5F3EE] sm:text-[38.4px]">
-              Pronto para deixar de adivinhar quando foi a última manutenção?
+              {dict.title}
             </h2>
 
-            <p className="max-w-[440px] text-sm leading-relaxed text-white/85">
-              Cria a tua conta e regista a tua primeira bicicleta em menos de dois minutos.
-            </p>
+            <p className="max-w-[440px] text-sm leading-relaxed text-white/85">{dict.subtitle}</p>
 
             <Link
               href="/signup"
               className="inline-flex items-center gap-2 rounded-full bg-[#43F3AF] px-6 py-3.5 text-sm font-bold text-[#06291F] transition-opacity hover:opacity-90"
             >
-              Começar grátis
+              {dict.button}
               <img src="/landing/icons/arrow.svg" alt="" className="h-3.5 w-3.5" />
             </Link>
 
-            <p className="text-sm text-white">Grátis para sempre · 1 bicicleta incluída</p>
+            <p className="text-sm text-white">{dict.footer}</p>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LandingPage } from "@/components/landing/landing-page";
+import { LANDING_LOCALE_COOKIE, type LandingLocale } from "@/components/landing/i18n";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -8,5 +10,8 @@ export default async function Home() {
 
   if (data?.claims) redirect("/dashboard");
 
-  return <LandingPage />;
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LANDING_LOCALE_COOKIE)?.value as LandingLocale) ?? "en";
+
+  return <LandingPage locale={locale} />;
 }

@@ -7,21 +7,24 @@ import { LandingPricing } from "@/components/landing/landing-pricing";
 import { LandingFAQ } from "@/components/landing/landing-faq";
 import { LandingCTA } from "@/components/landing/landing-cta";
 import { LandingFooter } from "@/components/landing/landing-footer";
+import { getLandingDictionary, type LandingLocale } from "@/components/landing/i18n";
 
-export function LandingPage() {
+export function LandingPage({ locale }: { locale: LandingLocale }) {
+  const dict = getLandingDictionary(locale);
+
   return (
     <div
       id="top"
       className={`${landingHeadingFont.variable} ${landingBodyFont.variable} min-h-screen bg-white font-[family-name:var(--font-landing-body)]`}
     >
-      <LandingHeader />
-      <LandingHero />
-      <LandingFeatures />
-      <LandingHowItWorks />
-      <LandingPricing />
-      <LandingFAQ />
-      <LandingCTA />
-      <LandingFooter />
+      <LandingHeader nav={dict.nav} locale={locale} />
+      <LandingHero dict={dict.hero} />
+      <LandingFeatures dict={dict.features} />
+      <LandingHowItWorks dict={dict.howItWorks} />
+      <LandingPricing dict={dict.pricing} />
+      <LandingFAQ dict={dict.faq} />
+      <LandingCTA dict={dict.cta} />
+      <LandingFooter dict={dict.footer} />
     </div>
   );
 }

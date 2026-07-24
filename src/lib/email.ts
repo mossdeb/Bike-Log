@@ -5,8 +5,6 @@ import { formatDate } from "@/lib/format";
 // Resend's shared testing domain — works with just an API key, no DNS setup.
 const FROM = "BikeLog <onboarding@resend.dev>";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
 // Constructed lazily (and only once RESEND_API_KEY exists) so the app and
 // the cron route still run — just without sending — before it's configured.
 function getResendClient(): Resend | null {
@@ -41,6 +39,7 @@ export async function sendDueSoonEmail(params: {
   bikeName: string;
   dueDate: string;
   componentUrl: string;
+  siteUrl: string;
 }): Promise<boolean> {
   const client = getResendClient();
   if (!client) return false;
@@ -50,7 +49,7 @@ export async function sendDueSoonEmail(params: {
     dict.dueSoon.heading,
     `<p style="margin:0;font-size:15px;line-height:1.5;">${dict.dueSoon.body(params.componentName, params.bikeName, formatDate(params.dueDate))}</p>`,
     dict.cta,
-    `${SITE_URL}${params.componentUrl}`,
+    `${params.siteUrl}${params.componentUrl}`,
     dict.footer
   );
   const { error } = await client.emails.send({
@@ -69,6 +68,7 @@ export async function sendOverdueEmail(params: {
   bikeName: string;
   daysOverdue: number;
   componentUrl: string;
+  siteUrl: string;
 }): Promise<boolean> {
   const client = getResendClient();
   if (!client) return false;
@@ -78,7 +78,7 @@ export async function sendOverdueEmail(params: {
     dict.overdue.heading,
     `<p style="margin:0;font-size:15px;line-height:1.5;">${dict.overdue.body(params.componentName, params.bikeName, params.daysOverdue)}</p>`,
     dict.cta,
-    `${SITE_URL}${params.componentUrl}`,
+    `${params.siteUrl}${params.componentUrl}`,
     dict.footer
   );
   const { error } = await client.emails.send({
@@ -102,6 +102,7 @@ export async function sendWeeklySummaryEmail(params: {
   locale: Locale;
   overdue: WeeklySummaryItem[];
   dueSoon: WeeklySummaryItem[];
+  siteUrl: string;
 }): Promise<boolean> {
   const client = getResendClient();
   if (!client) return false;
@@ -113,7 +114,7 @@ export async function sendWeeklySummaryEmail(params: {
     const rows = items
       .map(
         (item) =>
-          `<li style="margin-bottom:8px;"><a href="${SITE_URL}${item.url}" style="color:#101014;text-decoration:none;font-weight:600;">${item.componentName}</a> — ${item.bikeName} <span style="color:#8a8d93;">(${item.detail})</span></li>`
+          `<li style="margin-bottom:8px;"><a href="${params.siteUrl}${item.url}" style="color:#101014;text-decoration:none;font-weight:600;">${item.componentName}</a> — ${item.bikeName} <span style="color:#8a8d93;">(${item.detail})</span></li>`
       )
       .join("");
     return `<h2 style="font-size:14px;margin:20px 0 8px;">${title}</h2><ul style="margin:0;padding-left:18px;font-size:14px;">${rows}</ul>`;
@@ -126,7 +127,7 @@ export async function sendWeeklySummaryEmail(params: {
        ${renderSection(dict.weeklySummary.dueSoonSection, params.dueSoon)}`
     : `<p style="margin:0;font-size:15px;line-height:1.5;">${dict.weeklySummary.noneNeedAttention}</p>`;
 
-  const html = wrapEmail(dict.weeklySummary.heading, body, dict.cta, `${SITE_URL}/dashboard`, dict.footer);
+  const html = wrapEmail(dict.weeklySummary.heading, body, dict.cta, `${params.siteUrl}/dashboard`, dict.footer);
 
   const { error } = await client.emails.send({
     from: FROM,

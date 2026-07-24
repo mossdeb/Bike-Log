@@ -1,12 +1,11 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient } from "@/lib/stripe";
 import { PLAN_PRICE_IDS, type PaidPlan } from "@/lib/plans";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export async function createCheckoutSession(formData: FormData) {
   const supabase = await createClient();
@@ -18,6 +17,8 @@ export async function createCheckoutSession(formData: FormData) {
   if (plan !== "personal" && plan !== "pro") {
     redirect("/settings?error=Unknown plan");
   }
+
+  const origin = (await headers()).get("origin");
 
   const admin = createAdminClient();
   const { data: existingSub } = await admin
@@ -33,8 +34,8 @@ export async function createCheckoutSession(formData: FormData) {
     customer_email: existingSub?.stripe_customer_id ? undefined : (user.email as string),
     client_reference_id: user.sub as string,
     line_items: [{ price: PLAN_PRICE_IDS[plan], quantity: 1 }],
-    success_url: `${SITE_URL}/settings?checkout=success`,
-    cancel_url: `${SITE_URL}/settings?checkout=canceled`,
+    success_url: `${origin}/settings?checkout=success`,
+    cancel_url: `${origin}/settings?checkout=canceled`,
   });
 
   if (!session.url) redirect("/settings?error=Could not start checkout");
@@ -46,6 +47,8 @@ export async function createPortalSession() {
   const { data: userData } = await supabase.auth.getClaims();
   const user = userData?.claims;
   if (!user) redirect("/login");
+
+  const origin = (await headers()).get("origin");
 
   const admin = createAdminClient();
   const { data: sub } = await admin
@@ -61,7 +64,7 @@ export async function createPortalSession() {
   const stripe = getStripeClient();
   const session = await stripe.billingPortal.sessions.create({
     customer: sub.stripe_customer_id,
-    return_url: `${SITE_URL}/settings`,
+    return_url: `${origin}/settings`,
   });
 
   redirect(session.url);

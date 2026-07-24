@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { LandingPage } from "@/components/landing/landing-page";
 
-export default function Home() {
-  // proxy.ts already redirects unauthenticated requests to /login before
-  // this ever renders, so reaching here means the user is signed in.
-  redirect("/dashboard");
+export default async function Home() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+
+  if (data?.claims) redirect("/dashboard");
+
+  return <LandingPage />;
 }

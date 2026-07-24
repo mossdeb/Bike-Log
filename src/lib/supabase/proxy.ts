@@ -30,7 +30,11 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route));
+  // "/" is the landing page for signed-out visitors — exact match only, or
+  // startsWith would make every route public.
+  const isPublicRoute =
+    request.nextUrl.pathname === "/" ||
+    PUBLIC_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route));
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();

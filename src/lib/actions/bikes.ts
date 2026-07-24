@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { bikeSchema } from "@/lib/validations/bike.schema";
+import { getUserSubscription } from "@/lib/subscription";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 function parseBikeFormData(formData: FormData) {
   return bikeSchema.safeParse({
@@ -27,6 +29,17 @@ export async function createBike(formData: FormData) {
   const parsed = parseBikeFormData(formData);
   if (!parsed.success) {
     redirect(`/bikes/new?error=${encodeURIComponent(parsed.error.issues[0].message)}`);
+  }
+
+  const { plan } = await getUserSubscription(userId);
+  const maxBikes = PLAN_LIMITS[plan].maxBikes;
+  if (maxBikes !== null) {
+    const { count } = await supabase.from("bikes").select("id", { count: "exact", head: true }).eq("user_id", userId);
+    if ((count ?? 0) >= maxBikes) {
+      redirect(
+        `/bikes/new?error=${encodeURIComponent(`Your ${plan} plan is limited to ${maxBikes} bike${maxBikes === 1 ? "" : "s"}. Upgrade in Settings to add more.`)}`
+      );
+    }
   }
 
   const { data: bike, error } = await supabase

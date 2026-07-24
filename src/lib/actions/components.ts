@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { componentSchema } from "@/lib/validations/component.schema";
+import { getUserSubscription } from "@/lib/subscription";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 function parseComponentFormData(formData: FormData) {
   return componentSchema.safeParse({
@@ -29,6 +31,20 @@ export async function createComponent(bikeId: string, formData: FormData) {
     redirect(
       `/bikes/${bikeId}/components/new?error=${encodeURIComponent(parsed.error.issues[0].message)}`
     );
+  }
+
+  const { plan } = await getUserSubscription(userId);
+  const maxComponents = PLAN_LIMITS[plan].maxComponents;
+  if (maxComponents !== null) {
+    const { count } = await supabase
+      .from("components")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId);
+    if ((count ?? 0) >= maxComponents) {
+      redirect(
+        `/bikes/${bikeId}/components/new?error=${encodeURIComponent(`Your ${plan} plan is limited to ${maxComponents} components. Upgrade in Settings to add more.`)}`
+      );
+    }
   }
 
   const { data: component, error } = await supabase

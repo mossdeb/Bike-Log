@@ -9,8 +9,10 @@ import { ThemeSelect } from "@/components/theme-select";
 import { PreferencesForm } from "@/components/preferences-form";
 import { NotificationsForm } from "@/components/notifications-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
+import { BillingSection } from "@/components/billing-section";
 import { getInitials } from "@/lib/initials";
 import { updateFullName, deleteAccount } from "@/lib/actions/settings";
+import { getUserSubscription } from "@/lib/subscription";
 
 const selectClassName =
   "flex h-8 w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
@@ -55,6 +57,7 @@ export default async function SettingsPage({
 
   const locale = localeFromMetadata(user?.user_metadata);
   const dict = getDictionary(locale);
+  const subscription = user?.sub ? await getUserSubscription(user.sub as string) : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null };
 
   return (
     <div className="pt-8">
@@ -91,6 +94,10 @@ export default async function SettingsPage({
               <Button type="submit">{dict.common.save}</Button>
             </div>
           </form>
+        </SettingsSection>
+
+        <SettingsSection title={dict.settings.billing.title} description={dict.settings.billing.description}>
+          <BillingSection subscription={subscription} dict={dict.settings.billing} />
         </SettingsSection>
 
         <SettingsSection

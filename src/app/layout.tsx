@@ -1,10 +1,20 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Bikit",
   description: "Track maintenance, services, and repairs for your bikes.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Bikit",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#43f3af",
 };
 
 export default function RootLayout({
@@ -23,6 +33,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

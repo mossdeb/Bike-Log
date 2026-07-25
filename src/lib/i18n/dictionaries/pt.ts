@@ -123,6 +123,13 @@ const pt: Dictionary = {
       disconnect: "Desassociar",
       connectionFailed: "Não foi possível associar ao Strava. Tente novamente.",
     },
+    installApp: {
+      title: "Instalar aplicação",
+      description: "Adicione o Bikit ao ecrã principal para um acesso mais rápido.",
+      installButton: "Adicionar ao ecrã principal",
+      installed: "Instalada",
+      iosInstructions: "Toque no ícone de partilha e depois em \"Adicionar ao ecrã principal\".",
+    },
     dangerZone: {
       title: "Zona de perigo",
       description: "Elimina permanentemente a sua conta e todo o histórico de manutenção registado.",

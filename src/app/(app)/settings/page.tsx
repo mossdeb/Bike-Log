@@ -11,6 +11,7 @@ import { PreferencesForm } from "@/components/preferences-form";
 import { NotificationsForm } from "@/components/notifications-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { BillingSection } from "@/components/billing-section";
+import { InstallAppButton } from "@/components/install-app-button";
 import { getInitials } from "@/lib/initials";
 import { updateFullName, deleteAccount } from "@/lib/actions/settings";
 import { connectStrava, disconnectStrava } from "@/lib/actions/strava";
@@ -177,6 +178,14 @@ export default async function SettingsPage({
               </form>
             )}
           </div>
+        </SettingsSection>
+
+        <SettingsSection title={dict.settings.installApp.title} description={dict.settings.installApp.description}>
+          <InstallAppButton
+            installButtonLabel={dict.settings.installApp.installButton}
+            installedLabel={dict.settings.installApp.installed}
+            iosInstructions={dict.settings.installApp.iosInstructions}
+          />
         </SettingsSection>
 
         <SettingsSection

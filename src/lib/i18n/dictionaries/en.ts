@@ -121,6 +121,13 @@ const en = {
       disconnect: "Disconnect",
       connectionFailed: "Couldn't connect to Strava. Please try again.",
     },
+    installApp: {
+      title: "Install app",
+      description: "Add Bikit to your home screen for quicker access.",
+      installButton: "Add to Home Screen",
+      installed: "Installed",
+      iosInstructions: 'Tap the Share icon, then "Add to Home Screen".',
+    },
     dangerZone: {
       title: "Danger zone",
       description: "Permanently delete your account and all logged maintenance data.",

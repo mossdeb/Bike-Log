@@ -2,8 +2,7 @@ import { Resend } from "resend";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
 
-// Resend's shared testing domain — works with just an API key, no DNS setup.
-const FROM = "Bikit <onboarding@resend.dev>";
+const FROM = "Bikit <hello@mail.bikit.app>";
 
 // Constructed lazily (and only once RESEND_API_KEY exists) so the app and
 // the cron route still run — just without sending — before it's configured.

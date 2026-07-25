@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { componentSchema } from "@/lib/validations/component.schema";
+import { componentSchema, componentInitialUsageSchema } from "@/lib/validations/component.schema";
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS } from "@/lib/plans";
 
@@ -47,9 +47,17 @@ export async function createComponent(bikeId: string, formData: FormData) {
     }
   }
 
-  // A component starts accumulating usage from zero at install — snapshot
-  // the bike's current totals so future usage can be derived as the
-  // difference, rather than the component inheriting the bike's history.
+  // The user can give a new component a head start (e.g. a used part) via
+  // initial_km/initial_hours — defaults to 0 for a brand-new part. From
+  // then on usage is derived from the bike's totals, so this is folded
+  // into the install-time baseline rather than stored directly.
+  const initialUsage = componentInitialUsageSchema.safeParse({
+    initial_km: formData.get("initial_km"),
+    initial_hours: formData.get("initial_hours"),
+  });
+  const initialKm = (initialUsage.success ? initialUsage.data.initial_km : null) ?? 0;
+  const initialHours = (initialUsage.success ? initialUsage.data.initial_hours : null) ?? 0;
+
   const { data: bike } = await supabase.from("bikes").select("total_km, total_hours").eq("id", bikeId).single();
 
   const { data: component, error } = await supabase
@@ -58,8 +66,8 @@ export async function createComponent(bikeId: string, formData: FormData) {
       ...parsed.data,
       bike_id: bikeId,
       user_id: userId,
-      bike_km_at_install: bike?.total_km ?? 0,
-      bike_hours_at_install: bike?.total_hours ?? 0,
+      bike_km_at_install: (bike?.total_km ?? 0) - initialKm,
+      bike_hours_at_install: (bike?.total_hours ?? 0) - initialHours,
     })
     .select("id")
     .single();

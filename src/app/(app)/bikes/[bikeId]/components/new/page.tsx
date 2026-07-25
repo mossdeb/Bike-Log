@@ -24,6 +24,7 @@ export default async function NewComponentPage({
 
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
@@ -117,6 +118,20 @@ export default async function NewComponentPage({
               className="max-w-[140px]"
             />
             <p className="text-xs text-muted-foreground">{dict.components.form.intervalHint}</p>
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="initial_km">{dict.components.form.totalDistance(distanceUnit)}</Label>
+                <Input id="initial_km" name="initial_km" type="number" step="0.1" defaultValue={0} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="initial_hours">{dict.components.form.totalHours}</Label>
+                <Input id="initial_hours" name="initial_hours" type="number" step="0.1" defaultValue={0} />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">{dict.components.form.totalUsageHint}</p>
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

@@ -12,6 +12,12 @@ const optionalInt = (min: number, max: number) =>
     z.coerce.number().int().min(min).max(max).nullable()
   );
 
+const optionalNumber = (min: number, max: number) =>
+  z.preprocess(
+    (v) => (v === "" || v == null ? null : v),
+    z.coerce.number().min(min).max(max).nullable()
+  );
+
 export const componentSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120),
   category: optionalText(60),
@@ -24,3 +30,11 @@ export const componentSchema = z.object({
 });
 
 export type ComponentFormValues = z.infer<typeof componentSchema>;
+
+// Only used at creation time — how much usage the component already had
+// before joining this bike (e.g. a used part). Not a stored column: it's
+// folded into bike_km_at_install/bike_hours_at_install on insert.
+export const componentInitialUsageSchema = z.object({
+  initial_km: optionalNumber(0, 1000000),
+  initial_hours: optionalNumber(0, 100000),
+});

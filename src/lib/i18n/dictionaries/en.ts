@@ -71,6 +71,8 @@ const en = {
       manageBilling: "Manage billing",
       upgradeToPersonal: "Upgrade to Personal — €3.99/mo",
       upgradeToPro: "Upgrade to Pro — €7.99/mo",
+      switchToPersonal: "Switch to Personal — €3.99/mo",
+      switchToPro: "Switch to Pro — €7.99/mo",
       reactivate: "Reactivate plan",
     },
     notifications: {

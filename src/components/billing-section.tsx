@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
-import { createCheckoutSession, createPortalSession, reactivateSubscription } from "@/lib/actions/billing";
+import { createCheckoutSession, createPortalSession, reactivateSubscription, switchPlan } from "@/lib/actions/billing";
 import type { UserSubscription } from "@/lib/subscription";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
@@ -12,6 +12,7 @@ export function BillingSection({
   dict: Dictionary["settings"]["billing"];
 }) {
   const planLabel = { free: dict.free, personal: dict.personal, pro: dict.pro }[subscription.plan];
+  const otherPaidPlan = subscription.plan === "personal" ? "pro" : "personal";
 
   return (
     <div className="space-y-4">
@@ -48,9 +49,16 @@ export function BillingSection({
         </div>
       ) : (
         <div className="flex flex-wrap gap-3">
-          {subscription.cancelAtPeriodEnd && (
+          {subscription.cancelAtPeriodEnd ? (
             <form action={reactivateSubscription}>
               <Button type="submit">{dict.reactivate}</Button>
+            </form>
+          ) : (
+            <form action={switchPlan}>
+              <input type="hidden" name="plan" value={otherPaidPlan} />
+              <Button type="submit" variant="outline">
+                {otherPaidPlan === "pro" ? dict.switchToPro : dict.switchToPersonal}
+              </Button>
             </form>
           )}
           <form action={createPortalSession}>

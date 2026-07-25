@@ -73,6 +73,8 @@ const pt: Dictionary = {
       manageBilling: "Gerir faturação",
       upgradeToPersonal: "Mudar para Pessoal — €3,99/mês",
       upgradeToPro: "Mudar para Pro — €7,99/mês",
+      switchToPersonal: "Mudar para Pessoal — €3,99/mês",
+      switchToPro: "Mudar para Pro — €7,99/mês",
       reactivate: "Reativar plano",
     },
     notifications: {

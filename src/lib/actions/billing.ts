@@ -103,3 +103,45 @@ export async function reactivateSubscription() {
 
   revalidatePath("/settings");
 }
+
+/** Switches between the two paid plans directly (Stripe prorates
+ * automatically), without going through the Customer Portal — the
+ * portal's own "update subscription" option isn't enabled by default and
+ * isn't configurable through the API. */
+export async function switchPlan(formData: FormData) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const user = userData?.claims;
+  if (!user) redirect("/login");
+
+  const plan = formData.get("plan") as PaidPlan;
+  if (plan !== "personal" && plan !== "pro") {
+    redirect("/settings?error=Unknown plan");
+  }
+
+  const admin = createAdminClient();
+  const { data: sub } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id")
+    .eq("user_id", user.sub as string)
+    .maybeSingle();
+
+  if (!sub?.stripe_subscription_id) {
+    redirect("/settings?error=No subscription found to switch");
+  }
+
+  const stripe = getStripeClient();
+  const subscription = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
+  const itemId = subscription.items.data[0]?.id;
+  if (!itemId) redirect("/settings?error=Could not find your subscription item");
+
+  await stripe.subscriptions.update(sub.stripe_subscription_id, {
+    items: [{ id: itemId, price: PLAN_PRICE_IDS[plan] }],
+    proration_behavior: "create_prorations",
+  });
+
+  // Reflect it immediately rather than waiting on the webhook round trip.
+  await admin.from("subscriptions").update({ plan }).eq("user_id", user.sub as string);
+
+  revalidatePath("/settings");
+}

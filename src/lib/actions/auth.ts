@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { type EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 export async function login(formData: FormData) {
@@ -70,6 +71,21 @@ export async function resetPassword(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect("/dashboard");
+}
+
+export async function confirmEmail(formData: FormData) {
+  const supabase = await createClient();
+  const token_hash = formData.get("token_hash") as string;
+  const type = formData.get("type") as EmailOtpType;
+  const next = (formData.get("next") as string) || "/dashboard";
+
+  const { error } = await supabase.auth.verifyOtp({ type, token_hash });
+  if (error) {
+    redirect("/login?error=confirmation-failed");
+  }
+
+  revalidatePath("/", "layout");
+  redirect(next);
 }
 
 export async function signInWithGoogle() {

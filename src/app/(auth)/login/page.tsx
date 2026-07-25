@@ -50,7 +50,7 @@ export default async function LoginPage({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
-            <Link href="/forgot-password" className="text-xs font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground">
+            <Link href="/forgot-password" className="text-[11px] font-semibold text-muted-foreground hover:text-foreground">
               Forgot password?
             </Link>
           </div>

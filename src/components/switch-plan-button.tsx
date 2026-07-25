@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,8 +32,20 @@ export function SwitchPlanButton({
   confirmLabel: string;
   cancelLabel: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function handleConfirm() {
+    const formData = new FormData();
+    formData.set("plan", plan);
+    startTransition(async () => {
+      await action(formData);
+      setOpen(false);
+    });
+  }
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger className={buttonVariants({ variant: "outline" })}>{triggerLabel}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -41,10 +54,9 @@ export function SwitchPlanButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
-          <form action={action}>
-            <input type="hidden" name="plan" value={plan} />
-            <AlertDialogAction type="submit">{confirmLabel}</AlertDialogAction>
-          </form>
+          <AlertDialogAction type="button" onClick={handleConfirm} disabled={isPending}>
+            {confirmLabel}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

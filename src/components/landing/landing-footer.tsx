@@ -10,7 +10,7 @@ export function LandingFooter({ dict }: { dict: LandingDictionary["footer"] }) {
             <div className="flex items-center gap-2.5">
               <img src="/landing/icons/logo.svg" alt="" className="h-[34px] w-[34px]" />
               <span className="font-[family-name:var(--font-landing-heading)] text-base font-bold text-[#101014]">
-                BikeLog
+                Bikit
               </span>
             </div>
             <p className="text-sm leading-relaxed text-[#8A8D93]">{dict.tagline}</p>

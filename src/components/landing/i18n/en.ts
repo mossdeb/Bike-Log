@@ -48,7 +48,7 @@ const en = {
     },
     card2: {
       heading: "Alerts before it's too late",
-      body: "Set maintenance intervals per component. BikeLog tracks kilometers and months, and warns you when something's approaching its limit.",
+      body: "Set maintenance intervals per component. Bikit tracks kilometers and months, and warns you when something's approaching its limit.",
       panelTitle: "Needs attention",
       alert1Title: "Tires — Trek Domane",
       alert1Sub: "OK, checked 1 month ago",
@@ -86,7 +86,7 @@ const en = {
         description: "What's installed, since when, and at what maintenance interval.",
       },
       {
-        title: "Let BikeLog keep watch",
+        title: "Let Bikit keep watch",
         description: "Get alerted when something's approaching its limit, and keep your history up to date.",
       },
     ],
@@ -169,7 +169,7 @@ const en = {
     accountHeading: "Account",
     accountLogin: "Log in",
     accountSignup: "Create account",
-    copyright: "© 2026 BikeLog. All rights reserved.",
+    copyright: "© 2026 Bikit. All rights reserved.",
     madeFor: "Made for people who love taking care of their own bike.",
   },
 };

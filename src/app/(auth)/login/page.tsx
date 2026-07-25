@@ -62,7 +62,7 @@ export default async function LoginPage({
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        New to BikeLog?{" "}
+        New to Bikit?{" "}
         <Link href="/signup" className="font-semibold text-foreground underline underline-offset-4">
           Create an account
         </Link>

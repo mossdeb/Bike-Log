@@ -3,7 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BikeLog",
+  title: "Bikit",
   description: "Track maintenance, services, and repairs for your bikes.",
 };
 

@@ -7,7 +7,7 @@ export const PLAN_LIMITS: Record<Plan, { maxBikes: number | null; maxComponents:
   pro: { maxBikes: null, maxComponents: null },
 };
 
-// Stripe test-mode price IDs (BikeLog Personal / BikeLog Pro, sandbox account).
+// Stripe test-mode price IDs (Bikit Personal / Bikit Pro, sandbox account).
 export const PLAN_PRICE_IDS: Record<PaidPlan, string> = {
   personal: process.env.STRIPE_PRICE_PERSONAL ?? "",
   pro: process.env.STRIPE_PRICE_PRO ?? "",

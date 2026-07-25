@@ -81,7 +81,7 @@ const en = {
     },
     notifications: {
       title: "Email notifications",
-      description: "Choose when BikeLog should email you about upcoming maintenance.",
+      description: "Choose when Bikit should email you about upcoming maintenance.",
       dueSoon: "Service due soon",
       dueSoonSub: 'Get an email when a component enters its "due soon" window.',
       overdue: "Service overdue",
@@ -258,15 +258,15 @@ const en = {
         `${componentName} on ${bikeName} is ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue for service.`,
     },
     weeklySummary: {
-      subject: "Your weekly BikeLog summary",
+      subject: "Your weekly Bikit summary",
       heading: "Weekly summary",
       intro: "Here's the maintenance status of your fleet this week.",
       overdueSection: "Overdue",
       dueSoonSection: "Due soon",
       noneNeedAttention: "Nothing needs attention right now. Nice work!",
     },
-    cta: "View in BikeLog",
-    footer: "You're receiving this because you enabled maintenance email alerts in your BikeLog settings.",
+    cta: "View in Bikit",
+    footer: "You're receiving this because you enabled maintenance email alerts in your Bikit settings.",
   },
   auth: {
     login: {
@@ -277,7 +277,7 @@ const en = {
       email: "Email",
       password: "Password",
       signIn: "Sign in",
-      newToBikeLog: "New to BikeLog?",
+      newToBikit: "New to Bikit?",
       createAccount: "Create an account",
     },
     signup: {

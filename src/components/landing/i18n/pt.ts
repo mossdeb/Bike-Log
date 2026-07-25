@@ -50,7 +50,7 @@ const pt: LandingDictionary = {
     },
     card2: {
       heading: "Alertas antes que seja tarde",
-      body: "Define intervalos de manutenção por componente. O BikeLog acompanha os quilómetros e os meses, e avisa-te quando algo se aproxima do limite.",
+      body: "Define intervalos de manutenção por componente. O Bikit acompanha os quilómetros e os meses, e avisa-te quando algo se aproxima do limite.",
       panelTitle: "Precisa de atenção",
       alert1Title: "Pneus — Trek Domane",
       alert1Sub: "Ok, revisto há 1 mês",
@@ -88,7 +88,7 @@ const pt: LandingDictionary = {
         description: "O que tens montado, desde quando, e com que intervalo de manutenção.",
       },
       {
-        title: "Deixa o BikeLog vigiar",
+        title: "Deixa o Bikit vigiar",
         description: "Recebe alertas quando algo se aproxima do limite e mantém o histórico atualizado.",
       },
     ],
@@ -171,7 +171,7 @@ const pt: LandingDictionary = {
     accountHeading: "Conta",
     accountLogin: "Entrar",
     accountSignup: "Criar conta",
-    copyright: "© 2026 BikeLog. Todos os direitos reservados.",
+    copyright: "© 2026 Bikit. Todos os direitos reservados.",
     madeFor: "Feito para quem gosta de cuidar da própria bicicleta.",
   },
 };

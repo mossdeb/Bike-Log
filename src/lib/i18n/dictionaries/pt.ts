@@ -83,7 +83,7 @@ const pt: Dictionary = {
     },
     notifications: {
       title: "Notificações por email",
-      description: "Escolha quando a BikeLog deve enviar-lhe emails sobre manutenções futuras.",
+      description: "Escolha quando a Bikit deve enviar-lhe emails sobre manutenções futuras.",
       dueSoon: "Manutenção brevemente",
       dueSoonSub: 'Receba um email quando um componente entra na janela "brevemente".',
       overdue: "Manutenção em atraso",
@@ -262,15 +262,15 @@ const pt: Dictionary = {
         `${componentName} da ${bikeName} está ${daysOverdue === 1 ? "há 1 dia" : `há ${daysOverdue} dias`} com a manutenção em atraso.`,
     },
     weeklySummary: {
-      subject: "O seu resumo semanal da BikeLog",
+      subject: "O seu resumo semanal da Bikit",
       heading: "Resumo semanal",
       intro: "Aqui está o estado de manutenção da sua frota esta semana.",
       overdueSection: "Em atraso",
       dueSoonSection: "Brevemente",
       noneNeedAttention: "Está tudo em dia. Bom trabalho!",
     },
-    cta: "Ver na BikeLog",
-    footer: "Está a receber este email porque ativou os alertas de manutenção nas definições da BikeLog.",
+    cta: "Ver na Bikit",
+    footer: "Está a receber este email porque ativou os alertas de manutenção nas definições da Bikit.",
   },
   auth: {
     login: {
@@ -281,7 +281,7 @@ const pt: Dictionary = {
       email: "Email",
       password: "Palavra-passe",
       signIn: "Iniciar sessão",
-      newToBikeLog: "Novo na BikeLog?",
+      newToBikit: "Novo na Bikit?",
       createAccount: "Criar uma conta",
     },
     signup: {

@@ -44,7 +44,7 @@ export function AppSidebar({ nav }: { nav: Dictionary["nav"] }) {
     >
       <div className="mb-8 flex items-center gap-2.5 px-1">
         <LogoMark />
-        {expanded && <span className="font-display text-lg font-bold">BikeLog</span>}
+        {expanded && <span className="font-display text-lg font-bold">Bikit</span>}
       </div>
 
       <nav className="flex flex-1 flex-col gap-1.5">

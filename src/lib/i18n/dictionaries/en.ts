@@ -66,11 +66,12 @@ const en = {
       personal: "Personal",
       pro: "Pro",
       renewsOn: (date: string): string => `Renews ${date}`,
-      cancelsOn: (date: string): string => `Cancels ${date}`,
+      cancelsOn: (date: string): string => `Your plan ends on ${date}. You'll keep access until then.`,
       pastDue: "There's a problem with your last payment. Update your payment method to keep your plan.",
       manageBilling: "Manage billing",
       upgradeToPersonal: "Upgrade to Personal — €3.99/mo",
       upgradeToPro: "Upgrade to Pro — €7.99/mo",
+      reactivate: "Reactivate plan",
     },
     notifications: {
       title: "Email notifications",

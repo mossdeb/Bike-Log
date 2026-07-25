@@ -68,11 +68,12 @@ const pt: Dictionary = {
       personal: "Pessoal",
       pro: "Pro",
       renewsOn: (date: string): string => `Renova a ${date}`,
-      cancelsOn: (date: string): string => `Cancela a ${date}`,
+      cancelsOn: (date: string): string => `O seu plano termina a ${date}. Mantém o acesso até lá.`,
       pastDue: "Há um problema com o seu último pagamento. Atualize o método de pagamento para manter o seu plano.",
       manageBilling: "Gerir faturação",
       upgradeToPersonal: "Mudar para Pessoal — €3,99/mês",
       upgradeToPro: "Mudar para Pro — €7,99/mês",
+      reactivate: "Reativar plano",
     },
     notifications: {
       title: "Notificações por email",

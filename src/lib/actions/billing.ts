@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient } from "@/lib/stripe";
@@ -68,4 +69,37 @@ export async function createPortalSession() {
   });
 
   redirect(session.url);
+}
+
+/** Undoes a scheduled "cancel at period end" — the subscription keeps
+ * running as normal. Only reachable while still inside the grace period;
+ * once it fully lapses the user is back on the free plan and upgrades via
+ * createCheckoutSession instead. */
+export async function reactivateSubscription() {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const user = userData?.claims;
+  if (!user) redirect("/login");
+
+  const admin = createAdminClient();
+  const { data: sub } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id")
+    .eq("user_id", user.sub as string)
+    .maybeSingle();
+
+  if (!sub?.stripe_subscription_id) {
+    redirect("/settings?error=No subscription found to reactivate");
+  }
+
+  const stripe = getStripeClient();
+  await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: false });
+
+  // Reflect it immediately rather than waiting on the webhook round trip.
+  await admin
+    .from("subscriptions")
+    .update({ cancel_at_period_end: false })
+    .eq("user_id", user.sub as string);
+
+  revalidatePath("/settings");
 }

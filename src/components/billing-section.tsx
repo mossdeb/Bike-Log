@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
-import { createCheckoutSession, createPortalSession } from "@/lib/actions/billing";
+import { createCheckoutSession, createPortalSession, reactivateSubscription } from "@/lib/actions/billing";
 import type { UserSubscription } from "@/lib/subscription";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
@@ -25,7 +25,9 @@ export function BillingSection({
           subscription.currentPeriodEnd &&
           subscription.plan !== "free" && (
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {dict.renewsOn(formatDate(subscription.currentPeriodEnd))}
+              {subscription.cancelAtPeriodEnd
+                ? dict.cancelsOn(formatDate(subscription.currentPeriodEnd))
+                : dict.renewsOn(formatDate(subscription.currentPeriodEnd))}
             </p>
           )
         )}
@@ -45,11 +47,18 @@ export function BillingSection({
           </form>
         </div>
       ) : (
-        <form action={createPortalSession}>
-          <Button type="submit" variant="outline">
-            {dict.manageBilling}
-          </Button>
-        </form>
+        <div className="flex flex-wrap gap-3">
+          {subscription.cancelAtPeriodEnd && (
+            <form action={reactivateSubscription}>
+              <Button type="submit">{dict.reactivate}</Button>
+            </form>
+          )}
+          <form action={createPortalSession}>
+            <Button type="submit" variant="outline">
+              {dict.manageBilling}
+            </Button>
+          </form>
+        </div>
       )}
     </div>
   );

@@ -57,7 +57,9 @@ export default async function SettingsPage({
 
   const locale = localeFromMetadata(user?.user_metadata);
   const dict = getDictionary(locale);
-  const subscription = user?.sub ? await getUserSubscription(user.sub as string) : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null };
+  const subscription = user?.sub
+    ? await getUserSubscription(user.sub as string)
+    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
   return (
     <div className="pt-8">

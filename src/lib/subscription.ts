@@ -5,9 +5,15 @@ export interface UserSubscription {
   plan: Plan;
   status: "active" | "past_due" | "canceled";
   currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
 }
 
-const FREE_SUBSCRIPTION: UserSubscription = { plan: "free", status: "active", currentPeriodEnd: null };
+const FREE_SUBSCRIPTION: UserSubscription = {
+  plan: "free",
+  status: "active",
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+};
 
 /** No row (never upgraded) or a canceled subscription both mean the free
  * tier. `past_due` still counts as the paid plan — Stripe's Smart Retries
@@ -16,7 +22,7 @@ export async function getUserSubscription(userId: string): Promise<UserSubscript
   const supabase = await createClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("plan, status, current_period_end")
+    .select("plan, status, current_period_end, cancel_at_period_end")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -26,5 +32,6 @@ export async function getUserSubscription(userId: string): Promise<UserSubscript
     plan: data.plan as Plan,
     status: data.status as UserSubscription["status"],
     currentPeriodEnd: data.current_period_end,
+    cancelAtPeriodEnd: data.cancel_at_period_end,
   };
 }

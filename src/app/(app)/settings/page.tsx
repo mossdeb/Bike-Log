@@ -99,7 +99,7 @@ export default async function SettingsPage({
         </SettingsSection>
 
         <SettingsSection title={dict.settings.billing.title} description={dict.settings.billing.description}>
-          <BillingSection subscription={subscription} dict={dict.settings.billing} />
+          <BillingSection subscription={subscription} dict={dict.settings.billing} cancelLabel={dict.common.cancel} />
         </SettingsSection>
 
         <SettingsSection

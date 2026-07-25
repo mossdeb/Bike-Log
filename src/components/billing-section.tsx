@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SwitchPlanButton } from "@/components/switch-plan-button";
 import { formatDate } from "@/lib/format";
 import { createCheckoutSession, createPortalSession, reactivateSubscription, switchPlan } from "@/lib/actions/billing";
 import type { UserSubscription } from "@/lib/subscription";
@@ -7,12 +8,15 @@ import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 export function BillingSection({
   subscription,
   dict,
+  cancelLabel,
 }: {
   subscription: UserSubscription;
   dict: Dictionary["settings"]["billing"];
+  cancelLabel: string;
 }) {
   const planLabel = { free: dict.free, personal: dict.personal, pro: dict.pro }[subscription.plan];
   const otherPaidPlan = subscription.plan === "personal" ? "pro" : "personal";
+  const otherPlanLabel = otherPaidPlan === "pro" ? dict.pro : dict.personal;
 
   return (
     <div className="space-y-4">
@@ -54,12 +58,15 @@ export function BillingSection({
               <Button type="submit">{dict.reactivate}</Button>
             </form>
           ) : (
-            <form action={switchPlan}>
-              <input type="hidden" name="plan" value={otherPaidPlan} />
-              <Button type="submit" variant="outline">
-                {otherPaidPlan === "pro" ? dict.switchToPro : dict.switchToPersonal}
-              </Button>
-            </form>
+            <SwitchPlanButton
+              action={switchPlan}
+              plan={otherPaidPlan}
+              triggerLabel={otherPaidPlan === "pro" ? dict.switchToPro : dict.switchToPersonal}
+              title={dict.switchConfirmTitle(otherPlanLabel)}
+              description={dict.switchConfirmDescription}
+              confirmLabel={dict.switchConfirmButton}
+              cancelLabel={cancelLabel}
+            />
           )}
           <form action={createPortalSession}>
             <Button type="submit" variant="outline">

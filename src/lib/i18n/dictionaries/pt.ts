@@ -75,6 +75,10 @@ const pt: Dictionary = {
       upgradeToPro: "Mudar para Pro — €7,99/mês",
       switchToPersonal: "Mudar para Pessoal — €3,99/mês",
       switchToPro: "Mudar para Pro — €7,99/mês",
+      switchConfirmTitle: (planName: string): string => `Mudar para ${planName}?`,
+      switchConfirmDescription:
+        "Será cobrado ou creditado um valor proporcional de imediato, e a próxima fatura refletirá o novo preço.",
+      switchConfirmButton: "Mudar plano",
       reactivate: "Reativar plano",
     },
     notifications: {

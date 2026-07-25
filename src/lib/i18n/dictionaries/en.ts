@@ -73,6 +73,10 @@ const en = {
       upgradeToPro: "Upgrade to Pro — €7.99/mo",
       switchToPersonal: "Switch to Personal — €3.99/mo",
       switchToPro: "Switch to Pro — €7.99/mo",
+      switchConfirmTitle: (planName: string): string => `Switch to ${planName}?`,
+      switchConfirmDescription:
+        "You'll be charged or credited a prorated amount right away, and your next invoice will reflect the new price.",
+      switchConfirmButton: "Switch plan",
       reactivate: "Reactivate plan",
     },
     notifications: {

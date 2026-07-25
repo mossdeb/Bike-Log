@@ -207,8 +207,6 @@ const en = {
       intervalMonths: "Service interval (months)",
       intervalPlaceholder: "e.g. 6",
       intervalHint: "Used to calculate the next service due date.",
-      totalDistance: (unit: "km" | "mi"): string => (unit === "mi" ? "Total miles" : "Total kms"),
-      totalHours: "Total hours",
       notes: "Notes",
       cancel: "Cancel",
       saveNew: "Save component",

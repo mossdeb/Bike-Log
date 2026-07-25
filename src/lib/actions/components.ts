@@ -16,8 +16,6 @@ function parseComponentFormData(formData: FormData) {
     serial_number: formData.get("serial_number"),
     install_date: formData.get("install_date"),
     interval_months: formData.get("interval_months"),
-    total_km: formData.get("total_km"),
-    total_hours: formData.get("total_hours"),
     notes: formData.get("notes"),
   });
 }
@@ -49,9 +47,20 @@ export async function createComponent(bikeId: string, formData: FormData) {
     }
   }
 
+  // A component starts accumulating usage from zero at install — snapshot
+  // the bike's current totals so future usage can be derived as the
+  // difference, rather than the component inheriting the bike's history.
+  const { data: bike } = await supabase.from("bikes").select("total_km, total_hours").eq("id", bikeId).single();
+
   const { data: component, error } = await supabase
     .from("components")
-    .insert({ ...parsed.data, bike_id: bikeId, user_id: userId })
+    .insert({
+      ...parsed.data,
+      bike_id: bikeId,
+      user_id: userId,
+      bike_km_at_install: bike?.total_km ?? 0,
+      bike_hours_at_install: bike?.total_hours ?? 0,
+    })
     .select("id")
     .single();
 

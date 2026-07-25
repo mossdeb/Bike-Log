@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, Plus, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { calculateComponentStatus, calculateComponentUsage } from "@/lib/maintenance/calculation";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
@@ -24,7 +24,11 @@ export default async function ComponentDetailPage({
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
-  const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
+  const { data: bike } = await supabase
+    .from("bikes")
+    .select("id, name, total_km, total_hours")
+    .eq("id", bikeId)
+    .single();
   if (!bike) notFound();
 
   const { data: component } = await supabase
@@ -34,6 +38,13 @@ export default async function ComponentDetailPage({
     .eq("bike_id", bikeId)
     .single();
   if (!component) notFound();
+
+  const usage = calculateComponentUsage({
+    bikeTotalKm: bike.total_km,
+    bikeTotalHours: bike.total_hours,
+    bikeKmAtInstall: component.bike_km_at_install,
+    bikeHoursAtInstall: component.bike_hours_at_install,
+  });
 
   const { data: interventions } = await supabase
     .from("interventions")
@@ -91,16 +102,16 @@ export default async function ComponentDetailPage({
             <p className="text-xs text-muted-foreground">{dict.components.detail.serial}</p>
             <p className="font-mono text-sm font-semibold">{component.serial_number ?? "—"}</p>
           </div>
-          {component.total_km != null && (
+          {usage.km != null && (
             <div>
               <p className="text-xs text-muted-foreground">{dict.components.detail.totalDistance}</p>
-              <p className="font-mono text-sm font-semibold">{formatDistance(component.total_km, distanceUnit)}</p>
+              <p className="font-mono text-sm font-semibold">{formatDistance(usage.km, distanceUnit)}</p>
             </div>
           )}
-          {component.total_hours != null && (
+          {usage.hours != null && (
             <div>
               <p className="text-xs text-muted-foreground">{dict.components.detail.totalHours}</p>
-              <p className="font-mono text-sm font-semibold">{formatNumber(component.total_hours)} h</p>
+              <p className="font-mono text-sm font-semibold">{formatNumber(usage.hours)} h</p>
             </div>
           )}
           <div>

@@ -73,3 +73,31 @@ export function worstStatus(statuses: ServiceStatus[]): ServiceStatus {
     "not_configured" as ServiceStatus
   );
 }
+
+export interface ComponentUsage {
+  km: number | null;
+  hours: number | null;
+}
+
+/**
+ * A component's accumulated usage isn't stored directly — it's the bike's
+ * current total minus whatever the bike's total was at the moment the
+ * component was installed, so a component only accrues usage from when it
+ * joined the bike, not the bike's full history.
+ */
+export function calculateComponentUsage(input: {
+  bikeTotalKm: number | null;
+  bikeTotalHours: number | null;
+  bikeKmAtInstall: number | null;
+  bikeHoursAtInstall: number | null;
+}): ComponentUsage {
+  const km =
+    input.bikeTotalKm != null && input.bikeKmAtInstall != null
+      ? Math.max(input.bikeTotalKm - input.bikeKmAtInstall, 0)
+      : null;
+  const hours =
+    input.bikeTotalHours != null && input.bikeHoursAtInstall != null
+      ? Math.max(input.bikeTotalHours - input.bikeHoursAtInstall, 0)
+      : null;
+  return { km, hours };
+}

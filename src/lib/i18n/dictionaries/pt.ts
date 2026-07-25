@@ -209,8 +209,6 @@ const pt: Dictionary = {
       intervalMonths: "Intervalo de manutenção (meses)",
       intervalPlaceholder: "ex. 6",
       intervalHint: "Utilizado para calcular a próxima data de manutenção.",
-      totalDistance: (unit: "km" | "mi"): string => (unit === "mi" ? "Total de milhas" : "Total de kms"),
-      totalHours: "Total de horas",
       notes: "Notas",
       cancel: "Cancelar",
       saveNew: "Guardar componente",

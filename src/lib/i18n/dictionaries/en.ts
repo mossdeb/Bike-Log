@@ -48,6 +48,8 @@ const en = {
     noMaintenanceLogged: "No maintenance logged yet.",
     overdueDays: (n: number) => `Overdue ${n}d`,
     dueInDays: (n: number) => `Due in ${n}d`,
+    overdueBy: (amount: string) => `Overdue by ${amount}`,
+    dueInAmount: (amount: string) => `Due in ${amount}`,
   },
   settings: {
     title: "Settings",
@@ -139,7 +141,8 @@ const en = {
       addComponent: "Add component",
       noComponentsYet:
         "No components yet. Add suspension, drivetrain, brakes — anything you want to track maintenance for.",
-      every: (n: number) => `every ${n} mo`,
+      every: (value: number, type: "km" | "hours" | "months", unit: "km" | "mi"): string =>
+        `every ${value} ${type === "km" ? unit : type === "hours" ? "h" : "mo"}`,
       logIntervention: "Log intervention",
       logInterventionFor: (name: string) => `Log intervention for ${name}`,
     },
@@ -182,7 +185,8 @@ const en = {
       totalDistance: "Total distance",
       totalHours: "Total hours",
       status: "Status",
-      every: (n: number) => `Every ${n} mo`,
+      every: (value: number, type: "km" | "hours" | "months", unit: "km" | "mi"): string =>
+        `Every ${value} ${type === "km" ? unit : type === "hours" ? "h" : "mo"}`,
       edit: "Edit",
       history: "History",
       logIntervention: "Log intervention",
@@ -204,8 +208,10 @@ const en = {
       serialNumber: "Serial number",
       optional: "Optional",
       installDate: "Install date",
-      intervalMonths: "Service interval (months)",
-      intervalPlaceholder: "e.g. 6",
+      intervalLabel: "Service interval",
+      intervalTypeKm: (unit: "km" | "mi"): string => (unit === "mi" ? "Miles" : "Kilometers"),
+      intervalTypeHours: "Hours",
+      intervalTypeMonths: "Months",
       intervalHint: "Used to calculate the next service due date.",
       totalDistance: (unit: "km" | "mi"): string => (unit === "mi" ? "Total miles" : "Total kms"),
       totalHours: "Total hours",
@@ -257,14 +263,18 @@ const en = {
     dueSoon: {
       subject: (componentName: string): string => `${componentName} is due for service soon`,
       heading: "Service due soon",
-      body: (componentName: string, bikeName: string, dueDate: string): string =>
+      bodyByDate: (componentName: string, bikeName: string, dueDate: string): string =>
         `${componentName} on ${bikeName} is due for service on ${dueDate}.`,
+      bodyByAmount: (componentName: string, bikeName: string, amount: string): string =>
+        `${componentName} on ${bikeName} is due for service in ${amount}.`,
     },
     overdue: {
       subject: (componentName: string): string => `${componentName} is overdue for service`,
       heading: "Service overdue",
-      body: (componentName: string, bikeName: string, daysOverdue: number): string =>
+      bodyByDays: (componentName: string, bikeName: string, daysOverdue: number): string =>
         `${componentName} on ${bikeName} is ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue for service.`,
+      bodyByAmount: (componentName: string, bikeName: string, amount: string): string =>
+        `${componentName} on ${bikeName} is ${amount} overdue for service.`,
     },
     weeklySummary: {
       subject: "Your weekly Bikit summary",

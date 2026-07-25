@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createComponent } from "@/lib/actions/components";
 import { COMPONENT_CATEGORIES, COMPONENT_NAME_SUGGESTIONS } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
+import { IntervalField } from "@/components/interval-field";
 import { FormError } from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,17 +109,14 @@ export default async function NewComponentPage({
             <Input id="install_date" name="install_date" type="date" />
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="interval_months">{dict.components.form.intervalMonths}</Label>
-            <Input
-              id="interval_months"
-              name="interval_months"
-              type="number"
-              placeholder={dict.components.form.intervalPlaceholder}
-              className="max-w-[140px]"
-            />
-            <p className="text-xs text-muted-foreground">{dict.components.form.intervalHint}</p>
-          </div>
+          <IntervalField
+            defaultType="months"
+            label={dict.components.form.intervalLabel}
+            hint={dict.components.form.intervalHint}
+            kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
+            hoursLabel={dict.components.form.intervalTypeHours}
+            monthsLabel={dict.components.form.intervalTypeMonths}
+          />
 
           <div className="space-y-1.5 sm:col-span-2">
             <div className="grid grid-cols-2 gap-4">

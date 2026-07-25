@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateComponent, deleteComponent } from "@/lib/actions/components";
 import { COMPONENT_CATEGORIES, COMPONENT_NAME_SUGGESTIONS } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
+import { IntervalField } from "@/components/interval-field";
 import { FormError } from "@/components/form-error";
 import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { kmToUnit } from "@/lib/format";
+import type { IntervalType } from "@/lib/validations/component.schema";
 
 export default async function EditComponentPage({
   params,
@@ -25,6 +28,7 @@ export default async function EditComponentPage({
 
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
@@ -37,6 +41,13 @@ export default async function EditComponentPage({
     .eq("bike_id", bikeId)
     .single();
   if (!component) notFound();
+
+  const intervalValueDisplay =
+    component.interval_value != null
+      ? component.interval_type === "km"
+        ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10
+        : component.interval_value
+      : null;
 
   const manufacturers = await getBikeIndexManufacturers();
 
@@ -129,17 +140,15 @@ export default async function EditComponentPage({
             />
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="interval_months">{dict.components.form.intervalMonths}</Label>
-            <Input
-              id="interval_months"
-              name="interval_months"
-              type="number"
-              defaultValue={component.interval_months ?? ""}
-              className="max-w-[140px]"
-            />
-            <p className="text-xs text-muted-foreground">{dict.components.form.intervalHint}</p>
-          </div>
+          <IntervalField
+            defaultType={(component.interval_type as IntervalType) ?? "months"}
+            defaultValue={intervalValueDisplay}
+            label={dict.components.form.intervalLabel}
+            hint={dict.components.form.intervalHint}
+            kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
+            hoursLabel={dict.components.form.intervalTypeHours}
+            monthsLabel={dict.components.form.intervalTypeMonths}
+          />
 
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">{dict.components.form.notes}</Label>

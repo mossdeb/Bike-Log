@@ -23,10 +23,15 @@ export default async function DashboardPage() {
   const distanceUnit = ((claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
   const [{ data: bikes }, { data: componentRows }, { data: recentRaw }] = await Promise.all([
-    supabase.from("bikes").select("id, name, type, brand, model").order("created_at", { ascending: true }),
+    supabase
+      .from("bikes")
+      .select("id, name, type, brand, model, total_km, total_hours")
+      .order("created_at", { ascending: true }),
     supabase
       .from("components_status")
-      .select("id, bike_id, name, interval_months, install_date, last_intervention_date")
+      .select(
+        "id, bike_id, name, interval_type, interval_value, install_date, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+      )
       .order("created_at", { ascending: true }),
     supabase
       .from("interventions")
@@ -41,14 +46,24 @@ export default async function DashboardPage() {
   const bikeInfo = new Map((bikes ?? []).map((b) => [b.id, b]));
 
   const statusByComponent = new Map(
-    components.map((c) => [
-      c.id,
-      calculateComponentStatus({
-        intervalMonths: c.interval_months,
-        installDate: c.install_date,
-        lastInterventionDate: c.last_intervention_date,
-      }),
-    ])
+    components.map((c) => {
+      const bike = c.bike_id ? bikeInfo.get(c.bike_id) : undefined;
+      return [
+        c.id,
+        calculateComponentStatus({
+          intervalType: c.interval_type as "km" | "hours" | "months" | null,
+          intervalValue: c.interval_value,
+          installDate: c.install_date,
+          lastInterventionDate: c.last_intervention_date,
+          currentKm: bike?.total_km ?? null,
+          currentHours: bike?.total_hours ?? null,
+          bikeKmAtInstall: c.bike_km_at_install,
+          bikeHoursAtInstall: c.bike_hours_at_install,
+          bikeKmAtLastService: c.last_service_km,
+          bikeHoursAtLastService: c.last_service_hours,
+        }),
+      ];
+    })
   );
 
   const totalBikes = bikes?.length ?? 0;
@@ -69,7 +84,7 @@ export default async function DashboardPage() {
     .filter(({ cs }) => cs.status === "overdue" || cs.status === "due_soon")
     .sort((a, b) => {
       if (a.cs.status !== b.cs.status) return a.cs.status === "overdue" ? -1 : 1;
-      return (a.cs.daysRemaining ?? 0) - (b.cs.daysRemaining ?? 0);
+      return (a.cs.daysRemaining ?? a.cs.amountRemaining ?? 0) - (b.cs.daysRemaining ?? b.cs.amountRemaining ?? 0);
     })
     .slice(0, 6);
 
@@ -159,10 +174,20 @@ export default async function DashboardPage() {
             <div>
               {needsAttention.map(({ component, cs }, i) => {
                 const bike = bikeInfo.get(component.bike_id!);
+                const amountDetail =
+                  cs.amountRemaining != null
+                    ? component.interval_type === "km"
+                      ? formatDistance(Math.abs(cs.amountRemaining), distanceUnit)
+                      : `${formatNumber(Math.abs(cs.amountRemaining))} h`
+                    : null;
                 const detail =
                   cs.status === "overdue"
-                    ? dict.dashboard.overdueDays(Math.abs(cs.daysRemaining!))
-                    : dict.dashboard.dueInDays(cs.daysRemaining!);
+                    ? amountDetail
+                      ? dict.dashboard.overdueBy(amountDetail)
+                      : dict.dashboard.overdueDays(Math.abs(cs.daysRemaining!))
+                    : amountDetail
+                      ? dict.dashboard.dueInAmount(amountDetail)
+                      : dict.dashboard.dueInDays(cs.daysRemaining!);
                 return (
                   <Link
                     key={component.id}

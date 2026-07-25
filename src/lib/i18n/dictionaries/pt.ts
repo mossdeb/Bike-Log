@@ -50,6 +50,8 @@ const pt: Dictionary = {
     noMaintenanceLogged: "Ainda não há manutenções registadas.",
     overdueDays: (n: number) => `Em atraso há ${n}d`,
     dueInDays: (n: number) => `Daqui a ${n}d`,
+    overdueBy: (amount: string) => `Em atraso ${amount}`,
+    dueInAmount: (amount: string) => `Daqui a ${amount}`,
   },
   settings: {
     title: "Definições",
@@ -141,7 +143,8 @@ const pt: Dictionary = {
       addComponent: "Adicionar componente",
       noComponentsYet:
         "Ainda não há componentes. Adicione suspensão, transmissão, travões — o que quiser monitorizar.",
-      every: (n: number) => `a cada ${n} meses`,
+      every: (value: number, type: "km" | "hours" | "months", unit: "km" | "mi"): string =>
+        `a cada ${value} ${type === "km" ? unit : type === "hours" ? "h" : "meses"}`,
       logIntervention: "Registar manutenção",
       logInterventionFor: (name: string) => `Registar manutenção para ${name}`,
     },
@@ -184,7 +187,8 @@ const pt: Dictionary = {
       totalDistance: "Distância total",
       totalHours: "Horas totais",
       status: "Estado",
-      every: (n: number) => `A cada ${n} meses`,
+      every: (value: number, type: "km" | "hours" | "months", unit: "km" | "mi"): string =>
+        `A cada ${value} ${type === "km" ? unit : type === "hours" ? "h" : "meses"}`,
       edit: "Editar",
       history: "Histórico",
       logIntervention: "Registar manutenção",
@@ -206,8 +210,10 @@ const pt: Dictionary = {
       serialNumber: "Nº de série",
       optional: "Opcional",
       installDate: "Data de instalação",
-      intervalMonths: "Intervalo de manutenção (meses)",
-      intervalPlaceholder: "ex. 6",
+      intervalLabel: "Intervalo de manutenção",
+      intervalTypeKm: (unit: "km" | "mi"): string => (unit === "mi" ? "Milhas" : "Quilómetros"),
+      intervalTypeHours: "Horas",
+      intervalTypeMonths: "Meses",
       intervalHint: "Utilizado para calcular a próxima data de manutenção.",
       totalDistance: (unit: "km" | "mi"): string => (unit === "mi" ? "Total de milhas" : "Total de kms"),
       totalHours: "Total de horas",
@@ -261,14 +267,18 @@ const pt: Dictionary = {
     dueSoon: {
       subject: (componentName: string): string => `${componentName} vai precisar de manutenção em breve`,
       heading: "Manutenção brevemente",
-      body: (componentName: string, bikeName: string, dueDate: string): string =>
+      bodyByDate: (componentName: string, bikeName: string, dueDate: string): string =>
         `${componentName} da ${bikeName} tem manutenção prevista para ${dueDate}.`,
+      bodyByAmount: (componentName: string, bikeName: string, amount: string): string =>
+        `${componentName} da ${bikeName} tem manutenção prevista daqui a ${amount}.`,
     },
     overdue: {
       subject: (componentName: string): string => `${componentName} está com a manutenção em atraso`,
       heading: "Manutenção em atraso",
-      body: (componentName: string, bikeName: string, daysOverdue: number): string =>
+      bodyByDays: (componentName: string, bikeName: string, daysOverdue: number): string =>
         `${componentName} da ${bikeName} está ${daysOverdue === 1 ? "há 1 dia" : `há ${daysOverdue} dias`} com a manutenção em atraso.`,
+      bodyByAmount: (componentName: string, bikeName: string, amount: string): string =>
+        `${componentName} da ${bikeName} está com a manutenção em atraso há ${amount}.`,
     },
     weeklySummary: {
       subject: "O seu resumo semanal da Bikit",

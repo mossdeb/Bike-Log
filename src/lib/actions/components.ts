@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { componentSchema, componentInitialUsageSchema } from "@/lib/validations/component.schema";
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS } from "@/lib/plans";
+import { unitToKm } from "@/lib/format";
 
 function parseComponentFormData(formData: FormData) {
   return componentSchema.safeParse({
@@ -15,7 +16,8 @@ function parseComponentFormData(formData: FormData) {
     model: formData.get("model"),
     serial_number: formData.get("serial_number"),
     install_date: formData.get("install_date"),
-    interval_months: formData.get("interval_months"),
+    interval_type: formData.get("interval_type"),
+    interval_value: formData.get("interval_value"),
     notes: formData.get("notes"),
   });
 }
@@ -31,6 +33,14 @@ export async function createComponent(bikeId: string, formData: FormData) {
     redirect(
       `/bikes/${bikeId}/components/new?error=${encodeURIComponent(parsed.error.issues[0].message)}`
     );
+  }
+
+  // Distances are always stored in km — interval_value and initial_km are
+  // entered in whichever unit the user prefers and need converting before
+  // they're saved alongside bike/component totals, which are always km.
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  if (parsed.data.interval_type === "km" && parsed.data.interval_value != null) {
+    parsed.data.interval_value = unitToKm(parsed.data.interval_value, distanceUnit);
   }
 
   const { plan } = await getUserSubscription(userId);
@@ -55,7 +65,8 @@ export async function createComponent(bikeId: string, formData: FormData) {
     initial_km: formData.get("initial_km"),
     initial_hours: formData.get("initial_hours"),
   });
-  const initialKm = (initialUsage.success ? initialUsage.data.initial_km : null) ?? 0;
+  const initialKmRaw = (initialUsage.success ? initialUsage.data.initial_km : null) ?? 0;
+  const initialKm = unitToKm(initialKmRaw, distanceUnit);
   const initialHours = (initialUsage.success ? initialUsage.data.initial_hours : null) ?? 0;
 
   const { data: bike } = await supabase.from("bikes").select("total_km, total_hours").eq("id", bikeId).single();
@@ -84,12 +95,18 @@ export async function createComponent(bikeId: string, formData: FormData) {
 
 export async function updateComponent(bikeId: string, componentId: string, formData: FormData) {
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
 
   const parsed = parseComponentFormData(formData);
   if (!parsed.success) {
     redirect(
       `/bikes/${bikeId}/components/${componentId}/edit?error=${encodeURIComponent(parsed.error.issues[0].message)}`
     );
+  }
+
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  if (parsed.data.interval_type === "km" && parsed.data.interval_value != null) {
+    parsed.data.interval_value = unitToKm(parsed.data.interval_value, distanceUnit);
   }
 
   const { error } = await supabase.from("components").update(parsed.data).eq("id", componentId);

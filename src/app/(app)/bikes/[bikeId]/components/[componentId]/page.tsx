@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { Pencil, Plus, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, calculateComponentUsage } from "@/lib/maintenance/calculation";
-import { formatDate, formatDistance, formatNumber } from "@/lib/format";
+import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
+import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { TypeBadge } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
@@ -53,19 +54,40 @@ export default async function ComponentDetailPage({
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
 
-  const { status, nextDueDate, daysRemaining } = calculateComponentStatus({
-    intervalMonths: component.interval_months,
+  const lastIntervention = interventions?.[0] ?? null;
+  const intervalType = component.interval_type as "km" | "hours" | "months" | null;
+
+  const { status, nextDueDate, daysRemaining, amountRemaining, fractionUsed } = calculateComponentStatus({
+    intervalType,
+    intervalValue: component.interval_value,
     installDate: component.install_date,
-    lastInterventionDate: interventions?.[0]?.date ?? null,
+    lastInterventionDate: lastIntervention?.date ?? null,
+    currentKm: bike.total_km,
+    currentHours: bike.total_hours,
+    bikeKmAtInstall: component.bike_km_at_install,
+    bikeHoursAtInstall: component.bike_hours_at_install,
+    bikeKmAtLastService: lastIntervention?.bike_km_at_intervention ?? null,
+    bikeHoursAtLastService: lastIntervention?.bike_hours_at_intervention ?? null,
   });
+
+  const amountRemainingDetail =
+    amountRemaining != null
+      ? intervalType === "km"
+        ? formatDistance(Math.abs(amountRemaining), distanceUnit)
+        : `${formatNumber(Math.abs(amountRemaining))} h`
+      : null;
 
   const statusDetail =
     status === "overdue"
-      ? dict.dashboard.overdueDays(Math.abs(daysRemaining!))
+      ? amountRemainingDetail
+        ? dict.dashboard.overdueBy(amountRemainingDetail)
+        : dict.dashboard.overdueDays(Math.abs(daysRemaining!))
       : status === "due_soon"
-        ? dict.dashboard.dueInDays(daysRemaining!)
-        : status === "ok"
-          ? dict.components.detail.dueOn(formatDate(nextDueDate!))
+        ? amountRemainingDetail
+          ? dict.dashboard.dueInAmount(amountRemainingDetail)
+          : dict.dashboard.dueInDays(daysRemaining!)
+        : status === "ok" && nextDueDate
+          ? dict.components.detail.dueOn(formatDate(nextDueDate))
           : undefined;
 
   return (
@@ -95,7 +117,15 @@ export default async function ComponentDetailPage({
           <div>
             <p className="text-xs text-muted-foreground">{dict.components.detail.interval}</p>
             <p className="font-mono text-sm font-semibold">
-              {component.interval_months ? dict.components.detail.every(component.interval_months) : "—"}
+              {intervalType && component.interval_value != null
+                ? dict.components.detail.every(
+                    intervalType === "km"
+                      ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10
+                      : component.interval_value,
+                    intervalType,
+                    distanceUnit
+                  )
+                : "—"}
             </p>
           </div>
           <div>
@@ -128,6 +158,7 @@ export default async function ComponentDetailPage({
           <Pencil className="size-3.5" />
           {dict.components.detail.edit}
         </Button>
+        {fractionUsed != null && <ServiceIntervalBar status={status} fraction={fractionUsed} className="w-full" />}
       </div>
 
       <div className="mb-3 flex items-center justify-between">

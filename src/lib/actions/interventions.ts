@@ -33,9 +33,19 @@ export async function createIntervention(bikeId: string, componentId: string, fo
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const kms = parsed.data.kms != null ? unitToKm(parsed.data.kms, distanceUnit) : null;
 
-  const { error } = await supabase
-    .from("interventions")
-    .insert({ ...parsed.data, kms, component_id: componentId, user_id: userId });
+  // Snapshot the bike's current totals so km/hours-based maintenance
+  // criteria can measure usage accrued since this service, the same way
+  // bike_km_at_install works for usage since the component was installed.
+  const { data: bike } = await supabase.from("bikes").select("total_km, total_hours").eq("id", bikeId).single();
+
+  const { error } = await supabase.from("interventions").insert({
+    ...parsed.data,
+    kms,
+    component_id: componentId,
+    user_id: userId,
+    bike_km_at_intervention: bike?.total_km ?? null,
+    bike_hours_at_intervention: bike?.total_hours ?? null,
+  });
 
   if (error) {
     redirect(

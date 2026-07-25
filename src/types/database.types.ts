@@ -82,9 +82,8 @@ export type Database = {
           created_at: string
           id: string
           install_date: string | null
-          interval_hours: number | null
-          interval_km: number | null
-          interval_months: number | null
+          interval_type: string | null
+          interval_value: number | null
           model: string | null
           name: string
           notes: string | null
@@ -102,9 +101,8 @@ export type Database = {
           created_at?: string
           id?: string
           install_date?: string | null
-          interval_hours?: number | null
-          interval_km?: number | null
-          interval_months?: number | null
+          interval_type?: string | null
+          interval_value?: number | null
           model?: string | null
           name: string
           notes?: string | null
@@ -122,9 +120,8 @@ export type Database = {
           created_at?: string
           id?: string
           install_date?: string | null
-          interval_hours?: number | null
-          interval_km?: number | null
-          interval_months?: number | null
+          interval_type?: string | null
+          interval_value?: number | null
           model?: string | null
           name?: string
           notes?: string | null
@@ -144,6 +141,8 @@ export type Database = {
       }
       interventions: {
         Row: {
+          bike_hours_at_intervention: number | null
+          bike_km_at_intervention: number | null
           component_id: string
           created_at: string
           date: string
@@ -157,6 +156,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          bike_hours_at_intervention?: number | null
+          bike_km_at_intervention?: number | null
           component_id: string
           created_at?: string
           date: string
@@ -170,6 +171,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          bike_hours_at_intervention?: number | null
+          bike_km_at_intervention?: number | null
           component_id?: string
           created_at?: string
           date?: string
@@ -282,16 +285,19 @@ export type Database = {
       components_status: {
         Row: {
           active: boolean | null
+          bike_hours_at_install: number | null
           bike_id: string | null
+          bike_km_at_install: number | null
           brand: string | null
           category: string | null
           created_at: string | null
           id: string | null
           install_date: string | null
-          interval_hours: number | null
-          interval_km: number | null
-          interval_months: number | null
+          interval_type: string | null
+          interval_value: number | null
           last_intervention_date: string | null
+          last_service_hours: number | null
+          last_service_km: number | null
           model: string | null
           name: string | null
           notes: string | null

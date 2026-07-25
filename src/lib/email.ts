@@ -36,7 +36,7 @@ export async function sendDueSoonEmail(params: {
   locale: Locale;
   componentName: string;
   bikeName: string;
-  dueDate: string;
+  detail: { kind: "date"; date: string } | { kind: "amount"; amount: string };
   componentUrl: string;
   siteUrl: string;
 }): Promise<boolean> {
@@ -44,9 +44,13 @@ export async function sendDueSoonEmail(params: {
   if (!client) return false;
 
   const dict = getDictionary(params.locale).email;
+  const detailText =
+    params.detail.kind === "date"
+      ? dict.dueSoon.bodyByDate(params.componentName, params.bikeName, formatDate(params.detail.date))
+      : dict.dueSoon.bodyByAmount(params.componentName, params.bikeName, params.detail.amount);
   const html = wrapEmail(
     dict.dueSoon.heading,
-    `<p style="margin:0;font-size:15px;line-height:1.5;">${dict.dueSoon.body(params.componentName, params.bikeName, formatDate(params.dueDate))}</p>`,
+    `<p style="margin:0;font-size:15px;line-height:1.5;">${detailText}</p>`,
     dict.cta,
     `${params.siteUrl}${params.componentUrl}`,
     dict.footer
@@ -65,7 +69,7 @@ export async function sendOverdueEmail(params: {
   locale: Locale;
   componentName: string;
   bikeName: string;
-  daysOverdue: number;
+  detail: { kind: "days"; days: number } | { kind: "amount"; amount: string };
   componentUrl: string;
   siteUrl: string;
 }): Promise<boolean> {
@@ -73,9 +77,13 @@ export async function sendOverdueEmail(params: {
   if (!client) return false;
 
   const dict = getDictionary(params.locale).email;
+  const detailText =
+    params.detail.kind === "days"
+      ? dict.overdue.bodyByDays(params.componentName, params.bikeName, params.detail.days)
+      : dict.overdue.bodyByAmount(params.componentName, params.bikeName, params.detail.amount);
   const html = wrapEmail(
     dict.overdue.heading,
-    `<p style="margin:0;font-size:15px;line-height:1.5;">${dict.overdue.body(params.componentName, params.bikeName, params.daysOverdue)}</p>`,
+    `<p style="margin:0;font-size:15px;line-height:1.5;">${detailText}</p>`,
     dict.cta,
     `${params.siteUrl}${params.componentUrl}`,
     dict.footer

@@ -13,10 +13,15 @@ export default async function BikesPage() {
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const [{ data: bikes }, { data: components }] = await Promise.all([
-    supabase.from("bikes").select("id, name, type, brand, model, year").order("created_at", { ascending: false }),
+    supabase
+      .from("bikes")
+      .select("id, name, type, brand, model, year, total_km, total_hours")
+      .order("created_at", { ascending: false }),
     supabase
       .from("components_status")
-      .select("bike_id, interval_months, install_date, last_intervention_date"),
+      .select(
+        "bike_id, interval_type, interval_value, install_date, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+      ),
   ]);
 
   const bikeStatuses = new Map(
@@ -26,9 +31,16 @@ export default async function BikesPage() {
         .map(
           (c) =>
             calculateComponentStatus({
-              intervalMonths: c.interval_months,
+              intervalType: c.interval_type as "km" | "hours" | "months" | null,
+              intervalValue: c.interval_value,
               installDate: c.install_date,
               lastInterventionDate: c.last_intervention_date,
+              currentKm: bike.total_km,
+              currentHours: bike.total_hours,
+              bikeKmAtInstall: c.bike_km_at_install,
+              bikeHoursAtInstall: c.bike_hours_at_install,
+              bikeKmAtLastService: c.last_service_km,
+              bikeHoursAtLastService: c.last_service_hours,
             }).status
         );
       return [bike.id, worstStatus(statuses)];

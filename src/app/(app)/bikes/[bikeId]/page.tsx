@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, worstStatus } from "@/lib/maintenance/calculation";
-import { formatDistance, formatNumber } from "@/lib/format";
+import { formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
+import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { BikeIcon } from "@/components/bike-icon";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
@@ -31,7 +32,9 @@ export default async function BikeDetailPage({
   // date so status can be computed here without an N+1 query per row.
   const { data: components } = await supabase
     .from("components_status")
-    .select("id, name, category, brand, model, interval_months, install_date, last_intervention_date")
+    .select(
+      "id, name, category, brand, model, interval_type, interval_value, install_date, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+    )
     .eq("bike_id", bikeId)
     .order("created_at", { ascending: true });
 
@@ -39,13 +42,20 @@ export default async function BikeDetailPage({
     (components ?? []).map((c) => [
       c.id,
       calculateComponentStatus({
-        intervalMonths: c.interval_months,
+        intervalType: c.interval_type as "km" | "hours" | "months" | null,
+        intervalValue: c.interval_value,
         installDate: c.install_date,
         lastInterventionDate: c.last_intervention_date,
-      }).status,
+        currentKm: bike.total_km,
+        currentHours: bike.total_hours,
+        bikeKmAtInstall: c.bike_km_at_install,
+        bikeHoursAtInstall: c.bike_hours_at_install,
+        bikeKmAtLastService: c.last_service_km,
+        bikeHoursAtLastService: c.last_service_hours,
+      }),
     ])
   );
-  const bikeStatus = worstStatus([...statusByComponent.values()]);
+  const bikeStatus = worstStatus([...statusByComponent.values()].map((s) => s.status));
 
   return (
     <div className="pt-8">
@@ -124,7 +134,7 @@ export default async function BikeDetailPage({
       ) : (
         <div className="rounded-lg bg-card">
           {components.map((component, i) => {
-            const status = statusByComponent.get(component.id)!;
+            const { status, fractionUsed } = statusByComponent.get(component.id)!;
             return (
               <div
                 key={component.id}
@@ -142,12 +152,21 @@ export default async function BikeDetailPage({
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {[
                         component.category,
-                        component.interval_months ? dict.bikes.detail.every(component.interval_months) : null,
+                        component.interval_type && component.interval_value != null
+                          ? dict.bikes.detail.every(
+                              component.interval_type === "km"
+                                ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10
+                                : component.interval_value,
+                              component.interval_type as "km" | "hours" | "months",
+                              distanceUnit
+                            )
+                          : null,
                         [component.brand, component.model].filter(Boolean).join(" "),
                       ]
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
+                    <ServiceIntervalBar status={status} fraction={fractionUsed} className="mt-2 max-w-[220px]" />
                   </div>
                   <StatusBadge status={status} dict={dict} />
                 </Link>

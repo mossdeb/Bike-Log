@@ -6,17 +6,19 @@ const optionalText = (max: number) =>
     z.string().trim().max(max).nullable()
   );
 
-const optionalInt = (min: number, max: number) =>
-  z.preprocess(
-    (v) => (v === "" || v == null ? null : v),
-    z.coerce.number().int().min(min).max(max).nullable()
-  );
-
 const optionalNumber = (min: number, max: number) =>
   z.preprocess(
     (v) => (v === "" || v == null ? null : v),
     z.coerce.number().min(min).max(max).nullable()
   );
+
+export const INTERVAL_TYPES = ["km", "hours", "months"] as const;
+export type IntervalType = (typeof INTERVAL_TYPES)[number];
+
+const optionalIntervalType = z.preprocess(
+  (v) => (v === "" || v == null ? null : v),
+  z.enum(INTERVAL_TYPES).nullable()
+);
 
 export const componentSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120),
@@ -25,7 +27,8 @@ export const componentSchema = z.object({
   model: optionalText(120),
   serial_number: optionalText(120),
   install_date: optionalText(10), // "YYYY-MM-DD" from <input type="date">
-  interval_months: optionalInt(1, 120),
+  interval_type: optionalIntervalType,
+  interval_value: optionalNumber(0.1, 1000000),
   notes: optionalText(2000),
 });
 

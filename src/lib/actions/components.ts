@@ -16,6 +16,8 @@ function parseComponentFormData(formData: FormData) {
     serial_number: formData.get("serial_number"),
     install_date: formData.get("install_date"),
     interval_months: formData.get("interval_months"),
+    total_km: formData.get("total_km"),
+    total_hours: formData.get("total_hours"),
     notes: formData.get("notes"),
   });
 }

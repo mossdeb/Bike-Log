@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, worstStatus } from "@/lib/maintenance/calculation";
+import { formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { BikeIcon } from "@/components/bike-icon";
@@ -20,6 +21,7 @@ export default async function BikeDetailPage({
   const supabase = await createClient();
 
   const { data: userData } = await supabase.auth.getClaims();
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
@@ -74,6 +76,18 @@ export default async function BikeDetailPage({
             <p className="text-xs text-muted-foreground">{dict.bikes.detail.serial}</p>
             <p className="font-mono text-sm font-semibold">{bike.serial_number ?? "—"}</p>
           </div>
+          {bike.total_km != null && (
+            <div>
+              <p className="text-xs text-muted-foreground">{dict.bikes.detail.totalDistance}</p>
+              <p className="font-mono text-sm font-semibold">{formatDistance(bike.total_km, distanceUnit)}</p>
+            </div>
+          )}
+          {bike.total_hours != null && (
+            <div>
+              <p className="text-xs text-muted-foreground">{dict.bikes.detail.totalHours}</p>
+              <p className="font-mono text-sm font-semibold">{formatNumber(bike.total_hours)} h</p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-muted-foreground">{dict.bikes.detail.status}</p>
             <StatusBadge status={bikeStatus} dict={dict} className="mt-0.5" />

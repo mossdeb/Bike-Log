@@ -16,6 +16,8 @@ function parseBikeFormData(formData: FormData) {
     type: formData.get("type"),
     color: formData.get("color"),
     serial_number: formData.get("serial_number"),
+    total_km: formData.get("total_km"),
+    total_hours: formData.get("total_hours"),
     notes: formData.get("notes"),
   });
 }

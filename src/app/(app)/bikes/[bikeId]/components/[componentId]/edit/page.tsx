@@ -25,6 +25,7 @@ export default async function EditComponentPage({
 
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
@@ -139,6 +140,30 @@ export default async function EditComponentPage({
               className="max-w-[140px]"
             />
             <p className="text-xs text-muted-foreground">{dict.components.form.intervalHint}</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="total_km">{dict.components.form.totalDistance(distanceUnit)}</Label>
+            <Input
+              id="total_km"
+              name="total_km"
+              type="number"
+              step="0.1"
+              defaultValue={component.total_km ?? ""}
+              placeholder={dict.components.form.optional}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="total_hours">{dict.components.form.totalHours}</Label>
+            <Input
+              id="total_hours"
+              name="total_hours"
+              type="number"
+              step="0.1"
+              defaultValue={component.total_hours ?? ""}
+              placeholder={dict.components.form.optional}
+            />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

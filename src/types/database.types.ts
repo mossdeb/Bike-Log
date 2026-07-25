@@ -26,6 +26,8 @@ export type Database = {
           name: string
           notes: string | null
           serial_number: string | null
+          total_hours: number | null
+          total_km: number | null
           type: string | null
           updated_at: string
           user_id: string
@@ -42,6 +44,8 @@ export type Database = {
           name: string
           notes?: string | null
           serial_number?: string | null
+          total_hours?: number | null
+          total_km?: number | null
           type?: string | null
           updated_at?: string
           user_id: string
@@ -58,6 +62,8 @@ export type Database = {
           name?: string
           notes?: string | null
           serial_number?: string | null
+          total_hours?: number | null
+          total_km?: number | null
           type?: string | null
           updated_at?: string
           user_id?: string
@@ -81,6 +87,8 @@ export type Database = {
           name: string
           notes: string | null
           serial_number: string | null
+          total_hours: number | null
+          total_km: number | null
           updated_at: string
           user_id: string
         }
@@ -99,6 +107,8 @@ export type Database = {
           name: string
           notes?: string | null
           serial_number?: string | null
+          total_hours?: number | null
+          total_km?: number | null
           updated_at?: string
           user_id: string
         }
@@ -117,6 +127,8 @@ export type Database = {
           name?: string
           notes?: string | null
           serial_number?: string | null
+          total_hours?: number | null
+          total_km?: number | null
           updated_at?: string
           user_id?: string
         }

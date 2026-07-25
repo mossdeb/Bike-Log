@@ -91,6 +91,18 @@ export default async function ComponentDetailPage({
             <p className="text-xs text-muted-foreground">{dict.components.detail.serial}</p>
             <p className="font-mono text-sm font-semibold">{component.serial_number ?? "—"}</p>
           </div>
+          {component.total_km != null && (
+            <div>
+              <p className="text-xs text-muted-foreground">{dict.components.detail.totalDistance}</p>
+              <p className="font-mono text-sm font-semibold">{formatDistance(component.total_km, distanceUnit)}</p>
+            </div>
+          )}
+          {component.total_hours != null && (
+            <div>
+              <p className="text-xs text-muted-foreground">{dict.components.detail.totalHours}</p>
+              <p className="font-mono text-sm font-semibold">{formatNumber(component.total_hours)} h</p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-muted-foreground">{dict.components.detail.status}</p>
             <StatusBadge status={status} label={statusDetail} dict={dict} className="mt-0.5" />

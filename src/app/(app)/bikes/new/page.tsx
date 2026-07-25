@@ -19,6 +19,7 @@ export default async function NewBikePage({
   const { error } = await searchParams;
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const manufacturers = await getBikeIndexManufacturers();
 
@@ -74,6 +75,28 @@ export default async function NewBikePage({
           <div className="space-y-1.5">
             <Label htmlFor="serial_number">{dict.bikes.form.serialNumber}</Label>
             <Input id="serial_number" name="serial_number" placeholder={dict.bikes.form.optional} />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="total_km">{dict.bikes.form.totalDistance(distanceUnit)}</Label>
+            <Input
+              id="total_km"
+              name="total_km"
+              type="number"
+              step="0.1"
+              placeholder={dict.bikes.form.optional}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="total_hours">{dict.bikes.form.totalHours}</Label>
+            <Input
+              id="total_hours"
+              name="total_hours"
+              type="number"
+              step="0.1"
+              placeholder={dict.bikes.form.optional}
+            />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

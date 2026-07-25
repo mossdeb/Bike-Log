@@ -44,6 +44,34 @@ export async function logout() {
   redirect("/login");
 }
 
+export async function requestPasswordReset(formData: FormData) {
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+  const origin = (await headers()).get("origin");
+
+  // Errors aren't surfaced here on purpose — always showing the same
+  // "check your email" state avoids revealing whether an address has an
+  // account.
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/confirm?next=/reset-password`,
+  });
+
+  redirect("/forgot-password?success=1");
+}
+
+export async function resetPassword(formData: FormData) {
+  const supabase = await createClient();
+  const password = formData.get("password") as string;
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}
+
 export async function signInWithGoogle() {
   const supabase = await createClient();
   const origin = (await headers()).get("origin");

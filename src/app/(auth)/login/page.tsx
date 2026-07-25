@@ -48,7 +48,12 @@ export default async function LoginPage({
           <Input id="email" name="email" type="email" placeholder="you@example.com" required />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link href="/forgot-password" className="text-xs font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground">
+              Forgot password?
+            </Link>
+          </div>
           <Input id="password" name="password" type="password" placeholder="••••••••" required />
         </div>
         <Button type="submit" className="w-full" size="lg">

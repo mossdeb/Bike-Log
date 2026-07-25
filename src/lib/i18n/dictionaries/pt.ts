@@ -114,6 +114,15 @@ const pt: Dictionary = {
       emailPassword: "Email e palavra-passe",
       connected: "Associada",
     },
+    strava: {
+      title: "Strava",
+      description: "Importa automaticamente a distância e o tempo das voltas para as suas bicicletas.",
+      strava: "Strava",
+      connected: "Associada",
+      connect: "Associar Strava",
+      disconnect: "Desassociar",
+      connectionFailed: "Não foi possível associar ao Strava. Tente novamente.",
+    },
     dangerZone: {
       title: "Zona de perigo",
       description: "Elimina permanentemente a sua conta e todo o histórico de manutenção registado.",
@@ -178,6 +187,14 @@ const pt: Dictionary = {
       deleteConfirmDesc: (name: string, count: number) =>
         `Isto elimina permanentemente "${name}" e todos os ${count} componentes e respetivo histórico de manutenção.`,
       deleteButton: "Eliminar bicicleta",
+      stravaTitle: "Bicicleta Strava",
+      stravaDescription: "Associe esta bicicleta a uma bicicleta do Strava para as voltas atualizarem os totais automaticamente.",
+      stravaGearLabel: "Bicicleta Strava",
+      stravaNone: "Não associada",
+      stravaAlreadyLinked: (gearName: string, bikeName: string): string => `${gearName} (associada a ${bikeName})`,
+      stravaNotConnected: "Associe o Strava em Definições para associar uma bicicleta.",
+      stravaHint: "Depois de associada, o Total de kms/horas passa a ser atualizado automaticamente a partir do Strava — a edição manual fica desativada.",
+      stravaSave: "Guardar",
     },
   },
   components: {

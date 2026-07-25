@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { GoogleIcon } from "@/components/google-icon";
+import { StravaIcon } from "@/components/strava-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ import { DeleteAccountButton } from "@/components/delete-account-button";
 import { BillingSection } from "@/components/billing-section";
 import { getInitials } from "@/lib/initials";
 import { updateFullName, deleteAccount } from "@/lib/actions/settings";
+import { connectStrava, disconnectStrava } from "@/lib/actions/strava";
 import { getUserSubscription } from "@/lib/subscription";
 
 const selectClassName =
@@ -57,6 +59,12 @@ export default async function SettingsPage({
 
   const locale = localeFromMetadata(user?.user_metadata);
   const dict = getDictionary(locale);
+
+  const { data: stravaConnection } = user?.sub
+    ? await supabase.from("strava_connections").select("user_id").eq("user_id", user.sub as string).maybeSingle()
+    : { data: null };
+  const isStravaConnected = !!stravaConnection;
+  const stravaError = error === "strava-connection-failed" ? dict.settings.strava.connectionFailed : error;
   const subscription = user?.sub
     ? await getUserSubscription(user.sub as string)
     : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
@@ -68,7 +76,7 @@ export default async function SettingsPage({
         <p className="mt-1 text-sm text-muted-foreground">{dict.settings.subtitle}</p>
       </div>
 
-      <FormError message={error} />
+      <FormError message={stravaError} />
 
       <div className="flex max-w-[720px] flex-col gap-4">
         <SettingsSection title={dict.settings.profile.title} description={dict.settings.profile.description}>
@@ -140,6 +148,33 @@ export default async function SettingsPage({
               <span className="ml-auto shrink-0 rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
                 {dict.settings.connectedAccounts.connected}
               </span>
+            )}
+          </div>
+        </SettingsSection>
+
+        <SettingsSection title={dict.settings.strava.title} description={dict.settings.strava.description}>
+          <div className="flex items-center gap-3 rounded-sm bg-muted px-3.5 py-3">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white ring-1 ring-inset ring-border">
+              <StravaIcon className="size-4" />
+            </span>
+            <span className="text-sm font-semibold">{dict.settings.strava.strava}</span>
+            {isStravaConnected ? (
+              <>
+                <span className="ml-auto shrink-0 rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
+                  {dict.settings.strava.connected}
+                </span>
+                <form action={disconnectStrava}>
+                  <Button type="submit" variant="outline" size="sm">
+                    {dict.settings.strava.disconnect}
+                  </Button>
+                </form>
+              </>
+            ) : (
+              <form action={connectStrava} className="ml-auto">
+                <Button type="submit" variant="outline" size="sm">
+                  {dict.settings.strava.connect}
+                </Button>
+              </form>
             )}
           </div>
         </SettingsSection>

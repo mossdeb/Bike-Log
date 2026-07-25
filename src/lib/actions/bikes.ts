@@ -44,9 +44,11 @@ export async function createBike(formData: FormData) {
     }
   }
 
+  const stravaGearId = (formData.get("strava_gear_id") as string) || null;
+
   const { data: bike, error } = await supabase
     .from("bikes")
-    .insert({ ...parsed.data, user_id: userId })
+    .insert({ ...parsed.data, user_id: userId, strava_gear_id: stravaGearId })
     .select("id")
     .single();
 
@@ -68,7 +70,15 @@ export async function updateBike(bikeId: string, formData: FormData) {
     );
   }
 
-  const { error } = await supabase.from("bikes").update(parsed.data).eq("id", bikeId);
+  // Once a bike is linked to a Strava gear, its totals are Strava's to
+  // manage — ignore whatever this form submitted for them (the fields are
+  // read-only client-side, but a linked bike stays authoritative either way).
+  const { data: existingBike } = await supabase.from("bikes").select("strava_gear_id").eq("id", bikeId).single();
+  const updateData = existingBike?.strava_gear_id
+    ? { ...parsed.data, total_km: undefined, total_hours: undefined }
+    : parsed.data;
+
+  const { error } = await supabase.from("bikes").update(updateData).eq("id", bikeId);
   if (error) {
     redirect(`/bikes/${bikeId}/edit?error=${encodeURIComponent(error.message)}`);
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getBikeIndexManufacturers } from "@/lib/bikeindex";
 import { createClient } from "@/lib/supabase/server";
 import { createBike } from "@/lib/actions/bikes";
+import { getValidStravaAccessToken, fetchStravaBikes } from "@/lib/strava";
 import { BIKE_TYPES } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
 import { FormError } from "@/components/form-error";
@@ -21,7 +22,22 @@ export default async function NewBikePage({
   const { data: userData } = await supabase.auth.getClaims();
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const userId = userData?.claims?.sub as string | undefined;
   const manufacturers = await getBikeIndexManufacturers();
+
+  const stravaAccessToken = userId ? await getValidStravaAccessToken(supabase, userId) : null;
+  const stravaBikes = stravaAccessToken ? await fetchStravaBikes(stravaAccessToken) : [];
+  const gearOwnerByGearId = new Map<string, string>();
+  if (stravaBikes.length > 0 && userId) {
+    const { data: linkedBikes } = await supabase
+      .from("bikes")
+      .select("name, strava_gear_id")
+      .eq("user_id", userId)
+      .not("strava_gear_id", "is", null);
+    for (const b of linkedBikes ?? []) {
+      if (b.strava_gear_id) gearOwnerByGearId.set(b.strava_gear_id, b.name);
+    }
+  }
 
   return (
     <div className="max-w-2xl pt-8">
@@ -97,6 +113,30 @@ export default async function NewBikePage({
               step="0.1"
               placeholder={dict.bikes.form.optional}
             />
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="strava_gear_id">{dict.bikes.form.stravaGearLabel}</Label>
+            {stravaAccessToken ? (
+              <select
+                id="strava_gear_id"
+                name="strava_gear_id"
+                defaultValue=""
+                className="flex h-8 w-full max-w-[240px] items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              >
+                <option value="">{dict.bikes.form.stravaNone}</option>
+                {stravaBikes.map((gear) => {
+                  const linkedTo = gearOwnerByGearId.get(gear.id);
+                  return (
+                    <option key={gear.id} value={gear.id} disabled={!!linkedTo}>
+                      {linkedTo ? dict.bikes.form.stravaAlreadyLinked(gear.name, linkedTo) : gear.name}
+                    </option>
+                  );
+                })}
+              </select>
+            ) : (
+              <p className="text-sm text-muted-foreground">{dict.bikes.form.stravaNotConnected}</p>
+            )}
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

@@ -112,6 +112,15 @@ const en = {
       emailPassword: "Email & password",
       connected: "Connected",
     },
+    strava: {
+      title: "Strava",
+      description: "Automatically import ride distance and time into your bikes.",
+      strava: "Strava",
+      connected: "Connected",
+      connect: "Connect Strava",
+      disconnect: "Disconnect",
+      connectionFailed: "Couldn't connect to Strava. Please try again.",
+    },
     dangerZone: {
       title: "Danger zone",
       description: "Permanently delete your account and all logged maintenance data.",
@@ -176,6 +185,14 @@ const en = {
       deleteConfirmDesc: (name: string, count: number) =>
         `This permanently deletes "${name}" and all ${count} of its components and their maintenance history.`,
       deleteButton: "Delete bike",
+      stravaTitle: "Strava gear",
+      stravaDescription: "Link this bike to a Strava bike so rides update its totals automatically.",
+      stravaGearLabel: "Strava bike",
+      stravaNone: "Not linked",
+      stravaAlreadyLinked: (gearName: string, bikeName: string): string => `${gearName} (linked to ${bikeName})`,
+      stravaNotConnected: "Connect Strava in Settings to link a bike.",
+      stravaHint: "Once linked, Total kms/hours update automatically from Strava — manual editing is disabled.",
+      stravaSave: "Save",
     },
   },
   components: {

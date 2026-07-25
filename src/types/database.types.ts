@@ -26,6 +26,7 @@ export type Database = {
           name: string
           notes: string | null
           serial_number: string | null
+          strava_gear_id: string | null
           total_hours: number | null
           total_km: number | null
           type: string | null
@@ -44,6 +45,7 @@ export type Database = {
           name: string
           notes?: string | null
           serial_number?: string | null
+          strava_gear_id?: string | null
           total_hours?: number | null
           total_km?: number | null
           type?: string | null
@@ -62,6 +64,7 @@ export type Database = {
           name?: string
           notes?: string | null
           serial_number?: string | null
+          strava_gear_id?: string | null
           total_hours?: number | null
           total_km?: number | null
           type?: string | null
@@ -243,6 +246,68 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      strava_activities: {
+        Row: {
+          bike_id: string
+          distance_km: number
+          moving_time_hours: number
+          processed_at: string
+          strava_activity_id: number
+        }
+        Insert: {
+          bike_id: string
+          distance_km: number
+          moving_time_hours: number
+          processed_at?: string
+          strava_activity_id: number
+        }
+        Update: {
+          bike_id?: string
+          distance_km?: number
+          moving_time_hours?: number
+          processed_at?: string
+          strava_activity_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strava_activities_bike_id_fkey"
+            columns: ["bike_id"]
+            isOneToOne: false
+            referencedRelation: "bikes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strava_connections: {
+        Row: {
+          access_token: string
+          athlete_id: number
+          created_at: string
+          expires_at: string
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          athlete_id: number
+          created_at?: string
+          expires_at: string
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          athlete_id?: number
+          created_at?: string
+          expires_at?: string
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       subscriptions: {
         Row: {

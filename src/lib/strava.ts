@@ -125,3 +125,70 @@ export async function fetchStravaActivity(accessToken: string, activityId: numbe
 export function isCyclingActivity(activity: StravaActivity): boolean {
   return CYCLING_TYPES.has(activity.sport_type) || CYCLING_TYPES.has(activity.type);
 }
+
+/** Records one Strava activity against the Bikit bike its gear maps to.
+ * Idempotent via the unique key on strava_activity_id — safe to call for an
+ * activity that's already been synced (by the webhook or a prior cron pass).
+ * Used by both the webhook (fast path) and the reconciliation cron
+ * (fallback for anything the webhook missed). */
+export async function syncActivityToBike(
+  admin: SupabaseClient<Database>,
+  userId: string,
+  activity: StravaActivity
+): Promise<"synced" | "skipped" | "duplicate" | "error"> {
+  if (!activity.gear_id || !isCyclingActivity(activity)) return "skipped";
+
+  const { data: bike } = await admin
+    .from("bikes")
+    .select("id, total_km, total_hours")
+    .eq("strava_gear_id", activity.gear_id)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!bike) return "skipped";
+
+  const distanceKm = activity.distance / 1000;
+  const movingHours = activity.moving_time / 3600;
+
+  const { error: insertError } = await admin.from("strava_activities").insert({
+    strava_activity_id: activity.id,
+    bike_id: bike.id,
+    distance_km: distanceKm,
+    moving_time_hours: movingHours,
+  });
+  if (insertError) {
+    if (insertError.code === "23505") return "duplicate";
+    console.error("[strava] failed to record activity", activity.id, insertError.message);
+    return "error";
+  }
+
+  await admin
+    .from("bikes")
+    .update({
+      total_km: (bike.total_km ?? 0) + distanceKm,
+      total_hours: (bike.total_hours ?? 0) + movingHours,
+    })
+    .eq("id", bike.id);
+
+  return "synced";
+}
+
+const STRAVA_WEBHOOK_CALLBACK = "https://www.bikit.app/api/strava/webhook";
+
+/** Confirms our push subscription still exists and points at the right
+ * callback. Strava gives no delivery log, so this is the only way to catch
+ * a subscription that silently stopped forwarding events — logs loudly on
+ * mismatch so it shows up in Vercel's runtime logs. */
+export async function checkStravaSubscriptionHealth(): Promise<void> {
+  try {
+    const res = await fetch(
+      `${STRAVA_API}/push_subscriptions?client_id=${process.env.STRAVA_CLIENT_ID}&client_secret=${process.env.STRAVA_CLIENT_SECRET}`
+    );
+    const subs: { callback_url: string }[] = res.ok ? await res.json() : [];
+    const healthy = subs.some((s) => s.callback_url === STRAVA_WEBHOOK_CALLBACK);
+    if (!healthy) {
+      console.error("[strava] push subscription missing or misconfigured", JSON.stringify(subs));
+    }
+  } catch (e) {
+    console.error("[strava] failed to check push subscription health", e);
+  }
+}

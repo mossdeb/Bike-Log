@@ -158,6 +158,9 @@ export default async function DashboardPage() {
               </div>
               <h3 className="font-display font-bold">{bike.name}</h3>
               <p className="mt-0.5 text-sm text-muted-foreground">{bike.type ?? "—"}</p>
+              {bike.total_km != null && (
+                <p className="mt-0.5 text-sm text-muted-foreground">{formatDistance(bike.total_km, distanceUnit)}</p>
+              )}
             </Link>
           ))}
         </div>

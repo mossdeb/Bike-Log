@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { BikeIcon } from "@/components/bike-icon";
 import { StatusBadge } from "@/components/status-badge";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { formatDistance } from "@/lib/format";
 
 export default async function BikesPage() {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
   const [{ data: bikes }, { data: components }] = await Promise.all([
     supabase
@@ -78,6 +80,9 @@ export default async function BikesPage() {
               </div>
               <h2 className="font-display font-bold">{bike.name}</h2>
               <p className="mt-0.5 text-sm text-muted-foreground">{bike.type ?? "—"}</p>
+              {bike.total_km != null && (
+                <p className="mt-0.5 text-sm text-muted-foreground">{formatDistance(bike.total_km, distanceUnit)}</p>
+              )}
               <div className="mt-4 flex items-center justify-between gap-3">
                 <p className="text-xs text-muted-foreground">
                   {[bike.brand, bike.model, bike.year].filter(Boolean).join(" · ") || dict.bikes.noDetailsYet}

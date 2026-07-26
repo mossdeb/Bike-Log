@@ -7,6 +7,7 @@ import { BikeIcon } from "@/components/bike-icon";
 import { StatusBadge } from "@/components/status-badge";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { formatDistance } from "@/lib/format";
+import { StravaBadgeIcon } from "@/components/strava-icon";
 
 export default async function BikesPage() {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ export default async function BikesPage() {
   const [{ data: bikes }, { data: components }] = await Promise.all([
     supabase
       .from("bikes")
-      .select("id, name, type, brand, model, year, total_km, total_hours")
+      .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")
       .order("created_at", { ascending: false }),
     supabase
       .from("components_status")
@@ -79,7 +80,10 @@ export default async function BikesPage() {
                 <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
               </div>
               <h2 className="font-display font-bold">{bike.name}</h2>
-              <p className="mt-0.5 text-sm text-muted-foreground">{bike.type ?? "—"}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                {bike.strava_gear_id && <StravaBadgeIcon className="size-[16.8px] shrink-0" />}
+                {bike.type ?? "—"}
+              </p>
               {bike.total_km != null && (
                 <p className="mt-0.5 text-sm text-muted-foreground">{formatDistance(bike.total_km, distanceUnit)}</p>
               )}

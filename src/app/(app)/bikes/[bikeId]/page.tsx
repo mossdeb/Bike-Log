@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { BikeIcon } from "@/components/bike-icon";
+import { StravaBadgeIcon } from "@/components/strava-icon";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
 import type { ComponentCategory } from "@/lib/constants";
@@ -71,7 +72,8 @@ export default async function BikeDetailPage({
         <BikeIcon type={bike.type} size="lg" />
         <div className="min-w-[200px] flex-1">
           <h1 className="text-xl font-display font-bold">{bike.name}</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+          <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+            {bike.strava_gear_id && <StravaBadgeIcon className="size-[16.8px] shrink-0" />}
             {[bike.type, bike.brand, bike.model, bike.year, bike.color]
               .filter(Boolean)
               .join(" · ") || dict.bikes.noDetailsYet}

@@ -203,7 +203,6 @@ const pt: Dictionary = {
       stravaGearLabel: "Bicicleta Strava",
       stravaNone: "Não associada",
       stravaAlreadyLinked: (gearName: string, bikeName: string): string => `${gearName} (associada a ${bikeName})`,
-      stravaNotConnected: "Associe o Strava em Definições para associar uma bicicleta.",
       stravaHint: "Depois de associada, o Total de kms/horas passa a ser atualizado automaticamente a partir do Strava — a edição manual fica desativada.",
       stravaGearConflict: "Essa bicicleta Strava já está associada a uma bicicleta de outra conta Bikit.",
     },

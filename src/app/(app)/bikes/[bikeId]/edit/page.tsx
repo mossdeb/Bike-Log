@@ -7,6 +7,7 @@ import { getValidStravaAccessToken, fetchStravaBikes } from "@/lib/strava";
 import { BIKE_TYPES } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
 import { StravaIcon } from "@/components/strava-icon";
+import { StravaConnectRow } from "@/components/strava-connect-row";
 import { FormError } from "@/components/form-error";
 import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
@@ -181,7 +182,7 @@ export default async function EditBikePage({
                 </select>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{dict.bikes.form.stravaNotConnected}</p>
+              <StravaConnectRow label={dict.settings.strava.strava} connectLabel={dict.settings.strava.connect} />
             )}
             <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
           </div>

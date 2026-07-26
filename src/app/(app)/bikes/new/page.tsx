@@ -5,6 +5,8 @@ import { createBike } from "@/lib/actions/bikes";
 import { getValidStravaAccessToken, fetchStravaBikes } from "@/lib/strava";
 import { BIKE_TYPES } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
+import { StravaIcon } from "@/components/strava-icon";
+import { StravaConnectRow } from "@/components/strava-connect-row";
 import { FormError } from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,27 +118,33 @@ export default async function NewBikePage({
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="strava_gear_id">{dict.bikes.form.stravaGearLabel}</Label>
+            <Label>{dict.bikes.form.stravaTitle}</Label>
             {stravaAccessToken ? (
-              <select
-                id="strava_gear_id"
-                name="strava_gear_id"
-                defaultValue=""
-                className="flex h-8 w-full max-w-[240px] items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
-              >
-                <option value="">{dict.bikes.form.stravaNone}</option>
-                {stravaBikes.map((gear) => {
-                  const linkedTo = gearOwnerByGearId.get(gear.id);
-                  return (
-                    <option key={gear.id} value={gear.id} disabled={!!linkedTo}>
-                      {linkedTo ? dict.bikes.form.stravaAlreadyLinked(gear.name, linkedTo) : gear.name}
-                    </option>
-                  );
-                })}
-              </select>
+              <div className="flex items-center gap-3 rounded-sm bg-muted px-3.5 py-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white ring-1 ring-inset ring-border">
+                  <StravaIcon className="size-4" />
+                </span>
+                <select
+                  id="strava_gear_id"
+                  name="strava_gear_id"
+                  defaultValue=""
+                  className="ml-auto flex h-8 w-56 items-center rounded-sm border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+                >
+                  <option value="">{dict.bikes.form.stravaNone}</option>
+                  {stravaBikes.map((gear) => {
+                    const linkedTo = gearOwnerByGearId.get(gear.id);
+                    return (
+                      <option key={gear.id} value={gear.id} disabled={!!linkedTo}>
+                        {linkedTo ? dict.bikes.form.stravaAlreadyLinked(gear.name, linkedTo) : gear.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
             ) : (
-              <p className="text-sm text-muted-foreground">{dict.bikes.form.stravaNotConnected}</p>
+              <StravaConnectRow label={dict.settings.strava.strava} connectLabel={dict.settings.strava.connect} />
             )}
+            <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

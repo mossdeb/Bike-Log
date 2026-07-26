@@ -12,19 +12,19 @@ export function StravaIcon({ className }: { className?: string }) {
  * used for the standalone "Connected accounts" row). */
 export function StravaBadgeIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 84 84" className={className} aria-hidden="true">
-      <circle cx="42" cy="42" r="42" fill="#FC4C02" />
+    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
+      <circle cx="50" cy="50" r="42" fill="#FC4C02" />
       <path
         opacity="0.6"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M36.225 46.2L49.35 69.825L61.95 46.2H54.075L49.35 55.125L44.1 46.2H36.225Z"
+        d="M44.225 54.2L57.35 77.825L69.95 54.2H62.075L57.35 63.125L52.1 54.2H44.225Z"
         fill="white"
       />
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M37.8 13.125L54.075 46.2H21L37.8 13.125ZM37.8 33.075L44.1 46.2H30.975L37.8 33.075Z"
+        d="M45.8 21.125L62.075 54.2H29L45.8 21.125ZM45.8 41.075L52.1 54.2H38.975L45.8 41.075Z"
         fill="white"
       />
     </svg>

@@ -203,7 +203,6 @@ const en = {
       stravaAlreadyLinked: (gearName: string, bikeName: string): string => `${gearName} (linked to ${bikeName})`,
       stravaNotConnected: "Connect Strava in Settings to link a bike.",
       stravaHint: "Once linked, Total kms/hours update automatically from Strava — manual editing is disabled.",
-      stravaSave: "Save",
       stravaGearConflict: "That Strava bike is already linked to a bike on another Bikit account.",
     },
   },

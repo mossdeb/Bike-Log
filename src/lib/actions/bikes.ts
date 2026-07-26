@@ -127,26 +127,39 @@ export async function updateBike(bikeId: string, formData: FormData) {
     );
   }
 
-  // Once a bike is linked to a Strava gear, its totals are Strava's to
-  // manage — ignore whatever this form submitted for them (the fields are
-  // read-only client-side, but a linked bike stays authoritative either way).
   const { data: existingBike } = await supabase
     .from("bikes")
     .select("strava_gear_id, total_km, total_hours")
     .eq("id", bikeId)
     .single();
-  const updateData = existingBike?.strava_gear_id
-    ? { ...parsed.data, total_km: undefined, total_hours: undefined }
-    : parsed.data;
+
+  // The gear select is only rendered when Strava is connected — if it's
+  // absent from the submission, leave the existing link untouched.
+  const stravaGearId = formData.has("strava_gear_id")
+    ? (formData.get("strava_gear_id") as string) || null
+    : (existingBike?.strava_gear_id ?? null);
+  const willBeLinked = !!stravaGearId;
+
+  // Once a bike is linked to a Strava gear, its totals are Strava's to
+  // manage — ignore whatever this form submitted for them (the fields are
+  // read-only client-side, but a linked bike stays authoritative either way).
+  const updateData = willBeLinked
+    ? { ...parsed.data, total_km: undefined, total_hours: undefined, strava_gear_id: stravaGearId }
+    : { ...parsed.data, strava_gear_id: stravaGearId };
 
   const { error } = await supabase.from("bikes").update(updateData).eq("id", bikeId);
   if (error) {
-    redirect(`/bikes/${bikeId}/edit?error=${encodeURIComponent(error.message)}`);
+    // A unique violation means that Strava bike is already claimed by a bike
+    // on a different Bikit account — the gear picker only knows about the
+    // current account's own bikes, so this can slip past its "already
+    // linked" check and needs to be surfaced here instead of failing silently.
+    const message = error.code === "23505" ? "strava-gear-conflict" : error.message;
+    redirect(`/bikes/${bikeId}/edit?error=${encodeURIComponent(message)}`);
   }
 
-  if (existingBike && !existingBike.strava_gear_id) {
-    const deltaKm = (parsed.data.total_km ?? 0) - (existingBike.total_km ?? 0);
-    const deltaHours = (parsed.data.total_hours ?? 0) - (existingBike.total_hours ?? 0);
+  if (!existingBike?.strava_gear_id && !willBeLinked) {
+    const deltaKm = (parsed.data.total_km ?? 0) - (existingBike?.total_km ?? 0);
+    const deltaHours = (parsed.data.total_hours ?? 0) - (existingBike?.total_hours ?? 0);
     if (deltaKm !== 0 || deltaHours !== 0) {
       await rebaseComponentBaselines(supabase, bikeId, deltaKm, deltaHours);
     }

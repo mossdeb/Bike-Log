@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { kmToUnit } from "@/lib/format";
 
 export default async function NewComponentPage({
   params,
@@ -28,8 +29,20 @@ export default async function NewComponentPage({
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
-  const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
+  const { data: bike } = await supabase
+    .from("bikes")
+    .select("id, name, total_km, total_hours")
+    .eq("id", bikeId)
+    .single();
   if (!bike) notFound();
+
+  // Most components being added are original equipment that's been on the
+  // bike since day one, not a fresh part — so default the head start to the
+  // bike's current totals (implying 0 usage so far) rather than 0, which
+  // would instead imply the bike had already accumulated all its usage
+  // without this component.
+  const defaultInitialKm = Math.round(kmToUnit(bike.total_km ?? 0, distanceUnit) * 10) / 10;
+  const defaultInitialHours = Math.round((bike.total_hours ?? 0) * 10) / 10;
 
   const manufacturers = await getBikeIndexManufacturers();
 
@@ -122,11 +135,11 @@ export default async function NewComponentPage({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="initial_km">{dict.components.form.totalDistance(distanceUnit)}</Label>
-                <Input id="initial_km" name="initial_km" type="number" step="0.1" defaultValue={0} />
+                <Input id="initial_km" name="initial_km" type="number" step="0.1" defaultValue={defaultInitialKm} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="initial_hours">{dict.components.form.totalHours}</Label>
-                <Input id="initial_hours" name="initial_hours" type="number" step="0.1" defaultValue={0} />
+                <Input id="initial_hours" name="initial_hours" type="number" step="0.1" defaultValue={defaultInitialHours} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{dict.components.form.totalUsageHint}</p>

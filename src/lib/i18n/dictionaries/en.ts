@@ -121,6 +121,9 @@ const en = {
       disconnect: "Disconnect",
       connectionFailed: "Couldn't connect to Strava. Please try again.",
       alreadyConnected: "This Strava account is already connected to another Bikit account.",
+      athleteIdLabel: "User ID:",
+      showAthleteId: "Show Strava athlete ID",
+      hideAthleteId: "Hide Strava athlete ID",
     },
     installApp: {
       title: "Install app",

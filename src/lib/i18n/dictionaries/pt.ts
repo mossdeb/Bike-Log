@@ -123,6 +123,9 @@ const pt: Dictionary = {
       disconnect: "Desassociar",
       connectionFailed: "Não foi possível associar ao Strava. Tente novamente.",
       alreadyConnected: "Esta conta Strava já está associada a outra conta Bikit.",
+      athleteIdLabel: "ID de utilizador:",
+      showAthleteId: "Mostrar ID do atleta Strava",
+      hideAthleteId: "Ocultar ID do atleta Strava",
     },
     installApp: {
       title: "Instalar aplicação",

@@ -30,7 +30,15 @@ export async function updateBikeStravaGear(bikeId: string, formData: FormData) {
   const supabase = await createClient();
   const gearId = (formData.get("strava_gear_id") as string) || null;
 
-  await supabase.from("bikes").update({ strava_gear_id: gearId }).eq("id", bikeId);
+  const { error } = await supabase.from("bikes").update({ strava_gear_id: gearId }).eq("id", bikeId);
+  if (error) {
+    // A unique violation means that Strava bike is already claimed by a bike
+    // on a different Bikit account — the gear picker only knows about the
+    // current account's own bikes, so this can slip past its "already
+    // linked" check and needs to be surfaced here instead of failing silently.
+    const message = error.code === "23505" ? "strava-gear-conflict" : error.message;
+    redirect(`/bikes/${bikeId}/edit?error=${encodeURIComponent(message)}`);
+  }
 
   revalidatePath(`/bikes/${bikeId}`);
   revalidatePath(`/bikes/${bikeId}/edit`);

@@ -65,7 +65,12 @@ export default async function SettingsPage({
     ? await supabase.from("strava_connections").select("user_id").eq("user_id", user.sub as string).maybeSingle()
     : { data: null };
   const isStravaConnected = !!stravaConnection;
-  const stravaError = error === "strava-connection-failed" ? dict.settings.strava.connectionFailed : error;
+  const stravaError =
+    error === "strava-connection-failed"
+      ? dict.settings.strava.connectionFailed
+      : error === "strava-already-connected"
+        ? dict.settings.strava.alreadyConnected
+        : error;
   const subscription = user?.sub
     ? await getUserSubscription(user.sub as string)
     : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };

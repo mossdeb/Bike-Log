@@ -29,6 +29,7 @@ export default async function EditBikePage({
   const { data: userData } = await supabase.auth.getClaims();
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const displayError = error === "strava-gear-conflict" ? dict.bikes.form.stravaGearConflict : error;
 
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
@@ -74,7 +75,7 @@ export default async function EditBikePage({
         <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.editSubtitle(bike.name)}</p>
       </div>
 
-      <FormError message={error} />
+      <FormError message={displayError} />
 
       <form
         action={updateBike.bind(null, bike.id)}

@@ -120,6 +120,7 @@ const en = {
       connect: "Connect Strava",
       disconnect: "Disconnect",
       connectionFailed: "Couldn't connect to Strava. Please try again.",
+      alreadyConnected: "This Strava account is already connected to another Bikit account.",
     },
     installApp: {
       title: "Install app",
@@ -200,6 +201,7 @@ const en = {
       stravaNotConnected: "Connect Strava in Settings to link a bike.",
       stravaHint: "Once linked, Total kms/hours update automatically from Strava — manual editing is disabled.",
       stravaSave: "Save",
+      stravaGearConflict: "That Strava bike is already linked to a bike on another Bikit account.",
     },
   },
   components: {

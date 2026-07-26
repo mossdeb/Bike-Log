@@ -35,8 +35,13 @@ export async function GET(request: NextRequest) {
       expires_at: new Date(token.expires_at * 1000).toISOString(),
     });
     if (error) throw error;
-  } catch {
-    redirectTo.searchParams.set("error", "strava-connection-failed");
+  } catch (error) {
+    // A unique violation here means this Strava athlete is already linked
+    // to a different Bikit account — the webhook's athlete_id lookup
+    // assumes exactly one match, so a second connection would silently
+    // break sync for both accounts if allowed through.
+    const isAthleteConflict = (error as { code?: string } | null)?.code === "23505";
+    redirectTo.searchParams.set("error", isAthleteConflict ? "strava-already-connected" : "strava-connection-failed");
     return NextResponse.redirect(redirectTo);
   }
 

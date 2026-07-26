@@ -79,7 +79,7 @@ export default async function BikeDetailPage({
               .join(" · ") || dict.bikes.noDetailsYet}
           </p>
         </div>
-        <div className="flex gap-5">
+        <div className="flex flex-wrap gap-5">
           <div>
             <p className="text-xs text-muted-foreground">{dict.bikes.detail.components}</p>
             <p className="font-mono text-sm font-semibold">{components?.length ?? 0}</p>

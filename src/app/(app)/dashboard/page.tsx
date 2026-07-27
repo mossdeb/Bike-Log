@@ -153,11 +153,11 @@ export default async function DashboardPage() {
               href={`/bikes/${bike.id}`}
               className="flex h-full flex-col rounded-lg bg-card p-5 transition-colors hover:border-foreground/20"
             >
-              <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="mb-2 flex items-start justify-between gap-3">
                 <BikeIcon type={bike.type} plain />
                 <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
               </div>
-              <h3 className="font-display font-bold">{bike.name}</h3>
+              <h3 className="font-display text-[20px] font-bold">{bike.name}</h3>
               <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
                 {bike.strava_gear_id && <StravaBadgeIcon className="size-[16.8px] shrink-0" />}
                 {[bike.type, bike.brand, bike.model, bike.year].filter(Boolean).join(" · ") || dict.bikes.noDetailsYet}

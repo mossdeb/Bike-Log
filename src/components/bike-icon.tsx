@@ -18,7 +18,7 @@ export function BikeIcon({
   const Icon = BIKE_TYPE_ICON[type as BikeType] ?? Bike;
 
   if (plain) {
-    return <Icon className={cn(size === "sm" ? "size-11" : "size-14", "shrink-0 text-foreground", className)} />;
+    return <Icon className={cn(size === "sm" ? "size-[57.2px]" : "size-14", "shrink-0 text-foreground", className)} />;
   }
 
   const accent = getBikeAccent(type);

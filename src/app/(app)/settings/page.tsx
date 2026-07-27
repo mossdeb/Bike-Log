@@ -1,3 +1,4 @@
+import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { GoogleIcon } from "@/components/google-icon";
@@ -15,6 +16,7 @@ import { BillingSection } from "@/components/billing-section";
 import { InstallAppButton } from "@/components/install-app-button";
 import { getInitials } from "@/lib/initials";
 import { updateFullName, deleteAccount } from "@/lib/actions/settings";
+import { logout } from "@/lib/actions/auth";
 import { connectStrava, disconnectStrava } from "@/lib/actions/strava";
 import { getUserSubscription } from "@/lib/subscription";
 
@@ -114,6 +116,17 @@ export default async function SettingsPage({
             <div className="mt-5 flex justify-end">
               <Button type="submit">{dict.common.save}</Button>
             </div>
+          </form>
+
+          {/* Desktop reaches this via the header's user menu, which is hidden on mobile. */}
+          <form action={logout} className="mt-5 sm:hidden">
+            <button
+              type="submit"
+              className="flex w-full items-center gap-2.5 rounded-lg border border-border px-4 py-3 text-sm font-semibold text-destructive"
+            >
+              <LogOut className="size-4" />
+              {dict.common.logOut}
+            </button>
           </form>
         </SettingsSection>
 

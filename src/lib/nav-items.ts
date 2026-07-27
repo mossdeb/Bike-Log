@@ -1,9 +1,8 @@
-import { LayoutDashboard, Bike } from "lucide-react";
 import { MenuBikesIcon, MenuDashboardIcon, MenuSettingsIcon } from "@/components/menu-icons";
 
 export const NAV_ITEMS = [
-  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
-  { href: "/bikes", labelKey: "bikes", icon: Bike },
+  { href: "/dashboard", labelKey: "dashboard", icon: MenuDashboardIcon },
+  { href: "/bikes", labelKey: "bikes", icon: MenuBikesIcon },
 ] as const;
 
 export const MOBILE_NAV_ITEMS = [

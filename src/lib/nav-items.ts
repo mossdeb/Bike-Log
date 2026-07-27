@@ -6,7 +6,7 @@ export const NAV_ITEMS = [
 ] as const;
 
 export const MOBILE_NAV_ITEMS = [
-  { href: "/bikes", labelKey: "bikes", icon: MenuBikesIcon, iconClassName: "size-[36.4px]" },
   { href: "/dashboard", labelKey: "dashboard", icon: MenuDashboardIcon, iconClassName: "size-7" },
+  { href: "/bikes", labelKey: "bikes", icon: MenuBikesIcon, iconClassName: "size-[36.4px]" },
   { href: "/settings", labelKey: "settings", icon: MenuSettingsIcon, iconClassName: "size-7" },
 ] as const;

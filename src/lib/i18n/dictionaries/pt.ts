@@ -22,6 +22,7 @@ const pt: Dictionary = {
   nav: {
     dashboard: "Painel",
     bikes: "Bicicletas",
+    settings: "Definições",
     expandMenu: "Expandir menu",
     collapseMenu: "Recolher menu",
     collapse: "Recolher",

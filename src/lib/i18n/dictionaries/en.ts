@@ -20,6 +20,7 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     bikes: "Bikes",
+    settings: "Settings",
     expandMenu: "Expand menu",
     collapseMenu: "Collapse menu",
     collapse: "Collapse",

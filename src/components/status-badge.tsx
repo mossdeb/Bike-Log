@@ -24,7 +24,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold before:size-1.5 before:shrink-0 before:rounded-full before:bg-current before:content-['']",
+        "inline-flex items-center gap-1.5 rounded-[7px] px-2.5 py-1 text-xs font-semibold before:size-1.5 before:shrink-0 before:rounded-full before:bg-current before:content-['']",
         STYLES[status],
         className
       )}

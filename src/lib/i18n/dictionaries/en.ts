@@ -151,6 +151,7 @@ const en = {
     addBike: "Add bike",
     noBikesYet: "No bikes yet. Add your first one to start tracking maintenance.",
     noDetailsYet: "No details yet",
+    viewBike: "View Bike",
     detail: {
       components: "Components",
       serial: "Serial",

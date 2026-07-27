@@ -169,7 +169,7 @@ export default async function SettingsPage({
             </span>
             <span className="text-sm font-semibold">{dict.settings.connectedAccounts.google}</span>
             {isGoogleUser && (
-              <span className="ml-auto shrink-0 rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
+              <span className="ml-auto shrink-0 rounded-[7px] bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
                 {dict.settings.connectedAccounts.connected}
               </span>
             )}
@@ -184,7 +184,7 @@ export default async function SettingsPage({
               </span>
               <span className="text-sm font-semibold">{dict.settings.strava.strava}</span>
               {isStravaConnected ? (
-                <span className="ml-auto shrink-0 rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
+                <span className="ml-auto shrink-0 rounded-[7px] bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
                   {dict.settings.strava.connected}
                 </span>
               ) : (

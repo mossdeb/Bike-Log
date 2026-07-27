@@ -153,6 +153,7 @@ const pt: Dictionary = {
     addBike: "Adicionar bicicleta",
     noBikesYet: "Ainda não tem bicicletas. Adicione a primeira para começar a acompanhar a manutenção.",
     noDetailsYet: "Ainda sem detalhes",
+    viewBike: "Ver bicicleta",
     detail: {
       components: "Componentes",
       serial: "Nº de série",

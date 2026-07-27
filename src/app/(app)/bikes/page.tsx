@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { Plus, ChevronRight } from "lucide-react";
+import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, worstStatus } from "@/lib/maintenance/calculation";
 import { Button } from "@/components/ui/button";
 import { BikeIcon } from "@/components/bike-icon";
 import { StatusBadge } from "@/components/status-badge";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
-import { formatDistance } from "@/lib/format";
+import { formatDistance, formatNumber } from "@/lib/format";
 import { StravaBadgeIcon } from "@/components/strava-icon";
 
 export default async function BikesPage() {
@@ -73,25 +73,29 @@ export default async function BikesPage() {
             <Link
               key={bike.id}
               href={`/bikes/${bike.id}`}
-              className="rounded-lg bg-card p-5 transition-colors hover:border-foreground/20"
+              className="flex h-full flex-col rounded-lg bg-card p-5 transition-colors hover:border-foreground/20"
             >
               <div className="mb-4 flex items-start justify-between gap-3">
-                <BikeIcon type={bike.type} />
+                <BikeIcon type={bike.type} plain />
                 <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
               </div>
               <h2 className="font-display font-bold">{bike.name}</h2>
               <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
                 {bike.strava_gear_id && <StravaBadgeIcon className="size-[16.8px] shrink-0" />}
-                {bike.type ?? "—"}
+                {[bike.type, bike.brand, bike.model, bike.year].filter(Boolean).join(" · ") || dict.bikes.noDetailsYet}
               </p>
-              {bike.total_km != null && (
-                <p className="mt-0.5 text-sm text-muted-foreground">{formatDistance(bike.total_km, distanceUnit)}</p>
-              )}
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground">
-                  {[bike.brand, bike.model, bike.year].filter(Boolean).join(" · ") || dict.bikes.noDetailsYet}
+              <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+                <p className="text-sm text-muted-foreground">
+                  {[
+                    bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null,
+                    bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
-                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                <span className="shrink-0 rounded-full bg-muted px-4 py-2 text-sm font-semibold">
+                  {dict.bikes.viewBike}
+                </span>
               </div>
             </Link>
           ))}

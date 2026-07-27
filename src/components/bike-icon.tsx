@@ -7,14 +7,21 @@ import type { BikeType } from "@/lib/constants";
 export function BikeIcon({
   type,
   size = "sm",
+  plain = false,
   className,
 }: {
   type?: string | null;
   size?: "sm" | "lg";
+  plain?: boolean;
   className?: string;
 }) {
-  const accent = getBikeAccent(type);
   const Icon = BIKE_TYPE_ICON[type as BikeType] ?? Bike;
+
+  if (plain) {
+    return <Icon className={cn(size === "sm" ? "size-11" : "size-14", "shrink-0 text-foreground", className)} />;
+  }
+
+  const accent = getBikeAccent(type);
   return (
     <span
       className={cn(

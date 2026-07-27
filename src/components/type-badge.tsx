@@ -14,7 +14,7 @@ export function TypeBadge({ type, dict = getDictionary("en") }: { type: Interven
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold",
+        "inline-flex items-center gap-1 rounded-[7px] px-2.5 py-1 text-xs font-bold",
         STYLES[type]
       )}
     >

@@ -55,10 +55,10 @@ export function AppSidebar({ nav }: { nav: Dictionary["nav"] }) {
               key={href}
               href={href}
               className={cn(
-                "flex h-11 items-center gap-3 rounded-2xl text-sm font-semibold transition-colors",
+                "flex h-11 items-center gap-3 rounded-[12px] text-sm font-semibold transition-colors",
                 expanded ? "justify-start px-3.5" : "w-11 justify-center",
                 active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  ? "bg-sidebar-accent text-sidebar-primary"
                   : "text-sidebar-foreground/60 hover:text-sidebar-foreground"
               )}
             >

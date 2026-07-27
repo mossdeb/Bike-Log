@@ -45,7 +45,7 @@ const pt: Dictionary = {
     viewAll: "Ver todas",
     noBikesYet: "Ainda não tem bicicletas. Adicione a primeira para começar a acompanhar a manutenção.",
     addBike: "Adicionar bicicleta",
-    needsAttention: "Precisa de atenção",
+    needsAttention: "Próximos serviços",
     nothingNeedsAttention: "Não há nada a precisar de atenção neste momento.",
     recentInterventions: "Intervenções recentes",
     noMaintenanceLogged: "Ainda não há manutenções registadas.",

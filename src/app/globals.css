@@ -73,11 +73,10 @@
 }
 
 :root {
-  /* Typography — system stacks only, no webfont fetch. Rounded geometric
-     display face for headings/numerals, humanist system face for body,
-     matching the approved BikeLog mockup (design/bikelog_dashboard.html). */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, ui-sans-serif, sans-serif;
-  --font-display: ui-rounded, "SF Pro Rounded", "Century Gothic", "Avenir Next", ui-sans-serif, sans-serif;
+  /* --font-sans is injected by next/font (see src/lib/fonts.ts) via the
+     Roboto variable on <html>; --font-display reuses the same loaded
+     Roboto so headings render identically across every platform. */
+  --font-display: var(--font-sans);
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
 
   --radius: 1.375rem;
@@ -220,5 +219,15 @@
   h2,
   h3 {
     @apply font-display font-bold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

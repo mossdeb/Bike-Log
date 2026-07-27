@@ -11,7 +11,7 @@ export function LogoMark({ className }: { className?: string }) {
       <svg
         viewBox="0 0 100 113"
         fill="none"
-        className="size-[18px] text-primary-foreground"
+        className="size-[21.6px] text-primary-foreground"
         aria-hidden="true"
       >
         <path

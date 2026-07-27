@@ -43,7 +43,7 @@ const en = {
     viewAll: "View all",
     noBikesYet: "No bikes yet. Add your first one to start tracking maintenance.",
     addBike: "Add bike",
-    needsAttention: "Needs attention",
+    needsAttention: "Upcoming services",
     nothingNeedsAttention: "Nothing needs attention right now.",
     recentInterventions: "Recent interventions",
     noMaintenanceLogged: "No maintenance logged yet.",

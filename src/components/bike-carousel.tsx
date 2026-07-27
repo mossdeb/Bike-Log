@@ -39,7 +39,7 @@ export function BikeCarousel({ children }: { children: ReactNode }) {
         className="scrollbar-none -mr-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pr-6 pb-1 sm:mr-0 sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:pr-0 sm:pb-0 lg:grid-cols-3"
       >
         {items.map((child, i) => (
-          <div key={i} className="w-[94%] shrink-0 snap-start sm:w-auto sm:shrink">
+          <div key={i} className="w-[97%] shrink-0 snap-start sm:w-auto sm:shrink">
             {child}
           </div>
         ))}

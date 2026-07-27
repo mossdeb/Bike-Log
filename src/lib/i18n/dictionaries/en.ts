@@ -33,7 +33,6 @@ const en = {
     welcome: (name: string) => `Welcome back, ${name}!`,
     bikeCount: (n: number) => (n === 1 ? "1 bike" : `${n} bikes`),
     componentCount: (n: number) => (n === 1 ? "1 component" : `${n} components`),
-    tracked: "tracked",
     needsAttentionCount: (n: number) => (n === 1 ? "1 needs attention" : `${n} need attention`),
     logMaintenance: "Log maintenance",
     totalBikes: "Total bikes",

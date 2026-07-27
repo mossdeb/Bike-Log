@@ -97,8 +97,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-display font-bold">{dict.dashboard.welcome(displayName)}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {dict.dashboard.bikeCount(totalBikes)} · {dict.dashboard.componentCount(totalComponents)}{" "}
-            {dict.dashboard.tracked}
+            {dict.dashboard.bikeCount(totalBikes)} · {dict.dashboard.componentCount(totalComponents)}
             {needsAttention.length > 0 && ` · ${dict.dashboard.needsAttentionCount(needsAttention.length)}`}
           </p>
         </div>
@@ -154,7 +153,7 @@ export default async function DashboardPage() {
               <Link
                 key={bike.id}
                 href={`/bikes/${bike.id}`}
-                className="flex h-full min-h-[280px] flex-col rounded-lg bg-card p-6 transition-colors hover:border-foreground/20 sm:min-h-0 sm:p-5"
+                className="flex h-full min-h-[250px] flex-col rounded-lg bg-card p-6 transition-colors hover:border-foreground/20 sm:min-h-0 sm:p-5"
               >
                 <div className="flex items-start justify-end gap-3 sm:justify-between">
                   <BikeIcon type={bike.type} plain className="hidden sm:block" />

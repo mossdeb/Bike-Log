@@ -35,7 +35,6 @@ const pt: Dictionary = {
     welcome: (name: string) => `Bem-vindo de volta, ${name}!`,
     bikeCount: (n: number) => (n === 1 ? "1 bicicleta" : `${n} bicicletas`),
     componentCount: (n: number) => (n === 1 ? "1 componente" : `${n} componentes`),
-    tracked: "monitorizados",
     needsAttentionCount: (n: number) => (n === 1 ? "1 precisa de atenção" : `${n} precisam de atenção`),
     logMaintenance: "Registar manutenção",
     totalBikes: "Total de bicicletas",

@@ -29,6 +29,7 @@ export default async function DashboardPage() {
     supabase
       .from("bikes")
       .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")
+      .order("usage_updated_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: true }),
     supabase
       .from("components_status")

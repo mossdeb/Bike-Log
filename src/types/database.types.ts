@@ -31,6 +31,7 @@ export type Database = {
           total_km: number | null
           type: string | null
           updated_at: string
+          usage_updated_at: string | null
           user_id: string
           year: number | null
         }
@@ -50,6 +51,7 @@ export type Database = {
           total_km?: number | null
           type?: string | null
           updated_at?: string
+          usage_updated_at?: string | null
           user_id: string
           year?: number | null
         }
@@ -69,6 +71,7 @@ export type Database = {
           total_km?: number | null
           type?: string | null
           updated_at?: string
+          usage_updated_at?: string | null
           user_id?: string
           year?: number | null
         }

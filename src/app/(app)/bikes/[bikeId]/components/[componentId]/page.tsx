@@ -1,17 +1,40 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Plus, Inbox } from "lucide-react";
+import { Pencil, Wrench, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, calculateComponentUsage } from "@/lib/maintenance/calculation";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
-import { TypeBadge } from "@/components/type-badge";
+import { TypeBadge, INTERVENTION_TYPE_DOT_STYLES } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+
+function DetailField({
+  label,
+  value,
+  mono,
+  className,
+}: {
+  label: string;
+  value: React.ReactNode;
+  mono?: boolean;
+  className?: string;
+}) {
+  if (value == null || value === "") return null;
+  return (
+    <div className={cn("min-w-0", className)}>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={cn("mt-0.5 truncate text-sm font-semibold", mono && "font-mono")}>{value}</p>
+    </div>
+  );
+}
+
+const fieldBasis = "shrink-0 grow-0 basis-[calc(33.333%-0.75rem)] sm:basis-[calc(25%-1.125rem)] lg:basis-[calc(16.666%-1.25rem)]";
 
 export default async function ComponentDetailPage({
   params,
@@ -90,6 +113,42 @@ export default async function ComponentDetailPage({
           ? dict.components.detail.dueOn(formatDate(nextDueDate))
           : undefined;
 
+  const intervalDetail =
+    intervalType && component.interval_value != null
+      ? dict.components.detail.every(
+          intervalType === "km" ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10 : component.interval_value,
+          intervalType,
+          distanceUnit
+        )
+      : null;
+  const distanceDetail = usage.km != null ? formatDistance(usage.km, distanceUnit) : null;
+  const hoursDetail = usage.hours != null ? `${formatNumber(usage.hours)} h` : null;
+
+  const editButton = (
+    <Button
+      render={<Link href={`/bikes/${bike.id}/components/${component.id}/edit`} />}
+      nativeButton={false}
+      variant="outline"
+      size="sm"
+      className="bg-transparent"
+    >
+      <Pencil className="size-3.5" />
+      {dict.components.detail.edit}
+    </Button>
+  );
+
+  const logMaintenanceButton = (
+    <Button
+      render={<Link href={`/bikes/${bike.id}/components/${component.id}/interventions/new`} />}
+      nativeButton={false}
+      size="sm"
+      className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+    >
+      <Wrench className="size-3.5" />
+      {dict.dashboard.logMaintenance}
+    </Button>
+  );
+
   return (
     <div className="pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
@@ -104,73 +163,71 @@ export default async function ComponentDetailPage({
         <span className="text-foreground">{component.name}</span>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-5 rounded-lg bg-card p-6">
-        <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
-        <div className="min-w-[200px] flex-1">
-          <h1 className="text-xl font-display font-bold">{component.name}</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {[component.category, component.brand, component.model].filter(Boolean).join(" · ") ||
-              dict.bikes.noDetailsYet}
-          </p>
-        </div>
-        <div className="flex gap-5">
-          <div>
-            <p className="text-xs text-muted-foreground">{dict.components.detail.interval}</p>
-            <p className="font-mono text-sm font-semibold">
-              {intervalType && component.interval_value != null
-                ? dict.components.detail.every(
-                    intervalType === "km"
-                      ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10
-                      : component.interval_value,
-                    intervalType,
-                    distanceUnit
-                  )
-                : "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">{dict.components.detail.serial}</p>
-            <p className="font-mono text-sm font-semibold">{component.serial_number ?? "—"}</p>
-          </div>
-          {usage.km != null && (
+      <div className="mb-6 rounded-lg bg-card px-6 pt-6 pb-6">
+        {/* Desktop: icon + name/badge, full details grid inline, edit far right */}
+        <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6">
+          <div className="flex items-center gap-4">
+            <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
             <div>
-              <p className="text-xs text-muted-foreground">{dict.components.detail.totalDistance}</p>
-              <p className="font-mono text-sm font-semibold">{formatDistance(usage.km, distanceUnit)}</p>
+              <h1 className="text-xl font-display font-bold">{component.name}</h1>
+              <StatusBadge status={status} label={statusDetail} dict={dict} className="mt-1.5" />
             </div>
-          )}
-          {usage.hours != null && (
-            <div>
-              <p className="text-xs text-muted-foreground">{dict.components.detail.totalHours}</p>
-              <p className="font-mono text-sm font-semibold">{formatNumber(usage.hours)} h</p>
+          </div>
+          <div className="flex flex-1 flex-wrap gap-x-4 gap-y-5 sm:gap-x-6">
+            <DetailField label={dict.brandField.brand} value={component.brand ?? "—"} className={fieldBasis} />
+            <DetailField label={dict.components.form.model} value={component.model ?? "—"} className={fieldBasis} />
+            <DetailField label={dict.components.form.category} value={component.category ?? "—"} className={fieldBasis} />
+            <DetailField label={dict.components.detail.interval} value={intervalDetail ?? "—"} className={fieldBasis} />
+            <DetailField
+              label={dict.components.form.serialNumber}
+              value={component.serial_number ?? "—"}
+              mono
+              className={fieldBasis}
+            />
+            <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono className={fieldBasis} />
+            <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono className={fieldBasis} />
+            {component.notes && (
+              <DetailField label={dict.components.form.notes} value={component.notes} className="min-w-[220px] flex-1" />
+            )}
+          </div>
+          {editButton}
+        </div>
+
+        {/* Mobile: icon + name/subtitle, then compact stat rows */}
+        <div className="sm:hidden">
+          <div className="flex items-center gap-4">
+            <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl font-display font-bold">{component.name}</h1>
+              <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                {[component.category, component.brand, component.model].filter(Boolean).join(" · ") ||
+                  dict.bikes.noDetailsYet}
+              </p>
             </div>
-          )}
-          <div>
-            <p className="text-xs text-muted-foreground">{dict.components.detail.status}</p>
-            <StatusBadge status={status} label={statusDetail} dict={dict} className="mt-0.5" />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-6">
+              <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono />
+              <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
+            </div>
+            <StatusBadge status={status} label={statusDetail} dict={dict} className="shrink-0" />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <DetailField label={dict.components.detail.interval} value={intervalDetail ?? "—"} />
+            {editButton}
           </div>
         </div>
-        <Button
-          render={<Link href={`/bikes/${bike.id}/components/${component.id}/edit`} />}
-          nativeButton={false}
-          variant="outline"
-          size="sm"
-        >
-          <Pencil className="size-3.5" />
-          {dict.components.detail.edit}
-        </Button>
-        {fractionUsed != null && <ServiceIntervalBar status={status} fraction={fractionUsed} className="w-full" />}
+
+        {fractionUsed != null && <ServiceIntervalBar status={status} fraction={fractionUsed} className="mt-6 w-full" />}
+
+        <div className="mt-6 flex justify-center sm:hidden">{logMaintenanceButton}</div>
       </div>
 
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-center sm:mb-3 sm:justify-between">
         <h2 className="font-display font-bold">{dict.components.detail.history}</h2>
-        <Button
-          render={<Link href={`/bikes/${bike.id}/components/${component.id}/interventions/new`} />}
-          nativeButton={false}
-          size="sm"
-        >
-          <Plus className="size-3.5" />
-          {dict.components.detail.logIntervention}
-        </Button>
+        <div className="hidden sm:block">{logMaintenanceButton}</div>
       </div>
 
       {!interventions || interventions.length === 0 ? (
@@ -179,32 +236,36 @@ export default async function ComponentDetailPage({
           <p className="text-sm text-muted-foreground">{dict.components.detail.noInterventionsYet}</p>
         </div>
       ) : (
-        <div className="rounded-lg bg-card">
-          {interventions.map((iv, i) => (
-            <Link
-              key={iv.id}
-              href={`/bikes/${bike.id}/components/${component.id}/interventions/${iv.id}/edit`}
-              className={`flex gap-4 px-5 py-4 transition-colors hover:bg-muted/50 ${
-                i > 0 ? "border-t border-border" : ""
-              }`}
-            >
-              <div className="w-24 shrink-0 pt-0.5 font-mono text-sm text-muted-foreground">
-                {formatDate(iv.date)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <TypeBadge type={iv.type as "service" | "repair" | "replacement"} dict={dict} />
-                <p className="mt-1.5 font-semibold">{iv.description || dict.components.detail.noDescription}</p>
-                <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  {iv.kms != null && <span>{formatDistance(iv.kms, distanceUnit)}</span>}
-                  {iv.hours_used != null && <span>{formatNumber(iv.hours_used)} h</span>}
-                </div>
-                {iv.notes && (
-                  <p className="mt-2 rounded-sm bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                    {iv.notes}
-                  </p>
+        <div className="relative pl-6">
+          <div className="absolute top-2 bottom-2 left-[5.5px] border-l border-dashed border-foreground/30" />
+          {interventions.map((iv) => (
+            <div key={iv.id} className="relative mb-4 last:mb-0">
+              <span
+                className={cn(
+                  "absolute top-1/2 -left-6 size-[11px] -translate-y-1/2 rounded-full border-2",
+                  INTERVENTION_TYPE_DOT_STYLES[iv.type as "service" | "repair" | "replacement"]
                 )}
-              </div>
-            </Link>
+              />
+              <Link
+                href={`/bikes/${bike.id}/components/${component.id}/interventions/${iv.id}/edit`}
+                className="flex flex-wrap items-center gap-4 rounded-lg bg-card p-5 sm:flex-nowrap"
+              >
+                <div className="w-28 shrink-0">
+                  <TypeBadge type={iv.type as "service" | "repair" | "replacement"} dict={dict} />
+                  <p className="mt-3 text-sm text-muted-foreground">{formatDate(iv.date)}</p>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold">{iv.description || dict.components.detail.noDescription}</p>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                    {iv.kms != null && <span>{formatDistance(iv.kms, distanceUnit)}</span>}
+                    {iv.hours_used != null && <span>{formatNumber(iv.hours_used)} h</span>}
+                  </div>
+                  {iv.notes && (
+                    <p className="mt-3 rounded-[7px] bg-muted/50 px-4 py-3 text-sm text-muted-foreground">{iv.notes}</p>
+                  )}
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       )}

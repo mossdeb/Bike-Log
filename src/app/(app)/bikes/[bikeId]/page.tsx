@@ -149,7 +149,7 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-[46px] pb-6 sm:mx-0 sm:rounded-lg sm:pt-6">
+      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:pt-6">
         <div className="flex flex-wrap items-end justify-between gap-6 sm:items-center">
           <div className="flex items-end gap-4 sm:items-center">
             <BikeIcon type={bike.type} size="lg" plain />
@@ -166,7 +166,7 @@ export default async function BikeDetailPage({
           <div className="hidden sm:block">{editButton}</div>
         </div>
 
-        <div className="mt-16 sm:hidden">
+        <div className="mt-[51px] sm:hidden">
           <BikeDetailsToggle
             viewLabel={dict.bikes.detail.viewDetails}
             closeLabel={dict.bikes.detail.closeDetails}

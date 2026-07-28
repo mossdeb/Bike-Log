@@ -160,14 +160,23 @@ export default async function ComponentDetailPage({
             <DetailField label={dict.components.form.model} value={component.model ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.form.category} value={component.category ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.detail.interval} value={intervalDetail ?? "—"} className={fieldBasis} />
-            <DetailField
-              label={dict.components.form.serialNumber}
-              value={component.serial_number ?? "—"}
-              mono
-              className={fieldBasis}
-            />
             <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono className={fieldBasis} />
             <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono className={fieldBasis} />
+            {component.serial_number && (
+              <DetailField label={dict.components.form.serialNumber} value={component.serial_number} mono className={fieldBasis} />
+            )}
+            {component.install_date && (
+              <DetailField label={dict.components.form.installDate} value={formatDate(component.install_date)} className={fieldBasis} />
+            )}
+            {component.purchase_date && (
+              <DetailField label={dict.components.form.purchaseDate} value={formatDate(component.purchase_date)} className={fieldBasis} />
+            )}
+            {component.warranty && (
+              <DetailField label={dict.components.form.warranty} value={component.warranty} className={fieldBasis} />
+            )}
+            {component.year && (
+              <DetailField label={dict.components.form.year} value={component.year} className={fieldBasis} />
+            )}
             {component.notes && (
               <DetailField label={dict.components.form.notes} value={component.notes} className="min-w-[220px] flex-1" />
             )}

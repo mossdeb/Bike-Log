@@ -10,7 +10,8 @@ import { FormError } from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { ComponentOptionalFields } from "@/components/component-optional-fields";
+import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { kmToUnit } from "@/lib/format";
 
@@ -72,21 +73,11 @@ export default async function NewComponentPage({
         className="rounded-lg bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="name">{dict.components.form.name}</Label>
-            <Input
-              id="name"
-              name="name"
-              list="component-suggestions"
-              autoComplete="off"
-              placeholder={dict.components.form.namePlaceholder}
-              required
-            />
-            <datalist id="component-suggestions">
-              {COMPONENT_NAME_SUGGESTIONS.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
+          <BrandField manufacturers={manufacturers} dict={dict} />
+
+          <div className="space-y-1.5">
+            <Label htmlFor="model">{dict.components.form.model}</Label>
+            <Input id="model" name="model" placeholder={dict.components.form.modelPlaceholder} />
           </div>
 
           <div className="space-y-1.5">
@@ -105,31 +96,21 @@ export default async function NewComponentPage({
             </select>
           </div>
 
-          <BrandField manufacturers={manufacturers} dict={dict} />
-
           <div className="space-y-1.5">
-            <Label htmlFor="model">{dict.components.form.model}</Label>
-            <Input id="model" name="model" placeholder={dict.components.form.modelPlaceholder} />
+            <Label htmlFor="name">{dict.components.form.name}</Label>
+            <Input
+              id="name"
+              name="name"
+              list="component-suggestions"
+              autoComplete="off"
+              placeholder={dict.components.form.namePlaceholder}
+            />
+            <datalist id="component-suggestions">
+              {COMPONENT_NAME_SUGGESTIONS.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
           </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="serial_number">{dict.components.form.serialNumber}</Label>
-            <Input id="serial_number" name="serial_number" placeholder={dict.components.form.optional} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="install_date">{dict.components.form.installDate}</Label>
-            <Input id="install_date" name="install_date" type="date" />
-          </div>
-
-          <IntervalField
-            defaultType="months"
-            label={dict.components.form.intervalLabel}
-            hint={dict.components.form.intervalHint}
-            kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
-            hoursLabel={dict.components.form.intervalTypeHours}
-            monthsLabel={dict.components.form.intervalTypeMonths}
-          />
 
           <div className="space-y-1.5 sm:col-span-2">
             <div className="grid grid-cols-2 gap-4">
@@ -145,10 +126,16 @@ export default async function NewComponentPage({
             <p className="text-xs text-muted-foreground">{dict.components.form.totalUsageHint}</p>
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">{dict.components.form.notes}</Label>
-            <Textarea id="notes" name="notes" placeholder={dict.components.form.optional} />
-          </div>
+          <IntervalField
+            defaultType="months"
+            label={dict.components.form.intervalLabel}
+            hint={dict.components.form.intervalHint}
+            kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
+            hoursLabel={dict.components.form.intervalTypeHours}
+            monthsLabel={dict.components.form.intervalTypeMonths}
+          />
+
+          <ComponentOptionalFields labels={componentOptionalFieldLabels(dict)} />
         </div>
 
         <div className="mt-6 flex gap-3">

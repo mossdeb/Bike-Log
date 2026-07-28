@@ -19,7 +19,21 @@ function parseComponentFormData(formData: FormData) {
     interval_type: formData.get("interval_type"),
     interval_value: formData.get("interval_value"),
     notes: formData.get("notes"),
+    purchase_date: formData.get("purchase_date"),
+    warranty: formData.get("warranty"),
+    year: formData.get("year"),
   });
+}
+
+/**
+ * The component name is optional in the form — when left blank, fall back
+ * to a generated display name so component.name always has something to
+ * show in lists/headers rather than storing an empty string.
+ */
+function deriveComponentName(data: { name: string | null; brand: string | null; model: string | null; category: string | null }) {
+  if (data.name) return data.name;
+  const brandModel = [data.brand, data.model].filter(Boolean).join(" ");
+  return brandModel || data.category || "Unnamed component";
 }
 
 export async function createComponent(bikeId: string, formData: FormData) {
@@ -75,6 +89,7 @@ export async function createComponent(bikeId: string, formData: FormData) {
     .from("components")
     .insert({
       ...parsed.data,
+      name: deriveComponentName(parsed.data),
       bike_id: bikeId,
       user_id: userId,
       bike_km_at_install: (bike?.total_km ?? 0) - initialKm,
@@ -109,7 +124,10 @@ export async function updateComponent(bikeId: string, componentId: string, formD
     parsed.data.interval_value = unitToKm(parsed.data.interval_value, distanceUnit);
   }
 
-  const { error } = await supabase.from("components").update(parsed.data).eq("id", componentId);
+  const { error } = await supabase
+    .from("components")
+    .update({ ...parsed.data, name: deriveComponentName(parsed.data) })
+    .eq("id", componentId);
   if (error) {
     redirect(
       `/bikes/${bikeId}/components/${componentId}/edit?error=${encodeURIComponent(error.message)}`

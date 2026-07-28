@@ -105,9 +105,12 @@ export type Database = {
           model: string | null
           name: string
           notes: string | null
+          purchase_date: string | null
           serial_number: string | null
           updated_at: string
           user_id: string
+          warranty: string | null
+          year: number | null
         }
         Insert: {
           active?: boolean
@@ -124,9 +127,12 @@ export type Database = {
           model?: string | null
           name: string
           notes?: string | null
+          purchase_date?: string | null
           serial_number?: string | null
           updated_at?: string
           user_id: string
+          warranty?: string | null
+          year?: number | null
         }
         Update: {
           active?: boolean
@@ -143,9 +149,12 @@ export type Database = {
           model?: string | null
           name?: string
           notes?: string | null
+          purchase_date?: string | null
           serial_number?: string | null
           updated_at?: string
           user_id?: string
+          warranty?: string | null
+          year?: number | null
         }
         Relationships: [
           {

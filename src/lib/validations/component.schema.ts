@@ -20,8 +20,15 @@ const optionalIntervalType = z.preprocess(
   z.enum(INTERVAL_TYPES).nullable()
 );
 
+const currentYear = new Date().getFullYear();
+
+const optionalYear = z.preprocess(
+  (v) => (v === "" || v == null ? null : v),
+  z.coerce.number().int().min(1900).max(currentYear + 1).nullable()
+);
+
 export const componentSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(120),
+  name: optionalText(120),
   category: optionalText(60),
   brand: optionalText(120),
   model: optionalText(120),
@@ -30,6 +37,9 @@ export const componentSchema = z.object({
   interval_type: optionalIntervalType,
   interval_value: optionalNumber(0.1, 1000000),
   notes: optionalText(2000),
+  purchase_date: optionalText(10), // "YYYY-MM-DD" from <input type="date">
+  warranty: optionalText(120),
+  year: optionalYear,
 });
 
 export type ComponentFormValues = z.infer<typeof componentSchema>;

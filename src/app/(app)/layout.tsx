@@ -7,7 +7,7 @@ import { LogoMark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "@/components/notification-bell";
 import { UserMenu } from "@/components/user-menu";
-import { HeaderBackButton } from "@/components/header-back-button";
+import { HeaderBackButton, HeaderEditButton } from "@/components/header-back-button";
 import { AppHeader } from "@/components/app-header";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="mx-auto flex min-w-0 w-full max-w-[1440px] flex-1 flex-col">
         <AppHeader>
           <HeaderBackButton />
+          <HeaderEditButton />
           <div className="flex items-center gap-2.5 sm:hidden">
             <LogoMark className="size-8 rounded-[8px]" />
             <span className="font-display text-lg font-bold">Bikit</span>

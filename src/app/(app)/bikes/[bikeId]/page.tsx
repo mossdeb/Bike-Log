@@ -149,32 +149,24 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-6 pb-6 sm:mx-0 sm:rounded-lg">
-        <div className="mb-6 text-sm text-muted-foreground sm:hidden">
-          <Link href="/bikes" className="hover:text-foreground">
-            {dict.bikes.breadcrumb}
-          </Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-foreground">{bike.name}</span>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
+      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-16 pb-6 sm:mx-0 sm:rounded-lg sm:pt-6">
+        <div className="flex flex-wrap items-end justify-between gap-6 sm:items-center">
+          <div className="flex items-end gap-4 sm:items-center">
             <BikeIcon type={bike.type} size="lg" plain />
             <div>
-              <h1 className="text-xl font-display font-bold">{bike.name}</h1>
-              <StatusBadge status={bikeStatus} dict={dict} className="mt-1.5" />
+              <h1 className="text-[26px] font-display font-bold sm:text-xl">{bike.name}</h1>
+              <StatusBadge status={bikeStatus} dict={dict} className="mt-1.5 hidden sm:block" />
             </div>
           </div>
 
-          <div className="sm:hidden">{editButton}</div>
+          <StatusBadge status={bikeStatus} dict={dict} className="sm:hidden" />
 
           <div className="hidden flex-1 sm:block">{detailsGrid}</div>
 
           <div className="hidden sm:block">{editButton}</div>
         </div>
 
-        <div className="mt-8 sm:hidden">
+        <div className="mt-16 sm:hidden">
           <BikeDetailsToggle
             viewLabel={dict.bikes.detail.viewDetails}
             closeLabel={dict.bikes.detail.closeDetails}

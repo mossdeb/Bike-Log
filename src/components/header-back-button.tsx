@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Matches a bike's detail page or one of its components' detail pages
@@ -41,6 +41,28 @@ export function HeaderBackButton({ className }: { className?: string }) {
       )}
     >
       <ChevronLeft className="size-4" />
+    </Link>
+  );
+}
+
+/** Icon-only edit button shown in the shared header, on mobile only —
+ * bike detail page only (not the component detail page, which keeps its
+ * edit button inline). Desktop keeps the inline edit button instead. */
+export function HeaderEditButton({ className }: { className?: string }) {
+  const pathname = usePathname();
+
+  if (!BIKE_DETAIL_RE.test(pathname)) return null;
+
+  return (
+    <Link
+      href={`${pathname}/edit`}
+      aria-label="Edit"
+      className={cn(
+        "absolute top-1/2 right-6 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:hidden",
+        className
+      )}
+    >
+      <Pencil className="size-4" />
     </Link>
   );
 }

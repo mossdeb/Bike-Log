@@ -4,7 +4,7 @@ import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
 import { averageHealth, healthPercent } from "@/lib/maintenance/health";
-import { formatDistance, formatNumber, kmToUnit } from "@/lib/format";
+import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
@@ -118,12 +118,26 @@ export default async function BikeDetailPage({
     <div className="flex flex-wrap gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-5">
       <DetailField label={dict.brandField.brand} value={bike.brand ?? "—"} className={fieldBasis} />
       <DetailField label={dict.bikes.form.model} value={bike.model ?? "—"} className={fieldBasis} />
-      <DetailField label={dict.bikes.form.year} value={bike.year ?? "—"} className={fieldBasis} />
-      <DetailField label={dict.bikes.form.serialNumber} value={bike.serial_number ?? "—"} mono className={fieldBasis} />
-      <DetailField label={dict.bikes.form.color} value={bike.color ?? "—"} className={fieldBasis} />
       <DetailField label={dict.bikes.form.type} value={bike.type ?? "—"} className={fieldBasis} />
       <DetailField label={dict.bikes.detail.totalDistance} value={distanceDetail} mono className={fieldBasis} />
       <DetailField label={dict.bikes.detail.totalHours} value={hoursDetail} mono className={fieldBasis} />
+      {bike.serial_number && (
+        <DetailField label={dict.bikes.form.serialNumber} value={bike.serial_number} mono className={fieldBasis} />
+      )}
+      {bike.purchase_date && (
+        <DetailField label={dict.bikes.form.purchaseDate} value={formatDate(bike.purchase_date)} className={fieldBasis} />
+      )}
+      {bike.warranty && (
+        <DetailField label={dict.bikes.form.warranty} value={bike.warranty} className={fieldBasis} />
+      )}
+      {bike.year && <DetailField label={dict.bikes.form.year} value={bike.year} className={fieldBasis} />}
+      {bike.frame_size && (
+        <DetailField label={dict.bikes.form.frameSize} value={bike.frame_size} className={fieldBasis} />
+      )}
+      {bike.color && <DetailField label={dict.bikes.form.color} value={bike.color} className={fieldBasis} />}
+      {bike.wheel_size && (
+        <DetailField label={dict.bikes.form.wheelSize} value={bike.wheel_size} className={fieldBasis} />
+      )}
       {bike.strava_gear_id && (
         <DetailField
           label={dict.bikes.detail.stravaGear}

@@ -13,7 +13,8 @@ import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { BikeOptionalFields } from "@/components/bike-optional-fields";
+import { bikeOptionalFieldLabels } from "@/lib/bike-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function EditBikePage({
@@ -83,21 +84,11 @@ export default async function EditBikePage({
         className="rounded-lg bg-card p-6"
       >
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="name">{dict.bikes.form.name}</Label>
-            <Input id="name" name="name" defaultValue={bike.name} required />
-          </div>
-
           <BrandField manufacturers={manufacturers} defaultValue={bike.brand} dict={dict} />
 
           <div className="space-y-1.5">
             <Label htmlFor="model">{dict.bikes.form.model}</Label>
             <Input id="model" name="model" defaultValue={bike.model ?? ""} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="year">{dict.bikes.form.year}</Label>
-            <Input id="year" name="year" type="number" defaultValue={bike.year ?? ""} />
           </div>
 
           <div className="space-y-1.5">
@@ -117,41 +108,38 @@ export default async function EditBikePage({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="color">{dict.bikes.form.color}</Label>
-            <Input id="color" name="color" defaultValue={bike.color ?? ""} />
+            <Label htmlFor="name">{dict.bikes.form.name}</Label>
+            <Input id="name" name="name" defaultValue={bike.name} />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="serial_number">{dict.bikes.form.serialNumber}</Label>
-            <Input id="serial_number" name="serial_number" defaultValue={bike.serial_number ?? ""} />
-          </div>
+          <div className="grid grid-cols-2 gap-5 sm:contents">
+            <div className="space-y-1.5">
+              <Label htmlFor="total_km">{dict.bikes.form.totalDistance(distanceUnit)}</Label>
+              <Input
+                id="total_km"
+                name="total_km"
+                type="number"
+                step="0.1"
+                defaultValue={bike.total_km ?? ""}
+                placeholder={dict.bikes.form.optional}
+                readOnly={isStravaLinked}
+                className={isStravaLinked ? "bg-muted text-muted-foreground" : undefined}
+              />
+            </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="total_km">{dict.bikes.form.totalDistance(distanceUnit)}</Label>
-            <Input
-              id="total_km"
-              name="total_km"
-              type="number"
-              step="0.1"
-              defaultValue={bike.total_km ?? ""}
-              placeholder={dict.bikes.form.optional}
-              readOnly={isStravaLinked}
-              className={isStravaLinked ? "bg-muted text-muted-foreground" : undefined}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="total_hours">{dict.bikes.form.totalHours}</Label>
-            <Input
-              id="total_hours"
-              name="total_hours"
-              type="number"
-              step="0.1"
-              defaultValue={bike.total_hours ?? ""}
-              placeholder={dict.bikes.form.optional}
-              readOnly={isStravaLinked}
-              className={isStravaLinked ? "bg-muted text-muted-foreground" : undefined}
-            />
+            <div className="space-y-1.5">
+              <Label htmlFor="total_hours">{dict.bikes.form.totalHours}</Label>
+              <Input
+                id="total_hours"
+                name="total_hours"
+                type="number"
+                step="0.1"
+                defaultValue={bike.total_hours ?? ""}
+                placeholder={dict.bikes.form.optional}
+                readOnly={isStravaLinked}
+                className={isStravaLinked ? "bg-muted text-muted-foreground" : undefined}
+              />
+            </div>
           </div>
           {isStravaLinked && (
             <p className="text-xs text-muted-foreground sm:col-span-2">{dict.bikes.form.stravaHint}</p>
@@ -187,22 +175,32 @@ export default async function EditBikePage({
             <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">{dict.bikes.form.notes}</Label>
-            <Textarea id="notes" name="notes" defaultValue={bike.notes ?? ""} />
-          </div>
+          <BikeOptionalFields
+            labels={bikeOptionalFieldLabels(dict)}
+            defaults={{
+              serial_number: bike.serial_number,
+              year: bike.year,
+              purchase_date: bike.purchase_date,
+              warranty: bike.warranty,
+              frame_size: bike.frame_size,
+              color: bike.color,
+              wheel_size: bike.wheel_size,
+              notes: bike.notes,
+            }}
+          />
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex gap-3">
           <Button
             render={<Link href={`/bikes/${bike.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
+            className="flex-1"
           >
             {dict.bikes.form.cancel}
           </Button>
-          <Button type="submit">{dict.bikes.form.saveEdit}</Button>
+          <Button type="submit" className="flex-1">{dict.bikes.form.saveEdit}</Button>
         </div>
       </form>
 

@@ -20,11 +20,13 @@ export type Database = {
           brand: string | null
           color: string | null
           created_at: string
+          frame_size: string | null
           id: string
           image_url: string | null
           model: string | null
           name: string
           notes: string | null
+          purchase_date: string | null
           serial_number: string | null
           strava_gear_id: string | null
           total_hours: number | null
@@ -33,6 +35,8 @@ export type Database = {
           updated_at: string
           usage_updated_at: string | null
           user_id: string
+          warranty: string | null
+          wheel_size: string | null
           year: number | null
         }
         Insert: {
@@ -40,11 +44,13 @@ export type Database = {
           brand?: string | null
           color?: string | null
           created_at?: string
+          frame_size?: string | null
           id?: string
           image_url?: string | null
           model?: string | null
           name: string
           notes?: string | null
+          purchase_date?: string | null
           serial_number?: string | null
           strava_gear_id?: string | null
           total_hours?: number | null
@@ -53,6 +59,8 @@ export type Database = {
           updated_at?: string
           usage_updated_at?: string | null
           user_id: string
+          warranty?: string | null
+          wheel_size?: string | null
           year?: number | null
         }
         Update: {
@@ -60,11 +68,13 @@ export type Database = {
           brand?: string | null
           color?: string | null
           created_at?: string
+          frame_size?: string | null
           id?: string
           image_url?: string | null
           model?: string | null
           name?: string
           notes?: string | null
+          purchase_date?: string | null
           serial_number?: string | null
           strava_gear_id?: string | null
           total_hours?: number | null
@@ -73,6 +83,8 @@ export type Database = {
           updated_at?: string
           usage_updated_at?: string | null
           user_id?: string
+          warranty?: string | null
+          wheel_size?: string | null
           year?: number | null
         }
         Relationships: []

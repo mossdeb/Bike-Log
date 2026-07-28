@@ -151,16 +151,17 @@ export default async function NewComponentPage({
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex gap-3">
           <Button
             render={<Link href={`/bikes/${bike.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
+            className="flex-1"
           >
             {dict.components.form.cancel}
           </Button>
-          <Button type="submit">{dict.components.form.saveNew}</Button>
+          <Button type="submit" className="flex-1">{dict.components.form.saveNew}</Button>
         </div>
       </form>
     </div>

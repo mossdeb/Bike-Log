@@ -11,7 +11,8 @@ import { FormError } from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { BikeOptionalFields } from "@/components/bike-optional-fields";
+import { bikeOptionalFieldLabels } from "@/lib/bike-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
 export default async function NewBikePage({
@@ -52,21 +53,11 @@ export default async function NewBikePage({
 
       <form action={createBike} className="rounded-lg bg-card p-6">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="name">{dict.bikes.form.name}</Label>
-            <Input id="name" name="name" placeholder={dict.bikes.form.namePlaceholder} required />
-          </div>
-
           <BrandField manufacturers={manufacturers} dict={dict} />
 
           <div className="space-y-1.5">
             <Label htmlFor="model">{dict.bikes.form.model}</Label>
             <Input id="model" name="model" placeholder={dict.bikes.form.modelPlaceholder} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="year">{dict.bikes.form.year}</Label>
-            <Input id="year" name="year" type="number" placeholder="2024" />
           </div>
 
           <div className="space-y-1.5">
@@ -86,35 +77,32 @@ export default async function NewBikePage({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="color">{dict.bikes.form.color}</Label>
-            <Input id="color" name="color" placeholder={dict.bikes.form.colorPlaceholder} />
+            <Label htmlFor="name">{dict.bikes.form.name}</Label>
+            <Input id="name" name="name" placeholder={dict.bikes.form.namePlaceholder} />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="serial_number">{dict.bikes.form.serialNumber}</Label>
-            <Input id="serial_number" name="serial_number" placeholder={dict.bikes.form.optional} />
-          </div>
+          <div className="grid grid-cols-2 gap-5 sm:contents">
+            <div className="space-y-1.5">
+              <Label htmlFor="total_km">{dict.bikes.form.totalDistance(distanceUnit)}</Label>
+              <Input
+                id="total_km"
+                name="total_km"
+                type="number"
+                step="0.1"
+                placeholder={dict.bikes.form.optional}
+              />
+            </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="total_km">{dict.bikes.form.totalDistance(distanceUnit)}</Label>
-            <Input
-              id="total_km"
-              name="total_km"
-              type="number"
-              step="0.1"
-              placeholder={dict.bikes.form.optional}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="total_hours">{dict.bikes.form.totalHours}</Label>
-            <Input
-              id="total_hours"
-              name="total_hours"
-              type="number"
-              step="0.1"
-              placeholder={dict.bikes.form.optional}
-            />
+            <div className="space-y-1.5">
+              <Label htmlFor="total_hours">{dict.bikes.form.totalHours}</Label>
+              <Input
+                id="total_hours"
+                name="total_hours"
+                type="number"
+                step="0.1"
+                placeholder={dict.bikes.form.optional}
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
@@ -147,22 +135,20 @@ export default async function NewBikePage({
             <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="notes">{dict.bikes.form.notes}</Label>
-            <Textarea id="notes" name="notes" placeholder={dict.bikes.form.notesPlaceholder} />
-          </div>
+          <BikeOptionalFields labels={bikeOptionalFieldLabels(dict)} />
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex gap-3">
           <Button
             render={<Link href="/bikes" />}
             nativeButton={false}
             type="button"
             variant="outline"
+            className="flex-1"
           >
             {dict.bikes.form.cancel}
           </Button>
-          <Button type="submit">{dict.bikes.form.saveNew}</Button>
+          <Button type="submit" className="flex-1">{dict.bikes.form.saveNew}</Button>
         </div>
       </form>
     </div>

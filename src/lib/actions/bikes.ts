@@ -76,7 +76,22 @@ function parseBikeFormData(formData: FormData) {
     total_km: formData.get("total_km"),
     total_hours: formData.get("total_hours"),
     notes: formData.get("notes"),
+    purchase_date: formData.get("purchase_date"),
+    warranty: formData.get("warranty"),
+    frame_size: formData.get("frame_size"),
+    wheel_size: formData.get("wheel_size"),
   });
+}
+
+/**
+ * The bike name is optional in the form — when left blank, fall back to a
+ * generated display name so bike.name always has something to show in
+ * cards/headers rather than storing an empty string.
+ */
+function deriveBikeName(data: { name: string | null; brand: string | null; model: string | null; type: string | null }) {
+  if (data.name) return data.name;
+  const brandModel = [data.brand, data.model].filter(Boolean).join(" ");
+  return brandModel || data.type || "Unnamed bike";
 }
 
 export async function createBike(formData: FormData) {
@@ -105,7 +120,12 @@ export async function createBike(formData: FormData) {
 
   const { data: bike, error } = await supabase
     .from("bikes")
-    .insert({ ...parsed.data, user_id: userId, strava_gear_id: stravaGearId })
+    .insert({
+      ...parsed.data,
+      name: deriveBikeName(parsed.data),
+      user_id: userId,
+      strava_gear_id: stravaGearId,
+    })
     .select("id")
     .single();
 
@@ -139,13 +159,14 @@ export async function updateBike(bikeId: string, formData: FormData) {
     ? (formData.get("strava_gear_id") as string) || null
     : (existingBike?.strava_gear_id ?? null);
   const willBeLinked = !!stravaGearId;
+  const name = deriveBikeName(parsed.data);
 
   // Once a bike is linked to a Strava gear, its totals are Strava's to
   // manage — ignore whatever this form submitted for them (the fields are
   // read-only client-side, but a linked bike stays authoritative either way).
   const updateData = willBeLinked
-    ? { ...parsed.data, total_km: undefined, total_hours: undefined, strava_gear_id: stravaGearId }
-    : { ...parsed.data, strava_gear_id: stravaGearId };
+    ? { ...parsed.data, name, total_km: undefined, total_hours: undefined, strava_gear_id: stravaGearId }
+    : { ...parsed.data, name, strava_gear_id: stravaGearId };
 
   const { error } = await supabase.from("bikes").update(updateData).eq("id", bikeId);
   if (error) {

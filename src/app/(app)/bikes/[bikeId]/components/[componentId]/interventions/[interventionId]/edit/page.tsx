@@ -142,16 +142,17 @@ export default async function EditInterventionPage({
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex gap-3">
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
+            className="flex-1"
           >
             {dict.interventions.form.cancel}
           </Button>
-          <Button type="submit">{dict.interventions.form.saveEdit}</Button>
+          <Button type="submit" className="flex-1">{dict.interventions.form.saveEdit}</Button>
         </div>
       </form>
 

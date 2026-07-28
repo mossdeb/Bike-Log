@@ -20,7 +20,7 @@ const optionalNumber = (min: number, max: number) =>
   );
 
 export const bikeSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(120),
+  name: optionalText(120),
   brand: optionalText(120),
   model: optionalText(120),
   year: optionalYear,
@@ -30,6 +30,10 @@ export const bikeSchema = z.object({
   total_km: optionalNumber(0, 1000000),
   total_hours: optionalNumber(0, 100000),
   notes: optionalText(2000),
+  purchase_date: optionalText(10), // "YYYY-MM-DD" from <input type="date">
+  warranty: optionalText(120),
+  frame_size: optionalText(60),
+  wheel_size: optionalText(60),
 });
 
 export type BikeFormValues = z.infer<typeof bikeSchema>;

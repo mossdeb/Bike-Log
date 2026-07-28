@@ -222,6 +222,17 @@
   }
 }
 
+/* iOS tints Safari/PWA chrome (status bar, address bar) to match the
+   actual background-color at the top of the page, ignoring the theme-color
+   meta tag — so the bike detail page's merged white header needs body's own
+   background swapped to match on mobile, or that strip renders the default
+   grey page background instead of white (class toggled by AppHeader). */
+@media (max-width: 639.98px) {
+  body.bike-detail-header-merge {
+    background-color: var(--card);
+  }
+}
+
 @layer utilities {
   .scrollbar-none {
     scrollbar-width: none;

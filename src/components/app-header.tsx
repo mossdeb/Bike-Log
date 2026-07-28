@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useIsBikeDetailPage } from "@/components/header-back-button";
 
@@ -8,6 +9,14 @@ import { useIsBikeDetailPage } from "@/components/header-back-button";
  * the approved mobile mockup. Desktop keeps the plain header unchanged. */
 export function AppHeader({ children }: { children: React.ReactNode }) {
   const isBikeDetail = useIsBikeDetailPage();
+
+  // Marks <body> so iOS can tint the status bar/address bar to match (see
+  // globals.css) — that chrome samples body's actual background, not just
+  // this header's own class.
+  useLayoutEffect(() => {
+    document.body.classList.toggle("bike-detail-header-merge", isBikeDetail);
+    return () => document.body.classList.remove("bike-detail-header-merge");
+  }, [isBikeDetail]);
 
   return (
     <header

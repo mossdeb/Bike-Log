@@ -149,12 +149,12 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-16 pb-6 sm:mx-0 sm:rounded-lg sm:pt-6">
+      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-[46px] pb-6 sm:mx-0 sm:rounded-lg sm:pt-6">
         <div className="flex flex-wrap items-end justify-between gap-6 sm:items-center">
           <div className="flex items-end gap-4 sm:items-center">
             <BikeIcon type={bike.type} size="lg" plain />
             <div>
-              <h1 className="text-[26px] font-display font-bold sm:text-xl">{bike.name}</h1>
+              <h1 className="text-[26px] leading-none font-display font-bold sm:text-xl sm:leading-normal">{bike.name}</h1>
               <StatusBadge status={bikeStatus} dict={dict} className="mt-1.5 hidden sm:block" />
             </div>
           </div>

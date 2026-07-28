@@ -160,6 +160,9 @@ const pt: Dictionary = {
       totalHours: "Horas totais",
       status: "Estado",
       edit: "Editar",
+      viewDetails: "Ver detalhes",
+      closeDetails: "Fechar detalhes",
+      stravaGear: "Bicicleta Strava",
       componentsTitle: "Componentes",
       addComponent: "Adicionar componente",
       noComponentsYet:

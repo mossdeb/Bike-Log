@@ -158,6 +158,9 @@ const en = {
       totalHours: "Total hours",
       status: "Status",
       edit: "Edit",
+      viewDetails: "View details",
+      closeDetails: "Close Details",
+      stravaGear: "Strava Gear",
       componentsTitle: "Components",
       addComponent: "Add component",
       noComponentsYet:

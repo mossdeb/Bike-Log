@@ -7,6 +7,8 @@ import { LogoMark } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "@/components/notification-bell";
 import { UserMenu } from "@/components/user-menu";
+import { HeaderBackButton } from "@/components/header-back-button";
+import { AppHeader } from "@/components/app-header";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -25,7 +27,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen bg-background">
       <AppSidebar nav={dict.nav} />
       <div className="mx-auto flex min-w-0 w-full max-w-[1440px] flex-1 flex-col">
-        <header className="flex items-center justify-center gap-3 px-6 py-5 sm:justify-end">
+        <AppHeader>
+          <HeaderBackButton />
           <div className="flex items-center gap-2.5 sm:hidden">
             <LogoMark className="size-8 rounded-[8px]" />
             <span className="font-display text-lg font-bold">Bikit</span>
@@ -35,7 +38,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <NotificationBell notifications={dict.notifications} />
             <UserMenu name={user.user_metadata?.full_name} email={user.email as string} common={dict.common} />
           </div>
-        </header>
+        </AppHeader>
         <main className="flex-1 px-6 pb-24 sm:pb-10">{children}</main>
       </div>
       <MobileNav nav={dict.nav} />

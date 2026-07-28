@@ -45,6 +45,13 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  /* Bike Health system: fixed brand colors, same in light/dark (see health.ts) */
+  --color-health-positive: var(--health-positive);
+  --color-health-positive-foreground: var(--health-positive-foreground);
+  --color-health-attention: var(--health-attention);
+  --color-health-attention-foreground: var(--health-attention-foreground);
+  --color-health-critical: var(--health-critical);
+  --color-health-critical-foreground: var(--health-critical-foreground);
   --color-indigo: var(--indigo);
   --color-indigo-foreground: var(--indigo-foreground);
   --color-emphasis: var(--emphasis);
@@ -74,8 +81,8 @@
 
 :root {
   /* --font-sans is injected by next/font (see src/lib/fonts.ts) via the
-     Roboto variable on <html>; --font-display reuses the same loaded
-     Roboto so headings render identically across every platform. */
+     Anek Latin variable on <html>; --font-display reuses the same loaded
+     font so headings render identically across every platform. */
   --font-display: var(--font-sans);
   --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
 
@@ -118,6 +125,14 @@
   --terracotta: #b5622f;
   --terracotta-foreground: #ffffff;
 
+  /* Bike Health classification — fixed brand colors, identical in light/dark */
+  --health-positive: #43f3af;
+  --health-positive-foreground: #062a20;
+  --health-attention: #ffc161;
+  --health-attention-foreground: #402d00;
+  --health-critical: #f5533d;
+  --health-critical-foreground: #ffffff;
+
   --border: rgba(16, 16, 20, 0.09);
   --input: rgba(16, 16, 20, 0.14);
   --ring: #43f3af;
@@ -141,7 +156,7 @@
   --sidebar-accent-foreground: #f5f3ee;
   --sidebar-border: rgba(245, 243, 238, 0.08);
   --sidebar-ring: #43f3af;
-  --emphasis: #1c1c1c;
+  --emphasis: #101014;
   --emphasis-foreground: #f5f3ee;
 }
 

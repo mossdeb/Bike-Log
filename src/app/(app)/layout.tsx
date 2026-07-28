@@ -40,7 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <UserMenu name={user.user_metadata?.full_name} email={user.email as string} common={dict.common} />
           </div>
         </AppHeader>
-        <main className="flex-1 px-6 pb-24 sm:pb-10">{children}</main>
+        <main className="flex-1 px-5 pb-24 sm:px-6 sm:pb-10">{children}</main>
       </div>
       <MobileNav nav={dict.nav} />
     </div>

@@ -75,7 +75,7 @@ export default async function NewBikePage({
               id="type"
               name="type"
               defaultValue="Enduro"
-              className="flex h-8 w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-[42px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {BIKE_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -128,7 +128,7 @@ export default async function NewBikePage({
                   id="strava_gear_id"
                   name="strava_gear_id"
                   defaultValue=""
-                  className="ml-auto flex h-8 w-56 items-center rounded-sm border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+                  className="ml-auto flex h-[42px] w-56 items-center rounded-sm border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                 >
                   <option value="">{dict.bikes.form.stravaNone}</option>
                   {stravaBikes.map((gear) => {

@@ -13,11 +13,12 @@ const pt: Dictionary = {
     repair: "Reparação",
     replacement: "Substituição",
   },
-  status: {
-    ok: "Em dia",
-    due_soon: "Brevemente",
-    overdue: "Em atraso",
-    not_configured: "Não definido",
+  health: {
+    excellent: "Excelente",
+    good: "Bom",
+    attention: "Precisa de Atenção",
+    critical: "Serviço Necessário",
+    notConfigured: "Não definido",
   },
   nav: {
     dashboard: "Painel",
@@ -48,10 +49,6 @@ const pt: Dictionary = {
     nothingNeedsAttention: "Não há nada a precisar de atenção neste momento.",
     recentInterventions: "Intervenções recentes",
     noMaintenanceLogged: "Ainda não há manutenções registadas.",
-    overdueDays: (n: number) => `Em atraso há ${n}d`,
-    dueInDays: (n: number) => `Daqui a ${n}d`,
-    overdueBy: (amount: string) => `Em atraso ${amount}`,
-    dueInAmount: (amount: string) => `Daqui a ${amount}`,
   },
   settings: {
     title: "Definições",
@@ -225,7 +222,6 @@ const pt: Dictionary = {
       logIntervention: "Registar manutenção",
       noInterventionsYet: "Ainda não há manutenções registadas para este componente.",
       noDescription: "Sem descrição",
-      dueOn: (date: string) => `Prevista para ${date}`,
     },
     form: {
       addTitle: "Adicionar um componente",

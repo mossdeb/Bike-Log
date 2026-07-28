@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import { Pencil, Wrench, Inbox } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, calculateComponentUsage } from "@/lib/maintenance/calculation";
+import { healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/status-badge";
+import { HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { TypeBadge, INTERVENTION_TYPE_DOT_STYLES } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
@@ -80,7 +81,7 @@ export default async function ComponentDetailPage({
   const lastIntervention = interventions?.[0] ?? null;
   const intervalType = component.interval_type as "km" | "hours" | "months" | null;
 
-  const { status, nextDueDate, daysRemaining, amountRemaining, fractionUsed } = calculateComponentStatus({
+  const { fractionUsed } = calculateComponentStatus({
     intervalType,
     intervalValue: component.interval_value,
     installDate: component.install_date,
@@ -92,26 +93,7 @@ export default async function ComponentDetailPage({
     bikeKmAtLastService: lastIntervention?.bike_km_at_intervention ?? null,
     bikeHoursAtLastService: lastIntervention?.bike_hours_at_intervention ?? null,
   });
-
-  const amountRemainingDetail =
-    amountRemaining != null
-      ? intervalType === "km"
-        ? formatDistance(Math.abs(amountRemaining), distanceUnit)
-        : `${formatNumber(Math.abs(amountRemaining))} h`
-      : null;
-
-  const statusDetail =
-    status === "overdue"
-      ? amountRemainingDetail
-        ? dict.dashboard.overdueBy(amountRemainingDetail)
-        : dict.dashboard.overdueDays(Math.abs(daysRemaining!))
-      : status === "due_soon"
-        ? amountRemainingDetail
-          ? dict.dashboard.dueInAmount(amountRemainingDetail)
-          : dict.dashboard.dueInDays(daysRemaining!)
-        : status === "ok" && nextDueDate
-          ? dict.components.detail.dueOn(formatDate(nextDueDate))
-          : undefined;
+  const percent = healthPercent(fractionUsed);
 
   const intervalDetail =
     intervalType && component.interval_value != null
@@ -170,7 +152,7 @@ export default async function ComponentDetailPage({
             <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
             <div>
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
-              <StatusBadge status={status} label={statusDetail} dict={dict} className="mt-1.5" />
+              <HealthPercentBadge percent={percent} className="mt-1.5" />
             </div>
           </div>
           <div className="flex flex-1 flex-wrap gap-x-4 gap-y-5 sm:gap-x-6">
@@ -211,7 +193,7 @@ export default async function ComponentDetailPage({
               <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono />
               <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
             </div>
-            <StatusBadge status={status} label={statusDetail} dict={dict} className="shrink-0" />
+            <HealthPercentBadge percent={percent} className="shrink-0" />
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
@@ -220,7 +202,7 @@ export default async function ComponentDetailPage({
           </div>
         </div>
 
-        {fractionUsed != null && <ServiceIntervalBar status={status} fraction={fractionUsed} className="mt-6 w-full" />}
+        {fractionUsed != null && <ServiceIntervalBar fraction={fractionUsed} className="mt-6 w-full" />}
 
         <div className="mt-6 flex justify-center sm:hidden">{logMaintenanceButton}</div>
       </div>

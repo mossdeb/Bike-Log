@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Bike, Cog, ClipboardList, Plus, Wrench, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus, worstStatus, type ServiceStatus } from "@/lib/maintenance/calculation";
+import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { averageHealth, classifyHealth, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/status-badge";
+import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { BikeIcon } from "@/components/bike-icon";
 import { BikeCarousel } from "@/components/bike-carousel";
 import { ComponentIcon } from "@/components/component-icon";
@@ -75,21 +76,24 @@ export default async function DashboardPage() {
   const loggedThisYear =
     recentRaw?.filter((iv) => new Date(iv.date).getFullYear() === new Date().getFullYear()).length ?? 0;
 
-  const bikeStatuses = new Map<string, ServiceStatus>();
+  const bikeHealthById = new Map<string, number | null>();
   for (const bike of bikes ?? []) {
-    const statuses = components
+    const percents = components
       .filter((c) => c.bike_id === bike.id)
-      .map((c) => statusByComponent.get(c.id)!.status);
-    bikeStatuses.set(bike.id, worstStatus(statuses));
+      .map((c) => healthPercent(statusByComponent.get(c.id)!.fractionUsed));
+    bikeHealthById.set(bike.id, averageHealth(percents));
   }
 
   const needsAttention = components
-    .map((c) => ({ component: c, cs: statusByComponent.get(c.id)! }))
-    .filter(({ cs }) => cs.status === "overdue" || cs.status === "due_soon")
-    .sort((a, b) => {
-      if (a.cs.status !== b.cs.status) return a.cs.status === "overdue" ? -1 : 1;
-      return (a.cs.daysRemaining ?? a.cs.amountRemaining ?? 0) - (b.cs.daysRemaining ?? b.cs.amountRemaining ?? 0);
+    .map((c) => {
+      const fractionUsed = statusByComponent.get(c.id)!.fractionUsed;
+      return { component: c, fractionUsed, percent: healthPercent(fractionUsed) };
     })
+    .filter(
+      (c): c is { component: (typeof components)[number]; fractionUsed: number; percent: number } =>
+        c.percent != null && c.percent < 25
+    )
+    .sort((a, b) => a.percent - b.percent)
     .slice(0, 6);
 
   return (
@@ -158,7 +162,7 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-start justify-end gap-3 sm:justify-between">
                   <BikeIcon type={bike.type} plain className="hidden sm:block" />
-                  <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
+                  <HealthBadge percent={bikeHealthById.get(bike.id) ?? null} dict={dict} />
                 </div>
                 <div className="flex flex-1 flex-col justify-center sm:flex-none sm:justify-start">
                   <BikeIcon type={bike.type} plain className="mb-1 sm:hidden" />
@@ -177,7 +181,7 @@ export default async function DashboardPage() {
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
-                  <span className="shrink-0 rounded-full bg-muted px-4 py-2 text-sm font-semibold">
+                  <span className="flex h-11 shrink-0 items-center justify-center rounded-full bg-muted px-4 text-sm font-semibold">
                     {dict.bikes.viewBike}
                   </span>
                 </div>
@@ -196,22 +200,8 @@ export default async function DashboardPage() {
             </p>
           ) : (
             <div>
-              {needsAttention.map(({ component, cs }, i) => {
+              {needsAttention.map(({ component, fractionUsed, percent }, i) => {
                 const bike = bikeInfo.get(component.bike_id!);
-                const amountDetail =
-                  cs.amountRemaining != null
-                    ? component.interval_type === "km"
-                      ? formatDistance(Math.abs(cs.amountRemaining), distanceUnit)
-                      : `${formatNumber(Math.abs(cs.amountRemaining))} h`
-                    : null;
-                const detail =
-                  cs.status === "overdue"
-                    ? amountDetail
-                      ? dict.dashboard.overdueBy(amountDetail)
-                      : dict.dashboard.overdueDays(Math.abs(cs.daysRemaining!))
-                    : amountDetail
-                      ? dict.dashboard.dueInAmount(amountDetail)
-                      : dict.dashboard.dueInDays(cs.daysRemaining!);
                 return (
                   <Link
                     key={component.id}
@@ -220,15 +210,15 @@ export default async function DashboardPage() {
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >
-                    <ComponentIcon icon={cs.status === "overdue" ? AlertTriangle : Clock} />
+                    <ComponentIcon icon={classifyHealth(percent) === "critical" ? AlertTriangle : Clock} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{component.name}</p>
                       <p className="truncate text-xs text-muted-foreground">
                         {[bike?.type, bike?.name].filter(Boolean).join(" · ") || "—"}
                       </p>
-                      <ServiceIntervalBar status={cs.status} fraction={cs.fractionUsed} className="mt-2 max-w-[220px]" />
+                      <ServiceIntervalBar fraction={fractionUsed} className="mt-2 max-w-[220px]" />
                     </div>
-                    <StatusBadge status={cs.status} label={detail} className="shrink-0" />
+                    <HealthPercentBadge percent={percent} className="shrink-0" />
                   </Link>
                 );
               })}

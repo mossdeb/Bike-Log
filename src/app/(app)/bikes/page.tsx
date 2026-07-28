@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus, worstStatus } from "@/lib/maintenance/calculation";
+import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { averageHealth, healthPercent } from "@/lib/maintenance/health";
 import { Button } from "@/components/ui/button";
 import { BikeIcon } from "@/components/bike-icon";
-import { StatusBadge } from "@/components/status-badge";
+import { HealthBadge } from "@/components/health-badge";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { formatDistance, formatNumber } from "@/lib/format";
 import { StravaBadgeIcon } from "@/components/strava-icon";
@@ -27,12 +28,12 @@ export default async function BikesPage() {
       ),
   ]);
 
-  const bikeStatuses = new Map(
+  const bikeHealthById = new Map(
     (bikes ?? []).map((bike) => {
-      const statuses = (components ?? [])
+      const percents = (components ?? [])
         .filter((c) => c.bike_id === bike.id)
-        .map(
-          (c) =>
+        .map((c) =>
+          healthPercent(
             calculateComponentStatus({
               intervalType: c.interval_type as "km" | "hours" | "months" | null,
               intervalValue: c.interval_value,
@@ -44,9 +45,10 @@ export default async function BikesPage() {
               bikeHoursAtInstall: c.bike_hours_at_install,
               bikeKmAtLastService: c.last_service_km,
               bikeHoursAtLastService: c.last_service_hours,
-            }).status
+            }).fractionUsed
+          )
         );
-      return [bike.id, worstStatus(statuses)];
+      return [bike.id, averageHealth(percents)];
     })
   );
 
@@ -57,7 +59,13 @@ export default async function BikesPage() {
           <h1 className="text-2xl font-display font-bold">{dict.bikes.breadcrumb}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.fleetCount(bikes?.length ?? 0)}</p>
         </div>
-        <Button render={<Link href="/bikes/new" />} nativeButton={false} size="lg">
+        <Button
+          render={<Link href="/bikes/new" />}
+          nativeButton={false}
+          variant="outline"
+          size="lg"
+          className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+        >
           <Plus className="size-4" />
           {dict.bikes.addBike}
         </Button>
@@ -77,7 +85,7 @@ export default async function BikesPage() {
             >
               <div className="mb-2 flex items-start justify-between gap-3">
                 <BikeIcon type={bike.type} plain />
-                <StatusBadge status={bikeStatuses.get(bike.id) ?? "not_configured"} dict={dict} />
+                <HealthBadge percent={bikeHealthById.get(bike.id) ?? null} dict={dict} />
               </div>
               <h2 className="font-display text-[20px] font-bold">{bike.name}</h2>
               <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -93,7 +101,7 @@ export default async function BikesPage() {
                     .filter(Boolean)
                     .join(" · ")}
                 </p>
-                <span className="shrink-0 rounded-full bg-muted px-4 py-2 text-sm font-semibold">
+                <span className="flex h-11 shrink-0 items-center justify-center rounded-full bg-muted px-4 text-sm font-semibold">
                   {dict.bikes.viewBike}
                 </span>
               </div>

@@ -21,7 +21,7 @@ export function UserMenu({
   return (
     <Popover>
       <PopoverTrigger
-        className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo font-display text-xs font-bold text-indigo-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-indigo font-display text-xs font-bold text-indigo-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         aria-label="Account"
       >
         {initials}

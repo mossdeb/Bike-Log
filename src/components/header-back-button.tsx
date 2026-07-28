@@ -36,7 +36,7 @@ export function HeaderBackButton({ className }: { className?: string }) {
       href={backHref}
       aria-label="Back"
       className={cn(
-        "absolute top-1/2 left-6 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground",
+        "absolute top-1/2 left-5 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:left-6",
         className
       )}
     >
@@ -58,7 +58,7 @@ export function HeaderEditButton({ className }: { className?: string }) {
       href={`${pathname}/edit`}
       aria-label="Edit"
       className={cn(
-        "absolute top-1/2 right-6 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:hidden",
+        "absolute top-1/2 right-5 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:hidden",
         className
       )}
     >

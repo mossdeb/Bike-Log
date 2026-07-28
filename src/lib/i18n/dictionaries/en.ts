@@ -11,11 +11,12 @@ const en = {
     repair: "Repair",
     replacement: "Replacement",
   },
-  status: {
-    ok: "On schedule",
-    due_soon: "Due soon",
-    overdue: "Overdue",
-    not_configured: "Not set",
+  health: {
+    excellent: "Excellent",
+    good: "Good",
+    attention: "Need Attention",
+    critical: "Service Due",
+    notConfigured: "Not set",
   },
   nav: {
     dashboard: "Dashboard",
@@ -46,10 +47,6 @@ const en = {
     nothingNeedsAttention: "Nothing needs attention right now.",
     recentInterventions: "Recent interventions",
     noMaintenanceLogged: "No maintenance logged yet.",
-    overdueDays: (n: number) => `Overdue ${n}d`,
-    dueInDays: (n: number) => `Due in ${n}d`,
-    overdueBy: (amount: string) => `Overdue by ${amount}`,
-    dueInAmount: (amount: string) => `Due in ${amount}`,
   },
   settings: {
     title: "Settings",
@@ -223,7 +220,6 @@ const en = {
       logIntervention: "Log intervention",
       noInterventionsYet: "No interventions logged yet for this component.",
       noDescription: "No description",
-      dueOn: (date: string) => `Due ${date}`,
     },
     form: {
       addTitle: "Add a component",

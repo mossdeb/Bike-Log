@@ -8,7 +8,7 @@ export function NotificationBell({ notifications }: { notifications: Dictionary[
   return (
     <Popover>
       <PopoverTrigger
-        className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+        className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
         aria-label="Notifications"
       >
         <Bell className="size-4" />

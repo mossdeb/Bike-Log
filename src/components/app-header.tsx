@@ -21,7 +21,7 @@ export function AppHeader({ children }: { children: React.ReactNode }) {
   return (
     <header
       className={cn(
-        "relative flex items-center justify-center gap-3 px-6 py-5 sm:justify-end",
+        "relative flex items-center justify-center gap-3 px-5 py-5 sm:justify-end sm:px-6",
         isBikeDetail && "bg-card sm:bg-transparent"
       )}
     >

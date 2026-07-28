@@ -1,8 +1,7 @@
-import { Roboto } from "next/font/google";
+import { Anek_Latin } from "next/font/google";
 
-export const roboto = Roboto({
+export const anekLatin = Anek_Latin({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
   variable: "--font-sans",
   display: "swap",
 });

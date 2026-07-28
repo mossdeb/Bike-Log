@@ -21,7 +21,7 @@ export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] })
             <div
               key={plan.name}
               className={`flex flex-col rounded-[22px] border p-7 ${
-                plan.highlighted ? "border-transparent bg-[#1C1C1C]" : "border-[#101014]/[0.09] bg-white"
+                plan.highlighted ? "border-transparent bg-[#101014]" : "border-[#101014]/[0.09] bg-white"
               }`}
             >
               {plan.badge && (

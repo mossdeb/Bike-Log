@@ -6,7 +6,7 @@ export function LandingCTA({ dict }: { dict: LandingDictionary["cta"] }) {
   return (
     <section className="bg-[#E9EBF6] px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto max-w-[1160px]">
-        <div className="relative overflow-hidden rounded-[32px] bg-[#1C1C1C] px-6 py-16 text-center sm:px-16 sm:py-20">
+        <div className="relative overflow-hidden rounded-[32px] bg-[#101014] px-6 py-16 text-center sm:px-16 sm:py-20">
           <Image
             src="/landing/images/cta-bg.jpg"
             alt=""

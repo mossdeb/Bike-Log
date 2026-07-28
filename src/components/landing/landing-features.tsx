@@ -129,7 +129,7 @@ export function LandingFeatures({ dict }: { dict: LandingDictionary["features"] 
           </div>
 
           {/* Card 2 - dark */}
-          <div className="grid grid-cols-1 items-center gap-10 rounded-[32px] bg-[#1C1C1C] p-6 sm:p-12 md:grid-cols-2">
+          <div className="grid grid-cols-1 items-center gap-10 rounded-[32px] bg-[#101014] p-6 sm:p-12 md:grid-cols-2">
             <div className="flex flex-col gap-4">
               <img src="/landing/icons/bell.svg" alt="" className="h-8 w-7" />
               <h3 className="font-[family-name:var(--font-landing-heading)] text-2xl font-bold leading-snug text-white sm:text-[28px]">

@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus, worstStatus } from "@/lib/maintenance/calculation";
+import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { averageHealth, healthPercent } from "@/lib/maintenance/health";
 import { formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/status-badge";
+import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { BikeIcon } from "@/components/bike-icon";
 import { BikeDetailsToggle } from "@/components/bike-details-toggle";
@@ -78,7 +79,9 @@ export default async function BikeDetailPage({
       }),
     ])
   );
-  const bikeStatus = worstStatus([...statusByComponent.values()].map((s) => s.status));
+  const bikeHealth = averageHealth(
+    [...statusByComponent.values()].map((s) => healthPercent(s.fractionUsed))
+  );
 
   const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null;
   const hoursDetail = bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null;
@@ -149,17 +152,17 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="-mx-6 mb-6 rounded-b-lg bg-card px-6 pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:pt-6">
+      <div className="-mx-5 mb-6 rounded-b-lg bg-card px-5 pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:px-6 sm:pt-6">
         <div className="flex flex-wrap items-end justify-between gap-6 sm:items-center">
           <div className="flex items-end gap-4 sm:items-center">
             <BikeIcon type={bike.type} size="lg" plain />
             <div>
               <h1 className="text-[26px] leading-none font-display font-bold sm:text-xl sm:leading-normal">{bike.name}</h1>
-              <StatusBadge status={bikeStatus} dict={dict} className="mt-1.5 hidden sm:block" />
+              <HealthBadge percent={bikeHealth} dict={dict} className="mt-1.5 hidden sm:block" />
             </div>
           </div>
 
-          <StatusBadge status={bikeStatus} dict={dict} className="sm:hidden" />
+          <HealthBadge percent={bikeHealth} dict={dict} className="sm:hidden" />
 
           <div className="hidden flex-1 sm:block">{detailsGrid}</div>
 
@@ -199,7 +202,8 @@ export default async function BikeDetailPage({
         ) : (
           <div className="rounded-lg bg-card">
             {components.map((component, i) => {
-              const { status, fractionUsed } = statusByComponent.get(component.id)!;
+              const { fractionUsed } = statusByComponent.get(component.id)!;
+              const percent = healthPercent(fractionUsed);
               return (
                 <div
                   key={component.id}
@@ -233,23 +237,22 @@ export default async function BikeDetailPage({
                             .join(" · ")}
                         </p>
                         <ServiceIntervalBar
-                          status={status}
                           fraction={fractionUsed}
                           className="mt-2 hidden sm:block sm:max-w-[220px]"
                         />
                       </div>
                     </Link>
-                    <StatusBadge status={status} dict={dict} className="shrink-0" />
+                    <HealthPercentBadge percent={percent} className="shrink-0" />
                     <Link
                       href={`/bikes/${bike.id}/components/${component.id}/interventions/new`}
                       title={dict.bikes.detail.logIntervention}
                       aria-label={dict.bikes.detail.logInterventionFor(component.name ?? "")}
-                      className="hidden size-9 shrink-0 items-center justify-center rounded-md border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:flex"
+                      className="hidden size-10 shrink-0 items-center justify-center rounded-md border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:flex"
                     >
                       <Plus className="size-4" />
                     </Link>
                   </div>
-                  <ServiceIntervalBar status={status} fraction={fractionUsed} className="mt-3 sm:hidden" />
+                  <ServiceIntervalBar fraction={fractionUsed} className="mt-3 sm:hidden" />
                 </div>
               );
             })}

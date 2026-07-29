@@ -92,7 +92,7 @@ export default async function BikeDetailPage({
       nativeButton={false}
       variant="outline"
       size="sm"
-      className="h-[52px] border-transparent bg-foreground text-sm text-background hover:bg-foreground/90 hover:text-background"
+      className="h-[52px] w-[187px] border-transparent bg-foreground text-sm text-background hover:bg-foreground/90 hover:text-background"
     >
       <Plus className="size-3.5" />
       {dict.bikes.detail.addComponent}
@@ -221,7 +221,7 @@ export default async function BikeDetailPage({
               return (
                 <div
                   key={component.id}
-                  className={`px-5 py-4 transition-colors hover:bg-muted/50 ${
+                  className={`px-5 py-6 transition-colors hover:bg-muted/50 sm:py-4 ${
                     i > 0 ? "border-t border-border" : ""
                   }`}
                 >
@@ -233,7 +233,7 @@ export default async function BikeDetailPage({
                       <ComponentIcon icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold">{component.name}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
+                        <p className="mt-0.5 text-sm text-muted-foreground sm:text-xs">
                           {[
                             component.category,
                             component.interval_type && component.interval_value != null

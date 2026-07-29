@@ -166,6 +166,12 @@ const en = {
         `every ${value} ${type === "km" ? unit : type === "hours" ? "h" : "mo"}`,
       logIntervention: "Log intervention",
       logInterventionFor: (name: string) => `Log intervention for ${name}`,
+      timelineTab: "Timeline",
+      today: "Today",
+      manufactured: "Manufactured",
+      purchased: "Purchased",
+      addedToBikit: "Added to Bikit",
+      warrantyExpired: "Warranty Expired",
     },
     form: {
       addTitle: "Add a bike",

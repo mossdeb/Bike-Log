@@ -14,6 +14,10 @@ import { BikeDetailsToggle } from "@/components/bike-details-toggle";
 import { StravaBadgeIcon } from "@/components/strava-icon";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { BikeTimeline } from "@/components/bike-timeline";
+import { buildBikeTimeline, type TimelineIntervention } from "@/lib/timeline";
+import type { InterventionType } from "@/lib/intervention-type";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 
@@ -82,6 +86,42 @@ export default async function BikeDetailPage({
   const bikeHealth = bikeHealthLevel(
     [...statusByComponent.values()].map((s) => healthPercent(s.fractionUsed))
   );
+
+  const componentIds = (components ?? [])
+    .map((c) => c.id)
+    .filter((id): id is string => id != null);
+  const componentNameById = new Map((components ?? []).map((c) => [c.id, c.name]));
+  const { data: bikeInterventions } =
+    componentIds.length > 0
+      ? await supabase
+          .from("interventions")
+          .select("id, component_id, type, date, description, kms, hours_used")
+          .in("component_id", componentIds)
+          .order("date", { ascending: false })
+          .order("created_at", { ascending: false })
+      : { data: [] };
+
+  const timelineInterventions: TimelineIntervention[] = (bikeInterventions ?? []).map((iv) => ({
+    id: iv.id,
+    componentId: iv.component_id,
+    componentName: componentNameById.get(iv.component_id) ?? "",
+    type: iv.type as InterventionType,
+    date: iv.date,
+    description: iv.description,
+    kms: iv.kms,
+    hoursUsed: iv.hours_used,
+  }));
+
+  const timelineEvents = buildBikeTimeline({
+    bike: {
+      brand: bike.brand,
+      year: bike.year,
+      purchase_date: bike.purchase_date,
+      warranty: bike.warranty,
+      created_at: bike.created_at,
+    },
+    interventions: timelineInterventions,
+  });
 
   const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null;
   const hoursDetail = bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null;
@@ -198,17 +238,29 @@ export default async function BikeDetailPage({
         </div>
       </div>
 
-      <div className="rounded-xl bg-muted/40 pb-4 sm:bg-transparent sm:pb-0">
+      <Tabs defaultValue="components">
         <div className="mb-6 flex items-center justify-center sm:mb-3 sm:justify-between">
-          <h2 className="font-display font-bold">
-            {dict.bikes.detail.componentsTitle}
-            {components && components.length > 0 && (
-              <span className="ml-1.5 font-normal text-muted-foreground">({components.length})</span>
-            )}
-          </h2>
+          <TabsList variant="line" className="h-auto gap-6 bg-transparent p-0">
+            <TabsTrigger
+              value="components"
+              className="h-auto flex-none px-0 py-1 text-base font-display font-bold data-active:bg-transparent"
+            >
+              {dict.bikes.detail.componentsTitle}
+              {components && components.length > 0 && (
+                <span className="ml-1.5 font-normal text-muted-foreground">({components.length})</span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="timeline"
+              className="h-auto flex-none px-0 py-1 text-base font-display font-bold data-active:bg-transparent"
+            >
+              {dict.bikes.detail.timelineTab}
+            </TabsTrigger>
+          </TabsList>
           <div className="hidden sm:block">{addComponentButton}</div>
         </div>
 
+        <TabsContent value="components" className="rounded-xl bg-muted/40 pb-4 sm:bg-transparent sm:pb-0">
         {!components || components.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
             <p className="text-sm text-muted-foreground">{dict.bikes.detail.noComponentsYet}</p>
@@ -274,7 +326,18 @@ export default async function BikeDetailPage({
         )}
 
         <div className="mt-4 flex justify-center sm:hidden">{addComponentButton}</div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="timeline">
+          <BikeTimeline
+            events={timelineEvents}
+            dict={dict}
+            distanceUnit={distanceUnit}
+            bikeId={bike.id}
+            bikeType={bike.type}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -168,6 +168,12 @@ const pt: Dictionary = {
         `a cada ${value} ${type === "km" ? unit : type === "hours" ? "h" : "meses"}`,
       logIntervention: "Registar manutenção",
       logInterventionFor: (name: string) => `Registar manutenção para ${name}`,
+      timelineTab: "Linha do tempo",
+      today: "Hoje",
+      manufactured: "Fabricada",
+      purchased: "Comprada",
+      addedToBikit: "Adicionada à Bikit",
+      warrantyExpired: "Garantia expirada",
     },
     form: {
       addTitle: "Adicionar uma bicicleta",

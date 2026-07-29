@@ -192,7 +192,7 @@ export default async function ComponentDetailPage({
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
               <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {[component.category, component.brand, component.model].filter(Boolean).join(" · ") ||
+                {[bike.name, component.category, component.brand, component.model].filter(Boolean).join(" · ") ||
                   dict.bikes.noDetailsYet}
               </p>
             </div>

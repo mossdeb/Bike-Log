@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { calculateComponentUsage } from "@/lib/maintenance/calculation";
+import { kmToUnit } from "@/lib/format";
 
 export default async function NewInterventionPage({
   params,
@@ -24,16 +26,29 @@ export default async function NewInterventionPage({
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
-  const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
+  const { data: bike } = await supabase
+    .from("bikes")
+    .select("id, name, total_km, total_hours")
+    .eq("id", bikeId)
+    .single();
   if (!bike) notFound();
 
   const { data: component } = await supabase
     .from("components")
-    .select("id, name")
+    .select("id, name, bike_km_at_install, bike_hours_at_install")
     .eq("id", componentId)
     .eq("bike_id", bikeId)
     .single();
   if (!component) notFound();
+
+  const usage = calculateComponentUsage({
+    bikeTotalKm: bike.total_km,
+    bikeTotalHours: bike.total_hours,
+    bikeKmAtInstall: component.bike_km_at_install,
+    bikeHoursAtInstall: component.bike_hours_at_install,
+  });
+  const hoursUsedValue = usage.hours != null ? Math.round(usage.hours * 10) / 10 : "";
+  const kmsValue = usage.km != null ? Math.round(kmToUnit(usage.km, distanceUnit) * 10) / 10 : "";
 
   return (
     <div className="max-w-2xl pt-8">
@@ -96,12 +111,30 @@ export default async function NewInterventionPage({
 
           <div className="space-y-1.5">
             <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
-            <Input id="hours_used" name="hours_used" type="number" step="0.1" placeholder={dict.interventions.form.optional} />
+            <Input
+              id="hours_used"
+              name="hours_used"
+              type="number"
+              step="0.1"
+              defaultValue={hoursUsedValue}
+              placeholder={dict.interventions.form.optional}
+              readOnly
+              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
-            <Input id="kms" name="kms" type="number" step="0.1" placeholder={dict.interventions.form.optional} />
+            <Input
+              id="kms"
+              name="kms"
+              type="number"
+              step="0.1"
+              defaultValue={kmsValue}
+              placeholder={dict.interventions.form.optional}
+              readOnly
+              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
+            />
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">

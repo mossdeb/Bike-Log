@@ -112,6 +112,8 @@ export default async function EditInterventionPage({
               type="number"
               step="0.1"
               defaultValue={intervention.hours_used ?? ""}
+              readOnly
+              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
             />
           </div>
 
@@ -123,6 +125,8 @@ export default async function EditInterventionPage({
               type="number"
               step="0.1"
               defaultValue={intervention.kms != null ? Math.round(kmToUnit(intervention.kms, distanceUnit) * 10) / 10 : ""}
+              readOnly
+              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
             />
           </div>
 

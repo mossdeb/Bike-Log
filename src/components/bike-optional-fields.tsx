@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,8 +57,7 @@ export interface BikeOptionalFieldLabels {
   notes: string;
   notesPlaceholder: string;
   optional: string;
-  optionalFieldsLabel: string;
-  showAdditionalFields: string;
+  addDetailsLabel: string;
   addDetailsTitle: string;
   addDetailsSubtitle: string;
   addDetailsSave: string;
@@ -143,8 +143,7 @@ export function BikeOptionalFields({
         );
       })}
 
-      <div className="space-y-1.5 sm:col-span-2">
-        <p className="text-xs text-muted-foreground">{labels.optionalFieldsLabel}</p>
+      <div className="sm:col-span-2">
         <Dialog
           open={open}
           onOpenChange={(next) => {
@@ -154,9 +153,12 @@ export function BikeOptionalFields({
         >
           <DialogTrigger
             type="button"
-            className="flex h-[42px] w-full items-center justify-center rounded-sm border border-dashed border-input text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+            className="flex h-[52px] w-full items-center justify-between rounded-full border border-dashed border-input px-5 text-sm font-semibold text-foreground transition-colors hover:border-foreground/40"
           >
-            {labels.showAdditionalFields}
+            {labels.addDetailsLabel}
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-input">
+              <Plus className="size-4" />
+            </span>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

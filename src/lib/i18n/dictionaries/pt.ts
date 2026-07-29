@@ -222,7 +222,7 @@ const pt: Dictionary = {
   },
   components: {
     detail: {
-      interval: "Intervalo",
+      interval: "Intervalo de serviço",
       serial: "Nº de série",
       totalDistance: "Distância total",
       totalHours: "Horas totais",

@@ -59,7 +59,7 @@ export default async function EditBikePage({
   const isStravaLinked = !!bike.strava_gear_id;
 
   return (
-    <div className="max-w-2xl pt-8">
+    <div className="max-w-2xl pt-4 sm:pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}

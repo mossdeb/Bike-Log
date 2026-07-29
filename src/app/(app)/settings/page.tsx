@@ -83,7 +83,7 @@ export default async function SettingsPage({
     : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
   return (
-    <div className="pt-8">
+    <div className="pt-4 sm:pt-8">
       <div className="mb-6">
         <h1 className="text-2xl font-display font-bold">{dict.settings.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{dict.settings.subtitle}</p>

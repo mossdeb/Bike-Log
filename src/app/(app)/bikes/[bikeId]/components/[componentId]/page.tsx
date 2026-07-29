@@ -133,7 +133,7 @@ export default async function ComponentDetailPage({
   );
 
   return (
-    <div className="pt-8">
+    <div className="pt-4 sm:pt-8">
       <div className="hidden text-sm text-muted-foreground sm:mb-2 sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}

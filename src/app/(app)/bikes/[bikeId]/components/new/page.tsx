@@ -48,7 +48,7 @@ export default async function NewComponentPage({
   const manufacturers = await getBikeIndexManufacturers();
 
   return (
-    <div className="max-w-2xl pt-8">
+    <div className="max-w-2xl pt-4 sm:pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}

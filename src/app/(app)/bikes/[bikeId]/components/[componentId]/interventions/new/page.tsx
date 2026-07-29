@@ -51,7 +51,7 @@ export default async function NewInterventionPage({
   const kmsValue = usage.km != null ? Math.round(kmToUnit(usage.km, distanceUnit) * 10) / 10 : "";
 
   return (
-    <div className="max-w-2xl pt-8">
+    <div className="max-w-2xl pt-4 sm:pt-8">
       <div className="mb-2 text-sm text-muted-foreground">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
@@ -118,8 +118,6 @@ export default async function NewInterventionPage({
               step="0.1"
               defaultValue={hoursUsedValue}
               placeholder={dict.interventions.form.optional}
-              readOnly
-              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
             />
           </div>
 
@@ -132,8 +130,6 @@ export default async function NewInterventionPage({
               step="0.1"
               defaultValue={kmsValue}
               placeholder={dict.interventions.form.optional}
-              readOnly
-              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
             />
           </div>
 

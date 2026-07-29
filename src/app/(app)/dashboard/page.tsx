@@ -98,7 +98,7 @@ export default async function DashboardPage() {
     .slice(0, 6);
 
   return (
-    <div className="pt-8">
+    <div className="pt-4 sm:pt-8">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold">{dict.dashboard.welcome(displayName)}</h1>

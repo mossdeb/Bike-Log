@@ -43,7 +43,7 @@ export default async function NewBikePage({
   }
 
   return (
-    <div className="max-w-2xl pt-8">
+    <div className="max-w-2xl pt-4 sm:pt-8">
       <div className="mb-6">
         <h1 className="text-2xl font-display font-bold">{dict.bikes.form.addTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.addSubtitle}</p>

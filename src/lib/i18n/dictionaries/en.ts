@@ -220,7 +220,7 @@ const en = {
   },
   components: {
     detail: {
-      interval: "Interval",
+      interval: "Service interval",
       serial: "Serial",
       totalDistance: "Total distance",
       totalHours: "Total hours",

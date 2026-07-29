@@ -91,7 +91,7 @@ export default async function NewInterventionPage({
                 return (
                   <label
                     key={type}
-                    className="flex h-[52px] flex-1 flex-col items-center justify-center gap-1 rounded-sm border border-input text-sm font-semibold has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
+                    className="flex h-[62px] flex-1 flex-col items-center justify-center gap-1 rounded-sm border border-input text-sm font-semibold has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
                   >
                     <input
                       type="radio"

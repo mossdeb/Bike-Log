@@ -85,8 +85,8 @@ const pt: Dictionary = {
       description: "Escolha quando a Bikit deve enviar-lhe emails sobre manutenções futuras.",
       dueSoon: "Manutenção brevemente",
       dueSoonSub: 'Receba um email quando um componente entra na janela "brevemente".',
-      overdue: "Manutenção em atraso",
-      overdueSub: "Receba um email assim que um componente fique em atraso.",
+      overdue: "Serviço Necessário",
+      overdueSub: "Receba um email assim que a saúde de um componente atingir o estado \"Serviço Necessário\".",
       weeklySummary: "Resumo semanal",
       weeklySummarySub: "Um resumo semanal do estado de manutenção da sua frota.",
     },
@@ -322,18 +322,22 @@ const pt: Dictionary = {
         `${componentName} da ${bikeName} tem manutenção prevista daqui a ${amount}.`,
     },
     overdue: {
-      subject: (componentName: string): string => `${componentName} está com a manutenção em atraso`,
-      heading: "Manutenção em atraso",
-      bodyByDays: (componentName: string, bikeName: string, daysOverdue: number): string =>
-        `${componentName} da ${bikeName} está ${daysOverdue === 1 ? "há 1 dia" : `há ${daysOverdue} dias`} com a manutenção em atraso.`,
-      bodyByAmount: (componentName: string, bikeName: string, amount: string): string =>
-        `${componentName} da ${bikeName} está com a manutenção em atraso há ${amount}.`,
+      subject: (componentName: string): string => `${componentName} precisa de manutenção`,
+      heading: "Serviço Necessário",
+      bodyByDays: (componentName: string, bikeName: string, days: number, isPastDue: boolean): string =>
+        isPastDue
+          ? `${componentName} da ${bikeName} está ${days === 1 ? "há 1 dia" : `há ${days} dias`} com a manutenção em atraso.`
+          : `${componentName} da ${bikeName} vai precisar de manutenção muito em breve — faltam ${days === 1 ? "1 dia" : `${days} dias`}.`,
+      bodyByAmount: (componentName: string, bikeName: string, amount: string, isPastDue: boolean): string =>
+        isPastDue
+          ? `${componentName} da ${bikeName} está com a manutenção em atraso há ${amount}.`
+          : `${componentName} da ${bikeName} vai precisar de manutenção muito em breve — faltam ${amount}.`,
     },
     weeklySummary: {
       subject: "O seu resumo semanal da Bikit",
       heading: "Resumo semanal",
       intro: "Aqui está o estado de manutenção da sua frota esta semana.",
-      overdueSection: "Em atraso",
+      overdueSection: "Serviço Necessário",
       dueSoonSection: "Brevemente",
       noneNeedAttention: "Está tudo em dia. Bom trabalho!",
     },

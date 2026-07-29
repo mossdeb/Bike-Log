@@ -83,8 +83,8 @@ const en = {
       description: "Choose when Bikit should email you about upcoming maintenance.",
       dueSoon: "Service due soon",
       dueSoonSub: 'Get an email when a component enters its "due soon" window.',
-      overdue: "Service overdue",
-      overdueSub: "Get an email as soon as a component becomes overdue.",
+      overdue: "Service due",
+      overdueSub: "Get an email as soon as a component's health drops to Service Due.",
       weeklySummary: "Weekly summary",
       weeklySummarySub: "A weekly digest of your fleet's maintenance status.",
     },
@@ -318,18 +318,22 @@ const en = {
         `${componentName} on ${bikeName} is due for service in ${amount}.`,
     },
     overdue: {
-      subject: (componentName: string): string => `${componentName} is overdue for service`,
-      heading: "Service overdue",
-      bodyByDays: (componentName: string, bikeName: string, daysOverdue: number): string =>
-        `${componentName} on ${bikeName} is ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} overdue for service.`,
-      bodyByAmount: (componentName: string, bikeName: string, amount: string): string =>
-        `${componentName} on ${bikeName} is ${amount} overdue for service.`,
+      subject: (componentName: string): string => `${componentName} needs service`,
+      heading: "Service due",
+      bodyByDays: (componentName: string, bikeName: string, days: number, isPastDue: boolean): string =>
+        isPastDue
+          ? `${componentName} on ${bikeName} is ${days} day${days === 1 ? "" : "s"} overdue for service.`
+          : `${componentName} on ${bikeName} needs service very soon — ${days} day${days === 1 ? "" : "s"} left.`,
+      bodyByAmount: (componentName: string, bikeName: string, amount: string, isPastDue: boolean): string =>
+        isPastDue
+          ? `${componentName} on ${bikeName} is ${amount} overdue for service.`
+          : `${componentName} on ${bikeName} needs service very soon — ${amount} left.`,
     },
     weeklySummary: {
       subject: "Your weekly Bikit summary",
       heading: "Weekly summary",
       intro: "Here's the maintenance status of your fleet this week.",
-      overdueSection: "Overdue",
+      overdueSection: "Service Due",
       dueSoonSection: "Due soon",
       noneNeedAttention: "Nothing needs attention right now. Nice work!",
     },

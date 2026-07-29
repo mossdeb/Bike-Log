@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { Bike, Cog, ClipboardList, Plus, Wrench, Inbox, AlertTriangle, Clock } from "lucide-react";
+import { Bike, Cog, ClipboardList, Plus, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
-import { averageHealth, classifyHealth, healthPercent } from "@/lib/maintenance/health";
+import { bikeHealthLevel, classifyHealth, healthPercent, type HealthLevel } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { BikeIcon } from "@/components/bike-icon";
+import { ToolIcon } from "@/components/tool-icon";
 import { BikeCarousel } from "@/components/bike-carousel";
 import { ComponentIcon } from "@/components/component-icon";
 import { InterventionIcon } from "@/components/intervention-icon";
@@ -76,12 +77,12 @@ export default async function DashboardPage() {
   const loggedThisYear =
     recentRaw?.filter((iv) => new Date(iv.date).getFullYear() === new Date().getFullYear()).length ?? 0;
 
-  const bikeHealthById = new Map<string, number | null>();
+  const bikeHealthById = new Map<string, HealthLevel | null>();
   for (const bike of bikes ?? []) {
     const percents = components
       .filter((c) => c.bike_id === bike.id)
       .map((c) => healthPercent(statusByComponent.get(c.id)!.fractionUsed));
-    bikeHealthById.set(bike.id, averageHealth(percents));
+    bikeHealthById.set(bike.id, bikeHealthLevel(percents));
   }
 
   const needsAttention = components
@@ -107,7 +108,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <Button render={<Link href="/bikes" />} nativeButton={false} variant="outline" className="hidden sm:inline-flex">
-          <Wrench className="size-4" />
+          <ToolIcon className="size-4" />
           {dict.dashboard.logMaintenance}
         </Button>
       </div>
@@ -162,7 +163,7 @@ export default async function DashboardPage() {
               >
                 <div className="flex items-start justify-end gap-3 sm:justify-between">
                   <BikeIcon type={bike.type} plain className="hidden sm:block" />
-                  <HealthBadge percent={bikeHealthById.get(bike.id) ?? null} dict={dict} />
+                  <HealthBadge level={bikeHealthById.get(bike.id) ?? null} dict={dict} />
                 </div>
                 <div className="flex flex-1 flex-col justify-center sm:flex-none sm:justify-start">
                   <BikeIcon type={bike.type} plain className="mb-1 sm:hidden" />

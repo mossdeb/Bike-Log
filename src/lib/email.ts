@@ -70,6 +70,7 @@ export async function sendOverdueEmail(params: {
   componentName: string;
   bikeName: string;
   detail: { kind: "days"; days: number } | { kind: "amount"; amount: string };
+  isPastDue: boolean;
   componentUrl: string;
   siteUrl: string;
 }): Promise<boolean> {
@@ -79,8 +80,8 @@ export async function sendOverdueEmail(params: {
   const dict = getDictionary(params.locale).email;
   const detailText =
     params.detail.kind === "days"
-      ? dict.overdue.bodyByDays(params.componentName, params.bikeName, params.detail.days)
-      : dict.overdue.bodyByAmount(params.componentName, params.bikeName, params.detail.amount);
+      ? dict.overdue.bodyByDays(params.componentName, params.bikeName, params.detail.days, params.isPastDue)
+      : dict.overdue.bodyByAmount(params.componentName, params.bikeName, params.detail.amount, params.isPastDue);
   const html = wrapEmail(
     dict.overdue.heading,
     `<p style="margin:0;font-size:15px;line-height:1.5;">${detailText}</p>`,

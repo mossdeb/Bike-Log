@@ -17,9 +17,22 @@ export function classifyHealth(percent: number): HealthLevel {
   return "critical";
 }
 
-/** Bike Health — the average health percent across a bike's installed components. */
+/** The average health percent across a bike's installed components. */
 export function averageHealth(percents: (number | null)[]): number | null {
   const valid = percents.filter((p): p is number => p != null);
   if (valid.length === 0) return null;
   return Math.round(valid.reduce((sum, p) => sum + p, 0) / valid.length);
+}
+
+/**
+ * Bike Health classification — the average health % across a bike's
+ * installed components, UNLESS at least one component has already dropped
+ * to "critical" (Service Due), in which case the bike is immediately
+ * classified as critical too, no matter how healthy the rest are.
+ */
+export function bikeHealthLevel(percents: (number | null)[]): HealthLevel | null {
+  const valid = percents.filter((p): p is number => p != null);
+  if (valid.length === 0) return null;
+  if (valid.some((p) => classifyHealth(p) === "critical")) return "critical";
+  return classifyHealth(averageHealth(valid)!);
 }

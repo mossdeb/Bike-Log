@@ -14,15 +14,14 @@ const NOT_CONFIGURED_STYLE = "bg-muted text-muted-foreground";
 
 /** Bike-level badge — dot + classification name (Excellent/Good/Need Attention/Service Due). */
 export function HealthBadge({
-  percent,
+  level,
   dict = getDictionary("en"),
   className,
 }: {
-  percent: number | null;
+  level: HealthLevel | null;
   dict?: Dictionary;
   className?: string;
 }) {
-  const level = percent != null ? classifyHealth(percent) : null;
   return (
     <span
       className={cn(

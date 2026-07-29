@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
-import { averageHealth, healthPercent } from "@/lib/maintenance/health";
+import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -79,7 +79,7 @@ export default async function BikeDetailPage({
       }),
     ])
   );
-  const bikeHealth = averageHealth(
+  const bikeHealth = bikeHealthLevel(
     [...statusByComponent.values()].map((s) => healthPercent(s.fractionUsed))
   );
 
@@ -92,7 +92,7 @@ export default async function BikeDetailPage({
       nativeButton={false}
       variant="outline"
       size="sm"
-      className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+      className="h-[52px] border-transparent bg-foreground text-sm text-background hover:bg-foreground/90 hover:text-background"
     >
       <Plus className="size-3.5" />
       {dict.bikes.detail.addComponent}
@@ -172,11 +172,11 @@ export default async function BikeDetailPage({
             <BikeIcon type={bike.type} size="lg" plain />
             <div>
               <h1 className="text-[26px] leading-none font-display font-bold sm:text-xl sm:leading-normal">{bike.name}</h1>
-              <HealthBadge percent={bikeHealth} dict={dict} className="mt-1.5 hidden sm:block" />
+              <HealthBadge level={bikeHealth} dict={dict} className="mt-1.5 hidden sm:block" />
             </div>
           </div>
 
-          <HealthBadge percent={bikeHealth} dict={dict} className="sm:hidden" />
+          <HealthBadge level={bikeHealth} dict={dict} className="sm:hidden" />
 
           <div className="hidden flex-1 sm:block">{detailsGrid}</div>
 

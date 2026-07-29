@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Wrench, Inbox } from "lucide-react";
+import { Pencil, Inbox } from "lucide-react";
+import { ToolIcon } from "@/components/tool-icon";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus, calculateComponentUsage } from "@/lib/maintenance/calculation";
 import { healthPercent } from "@/lib/maintenance/health";
@@ -124,16 +125,16 @@ export default async function ComponentDetailPage({
       render={<Link href={`/bikes/${bike.id}/components/${component.id}/interventions/new`} />}
       nativeButton={false}
       size="sm"
-      className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+      className="h-[52px] w-[196px] border-transparent bg-foreground text-sm text-background hover:bg-foreground/90 hover:text-background"
     >
-      <Wrench className="size-3.5" />
+      <ToolIcon className="size-3.5" />
       {dict.dashboard.logMaintenance}
     </Button>
   );
 
   return (
     <div className="pt-8">
-      <div className="mb-2 text-sm text-muted-foreground">
+      <div className="hidden text-sm text-muted-foreground sm:mb-2 sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
         </Link>
@@ -197,17 +198,14 @@ export default async function ComponentDetailPage({
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-6">
-              <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono />
-              <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
-            </div>
-            <HealthPercentBadge percent={percent} className="shrink-0" />
+          <div className="mt-6 flex flex-wrap items-center gap-6">
+            <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono />
+            <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
             <DetailField label={dict.components.detail.interval} value={intervalDetail ?? "—"} />
-            {editButton}
+            <HealthPercentBadge percent={percent} className="shrink-0" />
           </div>
         </div>
 

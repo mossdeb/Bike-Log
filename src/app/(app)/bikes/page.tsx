@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
-import { averageHealth, healthPercent } from "@/lib/maintenance/health";
+import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { Button } from "@/components/ui/button";
 import { BikeIcon } from "@/components/bike-icon";
 import { HealthBadge } from "@/components/health-badge";
@@ -48,7 +48,7 @@ export default async function BikesPage() {
             }).fractionUsed
           )
         );
-      return [bike.id, averageHealth(percents)];
+      return [bike.id, bikeHealthLevel(percents)];
     })
   );
 
@@ -85,7 +85,7 @@ export default async function BikesPage() {
             >
               <div className="mb-2 flex items-start justify-between gap-3">
                 <BikeIcon type={bike.type} plain />
-                <HealthBadge percent={bikeHealthById.get(bike.id) ?? null} dict={dict} />
+                <HealthBadge level={bikeHealthById.get(bike.id) ?? null} dict={dict} />
               </div>
               <h2 className="font-display text-[20px] font-bold">{bike.name}</h2>
               <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">

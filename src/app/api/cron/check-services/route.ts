@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
 import { localeFromMetadata } from "@/lib/i18n";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { sendDueSoonEmail, sendOverdueEmail, sendWeeklySummaryEmail, type WeeklySummaryItem } from "@/lib/email";
@@ -57,7 +58,7 @@ export async function GET(request: Request) {
         const bike = bikeById.get(component.bike_id);
         if (!bike) continue;
 
-        const { status, nextDueDate, daysRemaining, amountRemaining } = calculateComponentStatus({
+        const { status, nextDueDate, daysRemaining, amountRemaining, fractionUsed } = calculateComponentStatus({
           intervalType: component.interval_type as "km" | "hours" | "months" | null,
           intervalValue: component.interval_value,
           installDate: component.install_date,
@@ -69,7 +70,17 @@ export async function GET(request: Request) {
           bikeKmAtLastService: component.last_service_km,
           bikeHoursAtLastService: component.last_service_hours,
         });
-        if (status !== "due_soon" && status !== "overdue") continue;
+
+        // "Overdue" notifications now fire off the same Service Due threshold
+        // (health < 5%) shown in the UI, rather than the old strict
+        // amountRemaining/daysRemaining <= 0 check — so a component can reach
+        // "overdue" here slightly before it's technically past due. isPastDue
+        // tracks which wording the email should use for that edge.
+        const percent = healthPercent(fractionUsed);
+        const isCritical = percent != null && classifyHealth(percent) === "critical";
+        const type: "due_soon" | "overdue" | null = isCritical ? "overdue" : status === "due_soon" ? "due_soon" : null;
+        if (!type) continue;
+        const isPastDue = (daysRemaining ?? amountRemaining ?? 0) <= 0;
 
         // km/hours criteria have no base date at all — fall back to when the
         // component was created, which is stable until an intervention (or
@@ -83,7 +94,7 @@ export async function GET(request: Request) {
               : `${formatNumber(Math.abs(amountRemaining))} h`
             : null;
 
-        if (status === "due_soon") {
+        if (type === "due_soon") {
           dueSoonItems.push({
             componentName: component.name,
             bikeName: bike.name,
@@ -99,7 +110,6 @@ export async function GET(request: Request) {
           });
         }
 
-        const type = status;
         const shouldNotify = type === "due_soon" ? notifyDueSoon : notifyOverdue;
         if (!shouldNotify) continue;
 
@@ -132,6 +142,7 @@ export async function GET(request: Request) {
                 detail: amountDetail
                   ? { kind: "amount", amount: amountDetail }
                   : { kind: "days", days: Math.abs(daysRemaining ?? 0) },
+                isPastDue,
                 componentUrl,
                 siteUrl,
               });

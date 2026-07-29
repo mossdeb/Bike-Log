@@ -70,7 +70,7 @@ export function BikeTimeline({
   return (
     <div className="relative mx-auto max-w-xl">
       <div className="absolute top-3 bottom-3 left-1/2 -translate-x-1/2 border-l border-dashed border-foreground/30" />
-      <div className="relative flex flex-col items-center gap-6">
+      <div className="relative flex flex-col items-center gap-12">
         <div className="flex flex-col items-center gap-3">
           <TimelineDot large />
           <span className="rounded-[12px] bg-card px-5 py-2 text-sm font-semibold">

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { kmToUnit } from "@/lib/format";
+import { INTERVENTION_TYPE_ICON } from "@/lib/intervention-type";
 
 export default async function EditInterventionPage({
   params,
@@ -80,21 +81,25 @@ export default async function EditInterventionPage({
           <div className="space-y-1.5 sm:col-span-2">
             <Label>{dict.interventions.form.type}</Label>
             <div className="flex gap-2">
-              {(["service", "repair", "replacement"] as const).map((type) => (
-                <label
-                  key={type}
-                  className="flex flex-1 items-center justify-center rounded-sm border border-input px-3 py-2 text-sm font-semibold has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
-                >
-                  <input
-                    type="radio"
-                    name="type"
-                    value={type}
-                    defaultChecked={intervention.type === type}
-                    className="sr-only"
-                  />
-                  {dict.interventionType[type]}
-                </label>
-              ))}
+              {(["service", "repair", "replacement"] as const).map((type) => {
+                const Icon = INTERVENTION_TYPE_ICON[type];
+                return (
+                  <label
+                    key={type}
+                    className="flex h-[52px] flex-1 flex-col items-center justify-center gap-1 rounded-sm border border-input text-sm font-semibold has-checked:border-transparent has-checked:bg-foreground has-checked:text-background"
+                  >
+                    <input
+                      type="radio"
+                      name="type"
+                      value={type}
+                      defaultChecked={intervention.type === type}
+                      className="sr-only"
+                    />
+                    <Icon className="size-4" />
+                    {dict.interventionType[type]}
+                  </label>
+                );
+              })}
             </div>
           </div>
 

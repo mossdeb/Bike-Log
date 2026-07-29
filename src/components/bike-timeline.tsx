@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { cn } from "@/lib/utils";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import type { TimelineEvent } from "@/lib/timeline";
@@ -27,6 +28,27 @@ function MilestonePill({
       <span className="flex size-6 shrink-0 items-center justify-center text-foreground">{icon}</span>
       <p className="text-sm font-semibold">{label}</p>
       <span className="ml-1 text-xs text-muted-foreground">{date}</span>
+    </div>
+  );
+}
+
+/** Annotates each event with the year label to show above it, whenever its
+ * year differs from the previous (more recent) event's year. */
+function withYearLabels(events: TimelineEvent[]): (TimelineEvent & { yearLabel: string | null })[] {
+  let lastYear = String(new Date().getFullYear());
+  return events.map((event) => {
+    const eventYear = event.sortDate.slice(0, 4);
+    const yearLabel = eventYear !== lastYear ? eventYear : null;
+    lastYear = eventYear;
+    return { ...event, yearLabel };
+  });
+}
+
+function YearLabel({ year }: { year: string }) {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <TimelineDot />
+      <span className="flex h-8 items-center rounded-[12px] bg-card px-5 text-[16px] font-bold">{year}</span>
     </div>
   );
 }
@@ -78,7 +100,9 @@ export function BikeTimeline({
           </span>
         </div>
 
-        {events.map((event) => {
+        {withYearLabels(events).map((event) => {
+          let content: React.ReactNode;
+
           if (event.kind === "intervention") {
             const Icon = INTERVENTION_TYPE_ICON[event.type];
             const stats = [
@@ -88,8 +112,8 @@ export function BikeTimeline({
             ]
               .filter(Boolean)
               .join(" · ");
-            return (
-              <div key={event.id} className="flex w-full flex-col items-center gap-3">
+            content = (
+              <div className="flex w-full flex-col items-center gap-3">
                 <TimelineDot />
                 <Link
                   href={`/bikes/${bikeId}/components/${event.componentId}/interventions/${event.id}/edit`}
@@ -110,16 +134,16 @@ export function BikeTimeline({
                     <p className="min-w-0 truncate text-[16px] leading-tight font-semibold">
                       {event.description || dict.components.detail.noDescription}
                     </p>
-                    {stats && <p className="min-w-0 truncate text-[15px] leading-tight text-muted-foreground">{stats}</p>}
+                    {stats && (
+                      <p className="min-w-0 truncate text-[15px] leading-tight text-muted-foreground">{stats}</p>
+                    )}
                   </div>
                 </Link>
               </div>
             );
-          }
-
-          if (event.kind === "warrantyExpired") {
-            return (
-              <div key="warranty" className="flex flex-col items-center gap-3">
+          } else if (event.kind === "warrantyExpired") {
+            content = (
+              <div className="flex flex-col items-center gap-3">
                 <TimelineDot />
                 <MilestonePill
                   icon={<WarrantyIcon className="size-3.5" />}
@@ -128,11 +152,9 @@ export function BikeTimeline({
                 />
               </div>
             );
-          }
-
-          if (event.kind === "purchased") {
-            return (
-              <div key="purchased" className="flex flex-col items-center gap-3">
+          } else if (event.kind === "purchased") {
+            content = (
+              <div className="flex flex-col items-center gap-3">
                 <TimelineDot />
                 <MilestonePill
                   icon={<PurchasedIcon className="size-4" />}
@@ -141,11 +163,9 @@ export function BikeTimeline({
                 />
               </div>
             );
-          }
-
-          if (event.kind === "added") {
-            return (
-              <div key="added" className="flex flex-col items-center gap-3">
+          } else if (event.kind === "added") {
+            content = (
+              <div className="flex flex-col items-center gap-3">
                 <TimelineDot />
                 <div className="flex flex-col items-center gap-2 rounded-[12px] bg-card px-8 py-6 text-center">
                   <BikeIcon type={bikeType} size="lg" plain className="size-16" />
@@ -157,18 +177,26 @@ export function BikeTimeline({
                 </div>
               </div>
             );
+          } else {
+            content = (
+              <div className="flex flex-col items-center gap-3">
+                <TimelineDot />
+                <MilestoneCard
+                  icon={<ManufacturedIcon className="size-6" />}
+                  label={dict.bikes.detail.manufactured}
+                  subtitle={event.brand ?? undefined}
+                  date={event.year}
+                />
+              </div>
+            );
           }
 
+          const key = event.kind === "intervention" ? event.id : event.kind;
           return (
-            <div key="manufactured" className="flex flex-col items-center gap-3">
-              <TimelineDot />
-              <MilestoneCard
-                icon={<ManufacturedIcon className="size-6" />}
-                label={dict.bikes.detail.manufactured}
-                subtitle={event.brand ?? undefined}
-                date={event.year}
-              />
-            </div>
+            <Fragment key={key}>
+              {event.yearLabel && <YearLabel year={event.yearLabel} />}
+              {content}
+            </Fragment>
           );
         })}
       </div>

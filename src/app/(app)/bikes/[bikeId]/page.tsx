@@ -240,14 +240,14 @@ export default async function BikeDetailPage({
 
       <Tabs defaultValue="components">
         <div className="mb-6 flex items-center justify-center sm:mb-3 sm:justify-between">
-          <TabsList variant="line" className="h-auto gap-6 bg-transparent p-0">
+          <TabsList variant="line" className="h-auto gap-12 bg-transparent p-0">
             <TabsTrigger
               value="components"
               className="h-auto flex-none px-0 py-1 text-base font-display font-bold data-active:bg-transparent"
             >
               {dict.bikes.detail.componentsTitle}
               {components && components.length > 0 && (
-                <span className="ml-1.5 font-normal text-muted-foreground">({components.length})</span>
+                <span className="ml-0.5 font-normal text-muted-foreground">({components.length})</span>
               )}
             </TabsTrigger>
             <TabsTrigger

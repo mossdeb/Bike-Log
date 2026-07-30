@@ -11,7 +11,7 @@ export function MobileNav({ nav }: { nav: Dictionary["nav"] }) {
 
   return (
     <nav
-      className="fixed inset-x-4 z-40 flex items-center justify-between rounded-full bg-sidebar px-5 text-sidebar-foreground shadow-lg sm:hidden"
+      className="fixed inset-x-4 z-40 flex items-center justify-between rounded-[22px] bg-sidebar px-5 text-sidebar-foreground shadow-lg sm:hidden"
       style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
       aria-label="Primary"
     >

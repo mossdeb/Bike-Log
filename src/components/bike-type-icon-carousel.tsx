@@ -17,7 +17,7 @@ export function BikeTypeIconCarousel({ className }: { className?: string }) {
   }, []);
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative [&_path]:stroke-[2.5]", className)}>
       {ICONS.map((Icon, i) => (
         <Icon
           key={i}

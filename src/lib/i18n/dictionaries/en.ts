@@ -145,6 +145,12 @@ const en = {
     addBike: "Add bike",
     newToBikit: "New to Bikit?",
     createFirstBike: "Create your first bike",
+    upgradeHeading: "One bike isn't enough?",
+    upgradeFeature1: "Up to 3 bikes",
+    upgradeFeature2: "Unlimited components",
+    upgradePrice: "€3.99",
+    upgradePriceUnit: "/mo",
+    upgradeCta: "Subscribe to Personal Plan",
     noDetailsYet: "No details yet",
     viewBike: "View Bike",
     detail: {

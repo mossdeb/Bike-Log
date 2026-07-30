@@ -10,12 +10,19 @@ import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { formatDistance, formatNumber } from "@/lib/format";
 import { StravaBadgeIcon } from "@/components/strava-icon";
 import { NewToBikitCard } from "@/components/new-to-bikit-card";
+import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
+import { getUserSubscription } from "@/lib/subscription";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 export default async function BikesPage() {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  const userId = userData?.claims?.sub as string | undefined;
+  const subscription = userId
+    ? await getUserSubscription(userId)
+    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
   const [{ data: bikes }, { data: components }] = await Promise.all([
     supabase
@@ -53,6 +60,9 @@ export default async function BikesPage() {
     })
   );
 
+  const maxBikes = PLAN_LIMITS[subscription.plan].maxBikes;
+  const atBikeLimit = maxBikes !== null && (bikes?.length ?? 0) >= maxBikes;
+
   return (
     <div className="pt-4 sm:pt-8">
       <div className="mb-6 flex items-start justify-between gap-4">
@@ -60,16 +70,29 @@ export default async function BikesPage() {
           <h1 className="text-2xl font-display font-bold">{dict.bikes.breadcrumb}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.fleetCount(bikes?.length ?? 0)}</p>
         </div>
-        <Button
-          render={<Link href="/bikes/new" />}
-          nativeButton={false}
-          variant="outline"
-          size="lg"
-          className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
-        >
-          <Plus className="size-4" />
-          {dict.bikes.addBike}
-        </Button>
+        {atBikeLimit ? (
+          <Button
+            type="button"
+            disabled
+            variant="outline"
+            size="lg"
+            className="border-transparent bg-foreground text-background disabled:opacity-10"
+          >
+            <Plus className="size-4" />
+            {dict.bikes.addBike}
+          </Button>
+        ) : (
+          <Button
+            render={<Link href="/bikes/new" />}
+            nativeButton={false}
+            variant="outline"
+            size="lg"
+            className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+          >
+            <Plus className="size-4" />
+            {dict.bikes.addBike}
+          </Button>
+        )}
       </div>
 
       {!bikes || bikes.length === 0 ? (
@@ -106,6 +129,19 @@ export default async function BikesPage() {
               </div>
             </Link>
           ))}
+        </div>
+      )}
+
+      {atBikeLimit && subscription.plan === "free" && (
+        <div className="mt-4">
+          <UpgradeToPersonalCard
+            heading={dict.bikes.upgradeHeading}
+            feature1={dict.bikes.upgradeFeature1}
+            feature2={dict.bikes.upgradeFeature2}
+            price={dict.bikes.upgradePrice}
+            priceUnit={dict.bikes.upgradePriceUnit}
+            cta={dict.bikes.upgradeCta}
+          />
         </div>
       )}
     </div>

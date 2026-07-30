@@ -15,6 +15,9 @@ import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { StravaBadgeIcon } from "@/components/strava-icon";
 import { NewToBikitCard } from "@/components/new-to-bikit-card";
+import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
+import { getUserSubscription } from "@/lib/subscription";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -27,6 +30,10 @@ export default async function DashboardPage() {
     "there";
   const dict = getDictionary(localeFromMetadata(claims?.user_metadata));
   const distanceUnit = ((claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  const userId = claims?.sub as string | undefined;
+  const subscription = userId
+    ? await getUserSubscription(userId)
+    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
   const [{ data: bikes }, { data: componentRows }, { data: recentRaw }] = await Promise.all([
     supabase
@@ -75,6 +82,8 @@ export default async function DashboardPage() {
 
   const totalBikes = bikes?.length ?? 0;
   const totalComponents = components.length;
+  const maxBikes = PLAN_LIMITS[subscription.plan].maxBikes;
+  const atBikeLimit = maxBikes !== null && totalBikes >= maxBikes;
   const loggedThisYear =
     recentRaw?.filter((iv) => new Date(iv.date).getFullYear() === new Date().getFullYear()).length ?? 0;
 
@@ -183,6 +192,16 @@ export default async function DashboardPage() {
                 </div>
               </Link>
             ))}
+            {atBikeLimit && subscription.plan === "free" && (
+              <UpgradeToPersonalCard
+                heading={dict.bikes.upgradeHeading}
+                feature1={dict.bikes.upgradeFeature1}
+                feature2={dict.bikes.upgradeFeature2}
+                price={dict.bikes.upgradePrice}
+                priceUnit={dict.bikes.upgradePriceUnit}
+                cta={dict.bikes.upgradeCta}
+              />
+            )}
           </BikeCarousel>
         </div>
       )}

@@ -147,6 +147,12 @@ const pt: Dictionary = {
     addBike: "Adicionar bicicleta",
     newToBikit: "Novo na Bikit?",
     createFirstBike: "Cria a tua primeira Bicicleta",
+    upgradeHeading: "Uma bicicleta já não chega?",
+    upgradeFeature1: "Até 3 bicicletas",
+    upgradeFeature2: "Componentes ilimitados",
+    upgradePrice: "€3,99",
+    upgradePriceUnit: "/mês",
+    upgradeCta: "Subscreve o Plano Pessoal",
     noDetailsYet: "Ainda sem detalhes",
     viewBike: "Ver bicicleta",
     detail: {

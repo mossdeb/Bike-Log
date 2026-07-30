@@ -124,7 +124,7 @@ export function ComponentOptionalFields({
         >
           <DialogTrigger
             type="button"
-            className="flex h-[52px] w-full items-center justify-between rounded-full border border-dashed border-input px-5 text-sm font-semibold text-foreground transition-colors hover:border-foreground/40"
+            className="flex h-[52px] w-full items-center justify-between rounded-[12px] border border-dashed border-input px-5 text-sm font-semibold text-foreground transition-colors hover:border-foreground/40"
           >
             {labels.addDetailsLabel}
             <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-input">

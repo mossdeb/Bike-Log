@@ -30,7 +30,7 @@ export function UpgradeToPersonalCard({
         className="pointer-events-none object-cover"
       />
       <div className="relative">
-        <Icon className="mx-auto mb-4 size-[60px]" />
+        <Icon className="mx-auto mb-4 size-[60px] max-[200px]:hidden" />
         <h2 className="text-center font-display text-2xl font-extrabold tracking-tight uppercase sm:text-3xl">
           {heading}
         </h2>

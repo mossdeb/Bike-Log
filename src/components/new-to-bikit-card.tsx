@@ -31,7 +31,7 @@ export function NewToBikitCard({
         nativeButton={false}
         variant="outline"
         size="lg"
-        className="h-[52px] w-[80%] border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+        className="h-[52px] w-[90%] border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
       >
         {cta}
       </Button>

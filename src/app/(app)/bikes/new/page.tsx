@@ -89,6 +89,7 @@ export default async function NewBikePage({
                 name="total_km"
                 type="number"
                 step="0.1"
+                defaultValue="0"
                 placeholder={dict.bikes.form.optional}
               />
             </div>
@@ -100,6 +101,7 @@ export default async function NewBikePage({
                 name="total_hours"
                 type="number"
                 step="0.1"
+                defaultValue="0"
                 placeholder={dict.bikes.form.optional}
               />
             </div>

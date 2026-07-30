@@ -155,7 +155,11 @@ export default async function DashboardPage() {
       </div>
 
       {!bikes || bikes.length === 0 ? (
-        <NewToBikitCard heading={dict.bikes.newToBikit} cta={dict.bikes.createFirstBike} className="mb-6" />
+        <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <NewToBikitCard heading={dict.bikes.newToBikit} cta={dict.bikes.createFirstBike} compact />
+          <div className="hidden rounded-lg bg-card/30 lg:block" />
+          <div className="hidden rounded-lg bg-card/30 lg:block" />
+        </div>
       ) : (
         <div className="mb-6">
           <BikeCarousel>

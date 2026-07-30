@@ -31,7 +31,7 @@ export function UpgradeToPersonalCard({
       />
       <div className="relative">
         <Icon className="mx-auto mb-4 size-10" />
-        <h2 className="text-center font-display text-xl font-extrabold tracking-tight uppercase sm:text-2xl">
+        <h2 className="text-center font-display text-2xl font-extrabold tracking-tight uppercase sm:text-3xl">
           {heading}
         </h2>
 
@@ -50,7 +50,7 @@ export function UpgradeToPersonalCard({
               {feature2}
             </li>
           </ul>
-          <div className="shrink-0 rounded-[12px] bg-white px-5 py-3 text-center">
+          <div className="shrink-0 rounded-[12px] bg-white px-3 py-3 text-center">
             <span className="font-display text-2xl font-extrabold text-[#101014]">{price}</span>
             <span className="ml-1 text-sm text-[#101014]/60">{priceUnit}</span>
           </div>

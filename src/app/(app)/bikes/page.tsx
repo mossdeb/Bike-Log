@@ -96,7 +96,11 @@ export default async function BikesPage() {
       </div>
 
       {!bikes || bikes.length === 0 ? (
-        <NewToBikitCard heading={dict.bikes.newToBikit} cta={dict.bikes.createFirstBike} compact />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <NewToBikitCard heading={dict.bikes.newToBikit} cta={dict.bikes.createFirstBike} compact />
+          <div className="hidden rounded-lg bg-card/30 lg:block" />
+          <div className="hidden rounded-lg bg-card/30 lg:block" />
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {bikes.map((bike) => (
@@ -129,19 +133,20 @@ export default async function BikesPage() {
               </div>
             </Link>
           ))}
-        </div>
-      )}
 
-      {atBikeLimit && subscription.plan === "free" && (
-        <div className="mt-4">
-          <UpgradeToPersonalCard
-            heading={dict.bikes.upgradeHeading}
-            feature1={dict.bikes.upgradeFeature1}
-            feature2={dict.bikes.upgradeFeature2}
-            price={dict.bikes.upgradePrice}
-            priceUnit={dict.bikes.upgradePriceUnit}
-            cta={dict.bikes.upgradeCta}
-          />
+          {atBikeLimit && subscription.plan === "free" && (
+            <>
+              <UpgradeToPersonalCard
+                heading={dict.bikes.upgradeHeading}
+                feature1={dict.bikes.upgradeFeature1}
+                feature2={dict.bikes.upgradeFeature2}
+                price={dict.bikes.upgradePrice}
+                priceUnit={dict.bikes.upgradePriceUnit}
+                cta={dict.bikes.upgradeCta}
+              />
+              <div className="hidden rounded-lg bg-card/30 lg:block" />
+            </>
+          )}
         </div>
       )}
     </div>

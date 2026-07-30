@@ -43,8 +43,6 @@ const pt: Dictionary = {
     loggedThisYear: "Registados este ano",
     yourBikes: "As suas bicicletas",
     viewAll: "Ver todas",
-    noBikesYet: "Ainda não tem bicicletas. Adicione a primeira para começar a acompanhar a manutenção.",
-    addBike: "Adicionar bicicleta",
     needsAttention: "Próximos serviços",
     nothingNeedsAttention: "Não há nada a precisar de atenção neste momento.",
     recentInterventions: "Intervenções recentes",
@@ -147,7 +145,8 @@ const pt: Dictionary = {
     breadcrumb: "Bicicletas",
     fleetCount: (n: number) => (n === 1 ? "1 bicicleta na sua frota" : `${n} bicicletas na sua frota`),
     addBike: "Adicionar bicicleta",
-    noBikesYet: "Ainda não tem bicicletas. Adicione a primeira para começar a acompanhar a manutenção.",
+    newToBikit: "Novo na Bikit?",
+    createFirstBike: "Cria a tua primeira Bicicleta",
     noDetailsYet: "Ainda sem detalhes",
     viewBike: "Ver bicicleta",
     detail: {

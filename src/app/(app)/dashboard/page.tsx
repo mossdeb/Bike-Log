@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bike, Cog, ClipboardList, Plus, Inbox, AlertTriangle, Clock } from "lucide-react";
+import { Bike, Cog, ClipboardList, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { calculateComponentStatus } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, classifyHealth, healthPercent, type HealthLevel } from "@/lib/maintenance/health";
@@ -14,6 +14,7 @@ import { InterventionIcon } from "@/components/intervention-icon";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { StravaBadgeIcon } from "@/components/strava-icon";
+import { NewToBikitCard } from "@/components/new-to-bikit-card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -145,13 +146,7 @@ export default async function DashboardPage() {
       </div>
 
       {!bikes || bikes.length === 0 ? (
-        <div className="mb-6 rounded-lg border border-dashed border-border p-10 text-center">
-          <p className="mb-4 text-sm text-muted-foreground">{dict.dashboard.noBikesYet}</p>
-          <Button render={<Link href="/bikes/new" />} nativeButton={false}>
-            <Plus className="size-4" />
-            {dict.dashboard.addBike}
-          </Button>
-        </div>
+        <NewToBikitCard heading={dict.bikes.newToBikit} cta={dict.bikes.createFirstBike} className="mb-6" />
       ) : (
         <div className="mb-6">
           <BikeCarousel>

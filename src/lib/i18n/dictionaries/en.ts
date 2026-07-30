@@ -41,8 +41,6 @@ const en = {
     loggedThisYear: "Logged this year",
     yourBikes: "Your bikes",
     viewAll: "View all",
-    noBikesYet: "No bikes yet. Add your first one to start tracking maintenance.",
-    addBike: "Add bike",
     needsAttention: "Upcoming services",
     nothingNeedsAttention: "Nothing needs attention right now.",
     recentInterventions: "Recent interventions",
@@ -145,7 +143,8 @@ const en = {
     breadcrumb: "Bikes",
     fleetCount: (n: number) => (n === 1 ? "1 bike in your fleet" : `${n} bikes in your fleet`),
     addBike: "Add bike",
-    noBikesYet: "No bikes yet. Add your first one to start tracking maintenance.",
+    newToBikit: "New to Bikit?",
+    createFirstBike: "Create your first bike",
     noDetailsYet: "No details yet",
     viewBike: "View Bike",
     detail: {

@@ -9,6 +9,7 @@ import { HealthBadge } from "@/components/health-badge";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { formatDistance, formatNumber } from "@/lib/format";
 import { StravaBadgeIcon } from "@/components/strava-icon";
+import { NewToBikitCard } from "@/components/new-to-bikit-card";
 
 export default async function BikesPage() {
   const supabase = await createClient();
@@ -72,9 +73,7 @@ export default async function BikesPage() {
       </div>
 
       {!bikes || bikes.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">{dict.bikes.noBikesYet}</p>
-        </div>
+        <NewToBikitCard heading={dict.bikes.newToBikit} cta={dict.bikes.createFirstBike} compact />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {bikes.map((bike) => (

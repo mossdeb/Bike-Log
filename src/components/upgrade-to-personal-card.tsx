@@ -21,7 +21,7 @@ export function UpgradeToPersonalCard({
   cta: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-lg px-6 py-8 text-foreground sm:px-8">
+    <div className="relative overflow-hidden rounded-lg px-6 pt-3 pb-8 text-foreground sm:px-8">
       <Image
         src="/images/upgrade-card-bg.jpg"
         alt=""

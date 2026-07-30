@@ -20,6 +20,9 @@ import { buildBikeTimeline, type TimelineIntervention } from "@/lib/timeline";
 import type { InterventionType } from "@/lib/intervention-type";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
+import { getUserSubscription } from "@/lib/subscription";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 function DetailField({
   label,
@@ -55,6 +58,17 @@ export default async function BikeDetailPage({
 
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
+
+  const userId = userData?.claims?.sub as string | undefined;
+  const subscription = userId
+    ? await getUserSubscription(userId)
+    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
+  const maxComponents = PLAN_LIMITS[subscription.plan].maxComponents;
+  const { count: totalComponentCount } =
+    maxComponents !== null && userId
+      ? await supabase.from("components").select("id", { count: "exact", head: true }).eq("user_id", userId)
+      : { count: null };
+  const atComponentLimit = maxComponents !== null && (totalComponentCount ?? 0) >= maxComponents;
 
   // components_status joins in each component's most recent intervention
   // date so status can be computed here without an N+1 query per row.
@@ -126,7 +140,18 @@ export default async function BikeDetailPage({
   const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null;
   const hoursDetail = bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null;
 
-  const addComponentButton = (
+  const addComponentButton = atComponentLimit ? (
+    <Button
+      type="button"
+      disabled
+      variant="outline"
+      size="sm"
+      className="h-[52px] w-[187px] border-transparent bg-foreground text-sm text-background disabled:opacity-10"
+    >
+      <Plus className="size-3.5" />
+      {dict.bikes.detail.addComponent}
+    </Button>
+  ) : (
     <Button
       render={<Link href={`/bikes/${bike.id}/components/new`} />}
       nativeButton={false}
@@ -322,6 +347,18 @@ export default async function BikeDetailPage({
                 </div>
               );
             })}
+
+            {atComponentLimit && (
+              <UpgradeToPersonalCard
+                heading={dict.bikes.upgradeHeading}
+                feature1={dict.bikes.upgradeFeature1}
+                feature2={dict.bikes.upgradeFeature2}
+                price={dict.bikes.upgradePrice}
+                priceUnit={dict.bikes.upgradePriceUnit}
+                cta={dict.bikes.upgradeCta}
+                compact
+              />
+            )}
           </div>
         )}
 

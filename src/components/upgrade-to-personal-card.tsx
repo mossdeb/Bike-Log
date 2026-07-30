@@ -1,9 +1,6 @@
 import Image from "next/image";
 import { Check } from "lucide-react";
 import { createCheckoutSession } from "@/lib/actions/billing";
-import { BIKE_TYPE_ICON } from "@/components/bike-type-icon";
-
-const Icon = BIKE_TYPE_ICON.Enduro!;
 
 export function UpgradeToPersonalCard({
   heading,
@@ -12,6 +9,7 @@ export function UpgradeToPersonalCard({
   price,
   priceUnit,
   cta,
+  compact,
 }: {
   heading: string;
   feature1: string;
@@ -19,9 +17,54 @@ export function UpgradeToPersonalCard({
   price: string;
   priceUnit: string;
   cta: string;
+  compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <div className="border-t border-border p-3">
+        <form action={createCheckoutSession} className="contents">
+          <input type="hidden" name="plan" value="personal" />
+          <button
+            type="submit"
+            aria-label={cta}
+            className="relative grid w-full grid-cols-[1fr_auto] items-center gap-x-3 gap-y-2 overflow-hidden rounded-lg px-4 py-4 text-left text-foreground transition-opacity hover:opacity-90 sm:grid-cols-[auto_1fr_auto] sm:gap-x-6 sm:gap-y-0 sm:px-5 sm:py-5"
+          >
+            <Image
+              src="/images/upgrade-card-bg.jpg"
+              alt=""
+              fill
+              sizes="100vw"
+              className="pointer-events-none object-cover"
+            />
+            <h2 className="relative col-span-2 font-display text-sm leading-tight font-extrabold tracking-tight uppercase sm:col-span-1 sm:w-36 sm:text-base">
+              {cta}
+            </h2>
+            <ul className="relative flex flex-col gap-1 text-xs font-semibold sm:min-w-0 sm:gap-1.5 sm:text-sm">
+              <li className="flex items-center gap-1.5">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground sm:size-5">
+                  <Check className="size-2.5 sm:size-3" />
+                </span>
+                <span className="truncate">{feature1}</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground sm:size-5">
+                  <Check className="size-2.5 sm:size-3" />
+                </span>
+                <span className="truncate">{feature2}</span>
+              </li>
+            </ul>
+            <div className="relative shrink-0 justify-self-end rounded-[12px] bg-white px-2 py-1.5 text-center leading-none sm:px-3 sm:py-2">
+              <span className="font-display text-sm font-extrabold text-[#101014] sm:text-base">{price}</span>
+              <span className="ml-0.5 text-[10px] text-[#101014]/60">{priceUnit}</span>
+            </div>
+          </button>
+        </form>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative overflow-hidden rounded-lg px-6 pt-3 pb-8 text-foreground sm:px-8">
+    <div className="relative overflow-hidden rounded-lg px-6 py-8 text-foreground sm:px-8">
       <Image
         src="/images/upgrade-card-bg.jpg"
         alt=""
@@ -30,7 +73,6 @@ export function UpgradeToPersonalCard({
         className="pointer-events-none object-cover"
       />
       <div className="relative">
-        <Icon className="mx-auto mb-4 size-[60px] max-[200px]:hidden" />
         <h2 className="text-center font-display text-2xl font-extrabold tracking-tight uppercase sm:text-3xl">
           {heading}
         </h2>

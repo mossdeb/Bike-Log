@@ -69,19 +69,19 @@ export default async function NewInterventionPage({
         <span className="text-foreground">{dict.components.detail.logIntervention}</span>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">{dict.interventions.form.addTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {dict.interventions.form.addSubtitle(component.name)}
-        </p>
-      </div>
-
       <FormError message={error} />
 
       <form
         action={createIntervention.bind(null, bike.id, component.id)}
         className="rounded-lg bg-card p-6"
       >
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold">{dict.interventions.form.addTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {dict.interventions.form.addSubtitle(component.name)}
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label>{dict.interventions.form.type}</Label>
@@ -154,17 +154,17 @@ export default async function NewInterventionPage({
           </div>
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="submit" className="w-full">{dict.interventions.form.saveNew}</Button>
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full"
           >
             {dict.interventions.form.cancel}
           </Button>
-          <Button type="submit" className="flex-1">{dict.interventions.form.saveNew}</Button>
         </div>
       </form>
     </div>

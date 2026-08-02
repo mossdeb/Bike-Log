@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Check } from "lucide-react";
 import { getBikeIndexManufacturers } from "@/lib/bikeindex";
 import { createClient } from "@/lib/supabase/server";
 import { updateBike, deleteBike } from "@/lib/actions/bikes";
@@ -60,7 +61,7 @@ export default async function EditBikePage({
 
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">
-      <div className="mb-2 text-sm text-muted-foreground">
+      <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
         </Link>
@@ -72,32 +73,25 @@ export default async function EditBikePage({
         <span className="text-foreground">{dict.bikes.form.editBreadcrumb}</span>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">{dict.bikes.form.editTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.editSubtitle(bike.name)}</p>
-      </div>
-
       <FormError message={displayError} />
 
       <form
         action={updateBike.bind(null, bike.id)}
         className="rounded-lg bg-card p-6"
       >
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold">{dict.bikes.form.editTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.editSubtitle(bike.name)}</p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <BrandField manufacturers={manufacturers} defaultValue={bike.brand} dict={dict} />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="model">{dict.bikes.form.model}</Label>
-            <Input id="model" name="model" defaultValue={bike.model ?? ""} />
-          </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="type">{dict.bikes.form.type}</Label>
             <select
               id="type"
               name="type"
               defaultValue={bike.type ?? "Enduro"}
-              className="flex h-[42px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {BIKE_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -105,6 +99,13 @@ export default async function EditBikePage({
                 </option>
               ))}
             </select>
+          </div>
+
+          <BrandField manufacturers={manufacturers} defaultValue={bike.brand} dict={dict} />
+
+          <div className="space-y-1.5">
+            <Label htmlFor="model">{dict.bikes.form.model}</Label>
+            <Input id="model" name="model" defaultValue={bike.model ?? ""} />
           </div>
 
           <div className="space-y-1.5">
@@ -156,7 +157,7 @@ export default async function EditBikePage({
                   id="strava_gear_id"
                   name="strava_gear_id"
                   defaultValue={bike.strava_gear_id ?? ""}
-                  className="ml-auto flex h-[42px] w-56 items-center rounded-sm border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+                  className="ml-auto flex h-[48px] w-56 items-center rounded-sm border border-input bg-background px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                 >
                   <option value="">{dict.bikes.form.stravaNone}</option>
                   {stravaBikes.map((gear) => {
@@ -172,7 +173,28 @@ export default async function EditBikePage({
             ) : (
               <StravaConnectRow label={dict.settings.strava.strava} connectLabel={dict.settings.strava.connect} />
             )}
-            <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
+            {stravaAccessToken ? (
+              <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-1">
+                  {[
+                    dict.bikes.form.stravaBenefitMileage,
+                    dict.bikes.form.stravaBenefitHours,
+                    dict.bikes.form.stravaBenefitSync,
+                    dict.bikes.form.stravaBenefitHistory,
+                  ].map((benefit) => (
+                    <div key={benefit} className="flex items-center gap-2 text-sm font-semibold">
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <Check className="size-3" />
+                      </span>
+                      {benefit}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-sm text-muted-foreground">{dict.bikes.form.stravaSkipHint}</p>
+              </>
+            )}
           </div>
 
           <BikeOptionalFields
@@ -190,17 +212,17 @@ export default async function EditBikePage({
           />
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="submit" className="w-full">{dict.bikes.form.saveEdit}</Button>
           <Button
             render={<Link href={`/bikes/${bike.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full"
           >
             {dict.bikes.form.cancel}
           </Button>
-          <Button type="submit" className="flex-1">{dict.bikes.form.saveEdit}</Button>
         </div>
       </form>
 

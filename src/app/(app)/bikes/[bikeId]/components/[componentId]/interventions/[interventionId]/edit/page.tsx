@@ -48,7 +48,7 @@ export default async function EditInterventionPage({
 
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">
-      <div className="mb-2 text-sm text-muted-foreground">
+      <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
         </Link>
@@ -64,19 +64,19 @@ export default async function EditInterventionPage({
         <span className="text-foreground">{dict.interventions.form.editBreadcrumb}</span>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">{dict.interventions.form.editTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {dict.interventions.form.editSubtitle(component.name)}
-        </p>
-      </div>
-
       <FormError message={error} />
 
       <form
         action={updateIntervention.bind(null, bike.id, component.id, intervention.id)}
         className="rounded-lg bg-card p-6"
       >
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold">{dict.interventions.form.editTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {dict.interventions.form.editSubtitle(component.name)}
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label>{dict.interventions.form.type}</Label>
@@ -151,17 +151,17 @@ export default async function EditInterventionPage({
           </div>
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="submit" className="w-full">{dict.interventions.form.saveEdit}</Button>
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full"
           >
             {dict.interventions.form.cancel}
           </Button>
-          <Button type="submit" className="flex-1">{dict.interventions.form.saveEdit}</Button>
         </div>
       </form>
 

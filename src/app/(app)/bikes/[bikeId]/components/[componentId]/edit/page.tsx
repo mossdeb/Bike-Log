@@ -54,7 +54,7 @@ export default async function EditComponentPage({
 
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">
-      <div className="mb-2 text-sm text-muted-foreground">
+      <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
         </Link>
@@ -70,17 +70,17 @@ export default async function EditComponentPage({
         <span className="text-foreground">{dict.components.form.editBreadcrumb}</span>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">{dict.components.form.editTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.editSubtitle(component.name)}</p>
-      </div>
-
       <FormError message={error} />
 
       <form
         action={updateComponent.bind(null, bike.id, component.id)}
         className="rounded-lg bg-card p-6"
       >
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold">{dict.components.form.editTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.editSubtitle(component.name)}</p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <BrandField manufacturers={manufacturers} defaultValue={component.brand} dict={dict} />
 
@@ -95,7 +95,7 @@ export default async function EditComponentPage({
               id="category"
               name="category"
               defaultValue={component.category ?? COMPONENT_CATEGORIES[0]}
-              className="flex h-[42px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {COMPONENT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -144,17 +144,17 @@ export default async function EditComponentPage({
           />
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="submit" className="w-full">{dict.components.form.saveEdit}</Button>
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full"
           >
             {dict.components.form.cancel}
           </Button>
-          <Button type="submit" className="flex-1">{dict.components.form.saveEdit}</Button>
         </div>
       </form>
 

@@ -226,6 +226,11 @@ const en = {
       stravaAlreadyLinked: (gearName: string, bikeName: string): string => `${gearName} (linked to ${bikeName})`,
       stravaHint: "Once linked, Total kms/hours update automatically from Strava — manual editing is disabled.",
       stravaGearConflict: "That Strava bike is already linked to a bike on another Bikit account.",
+      stravaBenefitMileage: "Total mileage",
+      stravaBenefitHours: "Total hours",
+      stravaBenefitSync: "Automatically sync",
+      stravaBenefitHistory: "Usage history",
+      stravaSkipHint: "Skip this step if you prefer. You can connect Strava at any time.",
     },
   },
   components: {

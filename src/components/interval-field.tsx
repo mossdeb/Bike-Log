@@ -40,7 +40,7 @@ export function IntervalField({
           name="interval_type"
           value={type}
           onChange={(e) => setType(e.target.value as IntervalType)}
-          className="flex h-[42px] items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+          className="flex h-[48px] items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
         >
           <option value="km">{kmLabel}</option>
           <option value="hours">{hoursLabel}</option>

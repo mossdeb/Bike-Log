@@ -20,29 +20,68 @@ export function useIsBikeDetailPage() {
   return BIKE_DETAIL_RE.test(pathname);
 }
 
-/** Shows a back chevron in the app header, on a bike's detail page or a
- * component's detail page (going back to the bike). */
+/** Create/edit form routes that show a back chevron on mobile only — desktop
+ * already shows a full breadcrumb inside the page for these. */
+const FORM_BACK_ROUTES: { re: RegExp; backHref: (m: RegExpMatchArray) => string }[] = [
+  { re: /^\/bikes\/new$/, backHref: () => "/bikes" },
+  { re: /^\/bikes\/([^/]+)\/edit$/, backHref: (m) => `/bikes/${m[1]}` },
+  { re: /^\/bikes\/([^/]+)\/components\/new$/, backHref: (m) => `/bikes/${m[1]}` },
+  {
+    re: /^\/bikes\/([^/]+)\/components\/([^/]+)\/edit$/,
+    backHref: (m) => `/bikes/${m[1]}/components/${m[2]}`,
+  },
+  {
+    re: /^\/bikes\/([^/]+)\/components\/([^/]+)\/interventions\/new$/,
+    backHref: (m) => `/bikes/${m[1]}/components/${m[2]}`,
+  },
+  {
+    re: /^\/bikes\/([^/]+)\/components\/([^/]+)\/interventions\/([^/]+)\/edit$/,
+    backHref: (m) => `/bikes/${m[1]}/components/${m[2]}`,
+  },
+];
+
+/** Shows a back chevron in the app header — on both mobile and desktop for a
+ * bike's or component's detail page (going back to the bike), or on mobile
+ * only for the create/edit form pages. */
 export function HeaderBackButton({ className }: { className?: string }) {
   const pathname = usePathname();
-  const match = pathname.match(DETAIL_PAGE_RE);
 
-  if (!match) return null;
+  const detailMatch = pathname.match(DETAIL_PAGE_RE);
+  if (detailMatch) {
+    const [, bikeId, componentSegment] = detailMatch;
+    const backHref = componentSegment ? `/bikes/${bikeId}` : "/bikes";
+    return (
+      <Link
+        href={backHref}
+        aria-label="Back"
+        className={cn(
+          "absolute top-1/2 left-5 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:left-6",
+          className
+        )}
+      >
+        <ChevronLeft className="size-4" />
+      </Link>
+    );
+  }
 
-  const [, bikeId, componentSegment] = match;
-  const backHref = componentSegment ? `/bikes/${bikeId}` : "/bikes";
+  for (const route of FORM_BACK_ROUTES) {
+    const match = pathname.match(route.re);
+    if (!match) continue;
+    return (
+      <Link
+        href={route.backHref(match)}
+        aria-label="Back"
+        className={cn(
+          "absolute top-1/2 left-5 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:hidden",
+          className
+        )}
+      >
+        <ChevronLeft className="size-4" />
+      </Link>
+    );
+  }
 
-  return (
-    <Link
-      href={backHref}
-      aria-label="Back"
-      className={cn(
-        "absolute top-1/2 left-5 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:left-6",
-        className
-      )}
-    >
-      <ChevronLeft className="size-4" />
-    </Link>
-  );
+  return null;
 }
 
 /** Icon-only edit button shown in the shared header, on mobile only — bike

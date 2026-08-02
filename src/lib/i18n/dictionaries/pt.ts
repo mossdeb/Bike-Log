@@ -228,6 +228,11 @@ const pt: Dictionary = {
       stravaAlreadyLinked: (gearName: string, bikeName: string): string => `${gearName} (associada a ${bikeName})`,
       stravaHint: "Depois de associada, o Total de kms/horas passa a ser atualizado automaticamente a partir do Strava — a edição manual fica desativada.",
       stravaGearConflict: "Essa bicicleta Strava já está associada a uma bicicleta de outra conta Bikit.",
+      stravaBenefitMileage: "Distância total",
+      stravaBenefitHours: "Total de horas",
+      stravaBenefitSync: "Sincronização automática",
+      stravaBenefitHistory: "Histórico de utilização",
+      stravaSkipHint: "Pode saltar este passo, se preferir. Pode associar o Strava a qualquer momento.",
     },
   },
   components: {

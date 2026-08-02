@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { getBikeIndexManufacturers } from "@/lib/bikeindex";
 import { createClient } from "@/lib/supabase/server";
 import { createBike } from "@/lib/actions/bikes";
@@ -44,29 +45,22 @@ export default async function NewBikePage({
 
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">{dict.bikes.form.addTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.addSubtitle}</p>
-      </div>
-
       <FormError message={error} />
 
       <form action={createBike} className="rounded-lg bg-card p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold">{dict.bikes.form.addTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.form.addSubtitle}</p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <BrandField manufacturers={manufacturers} dict={dict} />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="model">{dict.bikes.form.model}</Label>
-            <Input id="model" name="model" placeholder={dict.bikes.form.modelPlaceholder} />
-          </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="type">{dict.bikes.form.type}</Label>
             <select
               id="type"
               name="type"
               defaultValue="Enduro"
-              className="flex h-[42px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {BIKE_TYPES.map((type) => (
                 <option key={type} value={type}>
@@ -74,6 +68,13 @@ export default async function NewBikePage({
                 </option>
               ))}
             </select>
+          </div>
+
+          <BrandField manufacturers={manufacturers} dict={dict} />
+
+          <div className="space-y-1.5">
+            <Label htmlFor="model">{dict.bikes.form.model}</Label>
+            <Input id="model" name="model" placeholder={dict.bikes.form.modelPlaceholder} />
           </div>
 
           <div className="space-y-1.5">
@@ -118,7 +119,7 @@ export default async function NewBikePage({
                   id="strava_gear_id"
                   name="strava_gear_id"
                   defaultValue=""
-                  className="ml-auto flex h-[42px] w-56 items-center rounded-sm border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+                  className="ml-auto flex h-[48px] w-56 items-center rounded-sm border border-input bg-background px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                 >
                   <option value="">{dict.bikes.form.stravaNone}</option>
                   {stravaBikes.map((gear) => {
@@ -134,23 +135,44 @@ export default async function NewBikePage({
             ) : (
               <StravaConnectRow label={dict.settings.strava.strava} connectLabel={dict.settings.strava.connect} />
             )}
-            <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
+            {stravaAccessToken ? (
+              <p className="text-xs text-muted-foreground">{dict.bikes.form.stravaDescription}</p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-1">
+                  {[
+                    dict.bikes.form.stravaBenefitMileage,
+                    dict.bikes.form.stravaBenefitHours,
+                    dict.bikes.form.stravaBenefitSync,
+                    dict.bikes.form.stravaBenefitHistory,
+                  ].map((benefit) => (
+                    <div key={benefit} className="flex items-center gap-2 text-sm font-semibold">
+                      <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <Check className="size-3" />
+                      </span>
+                      {benefit}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-sm text-muted-foreground">{dict.bikes.form.stravaSkipHint}</p>
+              </>
+            )}
           </div>
 
           <BikeOptionalFields labels={bikeOptionalFieldLabels(dict)} />
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="submit" className="w-full">{dict.bikes.form.saveNew}</Button>
           <Button
             render={<Link href="/bikes" />}
             nativeButton={false}
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full"
           >
             {dict.bikes.form.cancel}
           </Button>
-          <Button type="submit" className="flex-1">{dict.bikes.form.saveNew}</Button>
         </div>
       </form>
     </div>

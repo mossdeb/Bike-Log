@@ -61,17 +61,17 @@ export default async function NewComponentPage({
         <span className="text-foreground">{dict.bikes.detail.addComponent}</span>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold">{dict.components.form.addTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.addSubtitle(bike.name)}</p>
-      </div>
-
       <FormError message={error} />
 
       <form
         action={createComponent.bind(null, bike.id)}
         className="rounded-lg bg-card p-6"
       >
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold">{dict.components.form.addTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.addSubtitle(bike.name)}</p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <BrandField manufacturers={manufacturers} dict={dict} />
 
@@ -86,7 +86,7 @@ export default async function NewComponentPage({
               id="category"
               name="category"
               defaultValue={COMPONENT_CATEGORIES[0]}
-              className="flex h-[42px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {COMPONENT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -138,17 +138,17 @@ export default async function NewComponentPage({
           <ComponentOptionalFields labels={componentOptionalFieldLabels(dict)} />
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3">
+          <Button type="submit" className="w-full">{dict.components.form.saveNew}</Button>
           <Button
             render={<Link href={`/bikes/${bike.id}`} />}
             nativeButton={false}
             type="button"
             variant="outline"
-            className="flex-1"
+            className="w-full"
           >
             {dict.components.form.cancel}
           </Button>
-          <Button type="submit" className="flex-1">{dict.components.form.saveNew}</Button>
         </div>
       </form>
     </div>

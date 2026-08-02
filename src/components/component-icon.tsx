@@ -8,9 +8,13 @@ export function ComponentIcon({
   className,
 }: {
   icon?: ComponentType<{ className?: string }>;
-  size?: "sm" | "lg";
+  size?: "sm" | "lg" | "flat";
   className?: string;
 }) {
+  if (size === "flat") {
+    return <Icon className={cn("size-[50px] shrink-0 text-foreground", className)} />;
+  }
+
   return (
     <span
       className={cn(

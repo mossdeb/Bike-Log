@@ -150,7 +150,7 @@ export default async function ComponentDetailPage({
         {/* Desktop: icon + name/badge, full details grid inline, edit far right */}
         <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6">
           <div className="flex items-center gap-4">
-            <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+            <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
             <div>
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
               <HealthPercentBadge percent={percent} className="mt-1.5" />
@@ -188,7 +188,7 @@ export default async function ComponentDetailPage({
         {/* Mobile: icon + name/subtitle, then compact stat rows */}
         <div className="sm:hidden">
           <div className="flex items-center gap-4">
-            <ComponentIcon size="lg" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+            <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
               <p className="mt-0.5 truncate text-sm text-muted-foreground">

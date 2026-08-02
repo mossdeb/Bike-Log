@@ -307,7 +307,7 @@ export default async function BikeDetailPage({
                       href={`/bikes/${bike.id}/components/${component.id}`}
                       className="flex min-w-0 flex-1 items-start gap-4"
                     >
-                      <ComponentIcon icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+                      <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold">{component.name}</p>
                         <p className="mt-0.5 text-sm text-muted-foreground sm:text-xs">

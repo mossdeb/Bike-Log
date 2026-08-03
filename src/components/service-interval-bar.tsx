@@ -12,7 +12,11 @@ export function ServiceIntervalBar({ fraction, className }: { fraction: number |
   if (fraction == null) return null;
   const percent = healthPercent(fraction)!;
   const level = classifyHealth(percent);
-  const width = Math.min(Math.max(fraction, 0), 1) * 100;
+  // The bar shows health remaining, not usage consumed — full and green
+  // at the start of the interval, draining as it's used up. Once fully
+  // consumed (0%), draining to nothing would make the critical state
+  // invisible, so it's shown fully filled in the critical color instead.
+  const width = percent === 0 ? 100 : percent;
 
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-muted", className)}>

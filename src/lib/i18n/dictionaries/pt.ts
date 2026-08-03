@@ -2,7 +2,7 @@ import type { Dictionary } from "./en";
 
 const pt: Dictionary = {
   common: {
-    save: "Guardar alterações",
+    save: "Guardar",
     cancel: "Cancelar",
     edit: "Editar",
     logOut: "Terminar sessão",
@@ -31,6 +31,32 @@ const pt: Dictionary = {
   notifications: {
     title: "Notificações",
     empty: "Está tudo em dia. Ainda não há novidades.",
+  },
+  onboarding: {
+    steps: [
+      {
+        greeting: (name: string) => `Olá ${name} 👋`,
+        title: "Bem-vindo à Bikit",
+        subtitle: "Mantenha o registo de cada bicicleta, componente e serviço num só lugar.",
+      },
+      {
+        title: "Comece pelas suas bicicletas",
+        subtitle: "Adicione uma ou mais bicicletas. A Bikit monitoriza cada uma separadamente.",
+      },
+      {
+        title: "Conheça a saúde de cada componente",
+        subtitle: "Cada componente indica quando é altura de fazer manutenção.",
+      },
+      {
+        title: "Nunca perca um serviço",
+        subtitle: "Nós calculamos o desgaste. Você aproveita o passeio.",
+      },
+    ],
+    getStarted: "Começar",
+    next: "Seguinte",
+    skip: "Saltar",
+    addFirstBike: "+ Adicionar a minha primeira bicicleta",
+    addLater: "Adiciono mais tarde",
   },
   dashboard: {
     welcome: (name: string) => `Bem-vindo de volta, ${name}!`,
@@ -128,6 +154,25 @@ const pt: Dictionary = {
       installButton: "Adicionar ao ecrã principal",
       installed: "Instalada",
       iosInstructions: "Toque no ícone de partilha e depois em \"Adicionar ao ecrã principal\".",
+    },
+    about: {
+      title: "Sobre a Bikit",
+      onboarding: {
+        title: "Introdução guiada",
+        subtitle: "Faça um tour rápido pela Bikit",
+      },
+      privacy: {
+        title: "Política de privacidade",
+        subtitle: "A sua privacidade importa",
+      },
+      support: {
+        title: "Ajuda e suporte",
+        subtitle: "Precisa de ajuda? Estamos aqui",
+      },
+      docs: {
+        title: "Documentação",
+        subtitle: "Dicas, guias e perguntas frequentes",
+      },
     },
     dangerZone: {
       title: "Zona de perigo",

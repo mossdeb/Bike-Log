@@ -1,4 +1,6 @@
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { LogOut, ChevronRight } from "lucide-react";
+import { OnboardingIcon, SecurityIcon, SupportIcon, DocsIcon } from "@/components/settings-about-icons";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { GoogleIcon } from "@/components/google-icon";
@@ -29,15 +31,46 @@ function SettingsSection({
   children,
 }: {
   title: string;
-  description: string;
+  description?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="rounded-lg bg-card p-6">
       <h3 className="font-display font-bold">{title}</h3>
-      <p className="mb-4 mt-1 text-sm text-muted-foreground">{description}</p>
+      {description && <p className="mb-4 mt-1 text-sm text-muted-foreground">{description}</p>}
       {children}
     </section>
+  );
+}
+
+function AboutRow({
+  icon,
+  title,
+  subtitle,
+  href,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  href?: string;
+}) {
+  const content = (
+    <>
+      <span className="flex size-9 shrink-0 items-center justify-center">{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-bold">{title}</span>
+        <span className="block text-sm text-muted-foreground">{subtitle}</span>
+      </span>
+      <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className="flex items-center gap-3 py-4">
+      {content}
+    </Link>
+  ) : (
+    <div className="flex items-center gap-3 py-4">{content}</div>
   );
 }
 
@@ -103,18 +136,21 @@ export default async function SettingsPage({
             </div>
           </div>
           <form key={name} action={updateFullName}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="full-name">{dict.settings.profile.fullName}</Label>
-                <Input id="full-name" name="full-name" defaultValue={name ?? ""} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="settings-email">{dict.settings.profile.email}</Label>
-                <Input id="settings-email" name="email" defaultValue={email} disabled />
+            <div className="space-y-1.5">
+              <Label htmlFor="full-name">{dict.settings.profile.fullName}</Label>
+              <div className="flex gap-3">
+                <Input id="full-name" name="full-name" defaultValue={name ?? ""} className="flex-1" />
+                <Button
+                  type="submit"
+                  className="shrink-0 border-transparent bg-foreground text-background hover:bg-foreground/90"
+                >
+                  {dict.common.save}
+                </Button>
               </div>
             </div>
-            <div className="mt-5 flex justify-end">
-              <Button type="submit">{dict.common.save}</Button>
+            <div className="mt-4 space-y-1.5">
+              <Label htmlFor="settings-email">{dict.settings.profile.email}</Label>
+              <Input id="settings-email" name="email" defaultValue={email} disabled />
             </div>
           </form>
 
@@ -221,6 +257,32 @@ export default async function SettingsPage({
             installedLabel={dict.settings.installApp.installed}
             iosInstructions={dict.settings.installApp.iosInstructions}
           />
+        </SettingsSection>
+
+        <SettingsSection title={dict.settings.about.title}>
+          <div className="flex flex-col divide-y divide-border">
+            <AboutRow
+              icon={<OnboardingIcon className="size-[18px]" />}
+              title={dict.settings.about.onboarding.title}
+              subtitle={dict.settings.about.onboarding.subtitle}
+              href="/dashboard?onboarding=1"
+            />
+            <AboutRow
+              icon={<SecurityIcon className="size-5" />}
+              title={dict.settings.about.privacy.title}
+              subtitle={dict.settings.about.privacy.subtitle}
+            />
+            <AboutRow
+              icon={<SupportIcon className="size-[22px]" />}
+              title={dict.settings.about.support.title}
+              subtitle={dict.settings.about.support.subtitle}
+            />
+            <AboutRow
+              icon={<DocsIcon className="size-4" />}
+              title={dict.settings.about.docs.title}
+              subtitle={dict.settings.about.docs.subtitle}
+            />
+          </div>
         </SettingsSection>
 
         <SettingsSection

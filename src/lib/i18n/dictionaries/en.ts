@@ -1,6 +1,6 @@
 const en = {
   common: {
-    save: "Save changes",
+    save: "Save",
     cancel: "Cancel",
     edit: "Edit",
     logOut: "Log out",
@@ -29,6 +29,32 @@ const en = {
   notifications: {
     title: "Notifications",
     empty: "You're all caught up. Nothing new to show yet.",
+  },
+  onboarding: {
+    steps: [
+      {
+        greeting: (name: string) => `Hi ${name} 👋`,
+        title: "Welcome to Bikit",
+        subtitle: "Keep track of every bike, component and service in one place.",
+      },
+      {
+        title: "Start with your bikes",
+        subtitle: "Add one or more bikes. Bikit will track each one separately.",
+      },
+      {
+        title: "Know every component's health",
+        subtitle: "Every component tells you when it's time for service.",
+      },
+      {
+        title: "Never miss a service",
+        subtitle: "We calculate the wear. You enjoy the ride.",
+      },
+    ],
+    getStarted: "Get Started",
+    next: "Next",
+    skip: "Skip",
+    addFirstBike: "+ Add my first bike",
+    addLater: "I'll add one later",
   },
   dashboard: {
     welcome: (name: string) => `Welcome back, ${name}!`,
@@ -126,6 +152,25 @@ const en = {
       installButton: "Add to Home Screen",
       installed: "Installed",
       iosInstructions: 'Tap the Share icon, then "Add to Home Screen".',
+    },
+    about: {
+      title: "About Bikit",
+      onboarding: {
+        title: "User Onboarding",
+        subtitle: "Take a quick tour of Bikit",
+      },
+      privacy: {
+        title: "Privacy Policy",
+        subtitle: "Your privacy matters",
+      },
+      support: {
+        title: "Help & Support",
+        subtitle: "Need help? We're here for you",
+      },
+      docs: {
+        title: "Documentation",
+        subtitle: "Tips, guides and FAQs",
+      },
     },
     dangerZone: {
       title: "Danger zone",

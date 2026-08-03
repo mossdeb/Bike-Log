@@ -14,7 +14,6 @@ import { ComponentOptionalFields } from "@/components/component-optional-fields"
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { NewComponentWizard } from "@/components/new-component-wizard";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
-import { kmToUnit } from "@/lib/format";
 
 export default async function NewComponentPage({
   params,
@@ -41,13 +40,11 @@ export default async function NewComponentPage({
 
   if (!bike) notFound();
 
-  // Most components being added are original equipment that's been on the
-  // bike since day one, not a fresh part — so default the head start to the
-  // bike's current totals (implying 0 usage so far) rather than 0, which
-  // would instead imply the bike had already accumulated all its usage
-  // without this component.
-  const defaultInitialKm = Math.round(kmToUnit(bike.total_km ?? 0, distanceUnit) * 10) / 10;
-  const defaultInitialHours = Math.round((bike.total_hours ?? 0) * 10) / 10;
+  // Defaults to 0 — a brand-new part hasn't accrued any wear yet. Only a
+  // used/pre-owned part being logged retroactively needs this raised, which
+  // the owner does by hand.
+  const defaultInitialKm = 0;
+  const defaultInitialHours = 0;
 
   const step1 = (
     <Fragment key="step-1">

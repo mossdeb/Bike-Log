@@ -8,6 +8,7 @@ const BASE: ComponentStatusInput = {
   intervalValue: null,
   installDate: null,
   lastInterventionDate: null,
+  componentCreatedAt: null,
   currentKm: null,
   currentHours: null,
   bikeKmAtInstall: null,
@@ -26,12 +27,36 @@ describe("calculateComponentStatus — months", () => {
     expect(result.nextDueDate).toBeNull();
   });
 
-  it("is not_configured when there's no install date or intervention to base it on", () => {
+  it("is not_configured when there's no install date, intervention, or creation date to base it on", () => {
     const result = calculateComponentStatus(
       { ...BASE, intervalType: "months", intervalValue: 6 },
       TODAY
     );
     expect(result.status).toBe("not_configured");
+  });
+
+  it("falls back to componentCreatedAt when there's no install date or intervention", () => {
+    // created 2026-01-05, every 4mo -> due 2026-05-05, well overdue
+    const result = calculateComponentStatus(
+      { ...BASE, intervalType: "months", intervalValue: 4, componentCreatedAt: "2026-01-05" },
+      TODAY
+    );
+    expect(result.status).toBe("overdue");
+    expect(result.nextDueDate).toBe("2026-05-05");
+  });
+
+  it("prefers install_date over componentCreatedAt when both are present", () => {
+    const result = calculateComponentStatus(
+      {
+        ...BASE,
+        intervalType: "months",
+        intervalValue: 6,
+        installDate: "2026-06-01",
+        componentCreatedAt: "2020-01-01",
+      },
+      TODAY
+    );
+    expect(result.nextDueDate).toBe("2026-12-01");
   });
 
   it("is ok when comfortably before the due date", () => {

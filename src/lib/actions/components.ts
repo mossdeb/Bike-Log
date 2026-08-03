@@ -3,10 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { componentSchema, componentInitialUsageSchema } from "@/lib/validations/component.schema";
+import {
+  componentSchema,
+  componentIntervalSchema,
+  componentInitialUsageSchema,
+  type ComponentIntervalFormValues,
+} from "@/lib/validations/component.schema";
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS } from "@/lib/plans";
 import { unitToKm } from "@/lib/format";
+
+const MAX_INTERVAL_SLOTS = 3;
 
 function parseComponentFormData(formData: FormData) {
   return componentSchema.safeParse({
@@ -16,13 +23,37 @@ function parseComponentFormData(formData: FormData) {
     model: formData.get("model"),
     serial_number: formData.get("serial_number"),
     install_date: formData.get("install_date"),
-    interval_type: formData.get("interval_type"),
-    interval_value: formData.get("interval_value"),
     notes: formData.get("notes"),
     purchase_date: formData.get("purchase_date"),
     warranty: formData.get("warranty"),
     year: formData.get("year"),
   });
+}
+
+/**
+ * A component has up to 3 independent, named maintenance intervals,
+ * submitted as interval_name_{slot}/interval_type_{slot}/interval_value_{slot}
+ * field triplets. A slot left untouched by the user (all three fields
+ * empty) is simply skipped rather than validated.
+ */
+function parseComponentIntervals(
+  formData: FormData
+): { success: true; data: ComponentIntervalFormValues[] } | { success: false; error: string } {
+  const intervals: ComponentIntervalFormValues[] = [];
+  for (let slot = 1; slot <= MAX_INTERVAL_SLOTS; slot++) {
+    const name = formData.get(`interval_name_${slot}`);
+    const type = formData.get(`interval_type_${slot}`);
+    const value = formData.get(`interval_value_${slot}`);
+    if (!name && !type && !value) continue;
+    const parsed = componentIntervalSchema.safeParse({
+      name,
+      interval_type: type,
+      interval_value: value,
+    });
+    if (!parsed.success) return { success: false, error: parsed.error.issues[0].message };
+    intervals.push(parsed.data);
+  }
+  return { success: true, data: intervals };
 }
 
 /**
@@ -49,13 +80,20 @@ export async function createComponent(bikeId: string, formData: FormData) {
     );
   }
 
+  const parsedIntervals = parseComponentIntervals(formData);
+  if (!parsedIntervals.success) {
+    redirect(`/bikes/${bikeId}/components/new?error=${encodeURIComponent(parsedIntervals.error)}`);
+  }
+
   // Distances are always stored in km — interval_value and initial_km are
   // entered in whichever unit the user prefers and need converting before
   // they're saved alongside bike/component totals, which are always km.
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
-  if (parsed.data.interval_type === "km" && parsed.data.interval_value != null) {
-    parsed.data.interval_value = unitToKm(parsed.data.interval_value, distanceUnit);
-  }
+  const intervals = parsedIntervals.data.map((interval) =>
+    interval.interval_type === "km"
+      ? { ...interval, interval_value: unitToKm(interval.interval_value, distanceUnit) }
+      : interval
+  );
 
   const { plan } = await getUserSubscription(userId);
   const maxComponents = PLAN_LIMITS[plan].maxComponents;
@@ -104,6 +142,17 @@ export async function createComponent(bikeId: string, formData: FormData) {
     );
   }
 
+  if (intervals.length > 0) {
+    await supabase.from("component_service_intervals").insert(
+      intervals.map((interval, i) => ({
+        ...interval,
+        component_id: component.id,
+        user_id: userId,
+        slot: i + 1,
+      }))
+    );
+  }
+
   revalidatePath(`/bikes/${bikeId}`);
   redirect(`/bikes/${bikeId}/components/${component.id}`);
 }
@@ -111,6 +160,8 @@ export async function createComponent(bikeId: string, formData: FormData) {
 export async function updateComponent(bikeId: string, componentId: string, formData: FormData) {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
+  const userId = userData?.claims?.sub as string | undefined;
+  if (!userId) redirect("/login");
 
   const parsed = parseComponentFormData(formData);
   if (!parsed.success) {
@@ -119,10 +170,19 @@ export async function updateComponent(bikeId: string, componentId: string, formD
     );
   }
 
-  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
-  if (parsed.data.interval_type === "km" && parsed.data.interval_value != null) {
-    parsed.data.interval_value = unitToKm(parsed.data.interval_value, distanceUnit);
+  const parsedIntervals = parseComponentIntervals(formData);
+  if (!parsedIntervals.success) {
+    redirect(
+      `/bikes/${bikeId}/components/${componentId}/edit?error=${encodeURIComponent(parsedIntervals.error)}`
+    );
   }
+
+  const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
+  const intervals = parsedIntervals.data.map((interval) =>
+    interval.interval_type === "km"
+      ? { ...interval, interval_value: unitToKm(interval.interval_value, distanceUnit) }
+      : interval
+  );
 
   const { error } = await supabase
     .from("components")
@@ -131,6 +191,20 @@ export async function updateComponent(bikeId: string, componentId: string, formD
   if (error) {
     redirect(
       `/bikes/${bikeId}/components/${componentId}/edit?error=${encodeURIComponent(error.message)}`
+    );
+  }
+
+  // The interval set is always submitted as a whole (0-3 slots) — simplest
+  // to replace it outright rather than diff against what's stored.
+  await supabase.from("component_service_intervals").delete().eq("component_id", componentId);
+  if (intervals.length > 0) {
+    await supabase.from("component_service_intervals").insert(
+      intervals.map((interval, i) => ({
+        ...interval,
+        component_id: componentId,
+        user_id: userId,
+        slot: i + 1,
+      }))
     );
   }
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { Button } from "@/components/ui/button";
 import { BikeIcon } from "@/components/bike-icon";
@@ -24,38 +24,44 @@ export default async function BikesPage() {
     ? await getUserSubscription(userId)
     : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
-  const [{ data: bikes }, { data: components }] = await Promise.all([
+  const [{ data: bikes }, { data: intervalRows }] = await Promise.all([
     supabase
       .from("bikes")
       .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")
       .order("created_at", { ascending: false }),
     supabase
-      .from("components_status")
+      .from("component_interval_status")
       .select(
-        "bike_id, interval_type, interval_value, install_date, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+        "id, component_id, bike_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
       ),
   ]);
 
   const bikeHealthById = new Map(
     (bikes ?? []).map((bike) => {
-      const percents = (components ?? [])
-        .filter((c) => c.bike_id === bike.id)
-        .map((c) =>
-          healthPercent(
-            calculateComponentStatus({
-              intervalType: c.interval_type as "km" | "hours" | "months" | null,
-              intervalValue: c.interval_value,
-              installDate: c.install_date,
-              lastInterventionDate: c.last_intervention_date,
-              currentKm: bike.total_km,
-              currentHours: bike.total_hours,
-              bikeKmAtInstall: c.bike_km_at_install,
-              bikeHoursAtInstall: c.bike_hours_at_install,
-              bikeKmAtLastService: c.last_service_km,
-              bikeHoursAtLastService: c.last_service_hours,
-            }).fractionUsed
-          )
-        );
+      const intervalsByComponent = new Map<string, NamedIntervalStatusInput[]>();
+      for (const row of intervalRows ?? []) {
+        if (row.bike_id !== bike.id || !row.component_id || !row.id || !row.name) continue;
+        const list = intervalsByComponent.get(row.component_id) ?? [];
+        list.push({
+          id: row.id,
+          name: row.name,
+          intervalType: row.interval_type as "km" | "hours" | "months" | null,
+          intervalValue: row.interval_value,
+          installDate: row.install_date,
+          componentCreatedAt: row.component_created_at,
+          lastInterventionDate: row.last_intervention_date,
+          currentKm: bike.total_km,
+          currentHours: bike.total_hours,
+          bikeKmAtInstall: row.bike_km_at_install,
+          bikeHoursAtInstall: row.bike_hours_at_install,
+          bikeKmAtLastService: row.last_service_km,
+          bikeHoursAtLastService: row.last_service_hours,
+        });
+        intervalsByComponent.set(row.component_id, list);
+      }
+      const percents = [...intervalsByComponent.values()].map(
+        (intervals) => healthPercent(selectActiveInterval(intervals)?.status.fractionUsed ?? null)
+      );
       return [bike.id, bikeHealthLevel(percents)];
     })
   );

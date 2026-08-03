@@ -3,13 +3,19 @@ import { notFound } from "next/navigation";
 import { Pencil, Inbox } from "lucide-react";
 import { ToolIcon } from "@/components/tool-icon";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus, calculateComponentUsage } from "@/lib/maintenance/calculation";
-import { healthPercent } from "@/lib/maintenance/health";
+import {
+  calculateComponentStatus,
+  calculateComponentUsage,
+  selectActiveInterval,
+  type NamedIntervalStatusInput,
+} from "@/lib/maintenance/calculation";
+import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { HealthPercentBadge } from "@/components/health-badge";
+import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
+import { MaintenanceIcon } from "@/components/interval-icons";
 import { TypeBadge, INTERVENTION_TYPE_DOT_STYLES } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
@@ -79,31 +85,40 @@ export default async function ComponentDetailPage({
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
 
-  const lastIntervention = interventions?.[0] ?? null;
-  const intervalType = component.interval_type as "km" | "hours" | "months" | null;
+  const { data: rawIntervals } = await supabase
+    .from("component_service_intervals")
+    .select("*")
+    .eq("component_id", componentId)
+    .order("slot");
 
-  const { fractionUsed } = calculateComponentStatus({
-    intervalType,
-    intervalValue: component.interval_value,
-    installDate: component.install_date,
-    lastInterventionDate: lastIntervention?.date ?? null,
-    currentKm: bike.total_km,
-    currentHours: bike.total_hours,
-    bikeKmAtInstall: component.bike_km_at_install,
-    bikeHoursAtInstall: component.bike_hours_at_install,
-    bikeKmAtLastService: lastIntervention?.bike_km_at_intervention ?? null,
-    bikeHoursAtLastService: lastIntervention?.bike_hours_at_intervention ?? null,
+  // Each interval's own baseline is the most recent intervention that
+  // specifically reset THAT interval (not just the most recent one on the
+  // component) — derived from the already-fetched interventions array
+  // (sorted newest-first) rather than a second round-trip.
+  const intervals = (rawIntervals ?? []).map((interval) => {
+    const lastReset = (interventions ?? []).find((iv) => iv.reset_interval_id === interval.id) ?? null;
+    const input: NamedIntervalStatusInput = {
+      id: interval.id,
+      name: interval.name,
+      intervalType: interval.interval_type as "km" | "hours" | "months",
+      intervalValue: interval.interval_value,
+      installDate: component.install_date,
+      componentCreatedAt: component.created_at.slice(0, 10),
+      lastInterventionDate: lastReset?.date ?? null,
+      currentKm: bike.total_km,
+      currentHours: bike.total_hours,
+      bikeKmAtInstall: component.bike_km_at_install,
+      bikeHoursAtInstall: component.bike_hours_at_install,
+      bikeKmAtLastService: lastReset?.bike_km_at_intervention ?? null,
+      bikeHoursAtLastService: lastReset?.bike_hours_at_intervention ?? null,
+    };
+    return { interval: input, status: calculateComponentStatus(input) };
   });
-  const percent = healthPercent(fractionUsed);
 
-  const intervalDetail =
-    intervalType && component.interval_value != null
-      ? dict.components.detail.every(
-          intervalType === "km" ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10 : component.interval_value,
-          intervalType,
-          distanceUnit
-        )
-      : null;
+  const activeResult = selectActiveInterval(intervals.map((i) => i.interval));
+  const percent = healthPercent(activeResult?.status.fractionUsed ?? null);
+  const healthLevel = percent != null ? classifyHealth(percent) : null;
+
   const distanceDetail = usage.km != null ? formatDistance(usage.km, distanceUnit) : null;
   const hoursDetail = usage.hours != null ? `${formatNumber(usage.hours)} h` : null;
 
@@ -153,14 +168,13 @@ export default async function ComponentDetailPage({
             <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
             <div>
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
-              <HealthPercentBadge percent={percent} className="mt-1.5" />
+              <HealthBadge level={healthLevel} dict={dict} className="mt-1.5" />
             </div>
           </div>
           <div className="flex flex-1 flex-wrap gap-x-4 gap-y-5 sm:gap-x-6">
             <DetailField label={dict.brandField.brand} value={component.brand ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.form.model} value={component.model ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.form.category} value={component.category ?? "—"} className={fieldBasis} />
-            <DetailField label={dict.components.detail.interval} value={intervalDetail ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono className={fieldBasis} />
             <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono className={fieldBasis} />
             {component.serial_number && (
@@ -202,14 +216,70 @@ export default async function ComponentDetailPage({
             <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono />
             <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
           </div>
-
-          <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-            <DetailField label={dict.components.detail.interval} value={intervalDetail ?? "—"} />
-            <HealthPercentBadge percent={percent} className="shrink-0" />
-          </div>
         </div>
 
-        {fractionUsed != null && <ServiceIntervalBar fraction={fractionUsed} className="mt-6 w-full" />}
+        {intervals.length > 0 ? (
+          <div className="mt-6">
+            {intervals.map(({ interval, status }, i) => {
+              const isActive = activeResult?.interval.id === interval.id;
+              const rowPercent = healthPercent(status.fractionUsed);
+              const cadence =
+                interval.intervalType && interval.intervalValue != null
+                  ? dict.components.detail.every(
+                      interval.intervalType === "km"
+                        ? Math.round(kmToUnit(interval.intervalValue, distanceUnit) * 10) / 10
+                        : interval.intervalValue,
+                      interval.intervalType,
+                      distanceUnit
+                    )
+                  : null;
+              const remaining =
+                status.amountRemaining != null
+                  ? status.amountRemaining <= 0
+                    ? dict.components.detail.overdueLabel(
+                        interval.intervalType === "km"
+                          ? formatDistance(Math.abs(status.amountRemaining), distanceUnit)
+                          : `${formatNumber(Math.abs(status.amountRemaining))} h`
+                      )
+                    : dict.components.detail.remainingLabel(
+                        interval.intervalType === "km"
+                          ? formatDistance(status.amountRemaining, distanceUnit)
+                          : `${formatNumber(status.amountRemaining)} h`
+                      )
+                  : status.daysRemaining != null
+                    ? status.daysRemaining <= 0
+                      ? dict.components.detail.overdueLabel(`${Math.abs(status.daysRemaining)}d`)
+                      : dict.components.detail.remainingLabel(`${status.daysRemaining}d`)
+                    : null;
+
+              return (
+                <div key={interval.id} className={cn("py-5", i > 0 && "border-t border-border")}>
+                  <div className="flex items-center gap-4">
+                    <MaintenanceIcon className="size-8 shrink-0 text-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-semibold">
+                          {interval.name}
+                          {cadence ? ` — ${cadence}` : ""}
+                        </p>
+                        {isActive && (
+                          <span className="shrink-0 rounded-[7px] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                            {dict.components.detail.activeIntervalTag}
+                          </span>
+                        )}
+                      </div>
+                      {remaining && <p className="mt-0.5 text-sm text-muted-foreground">{remaining}</p>}
+                    </div>
+                    <HealthPercentBadge percent={rowPercent} className="shrink-0" />
+                  </div>
+                  <ServiceIntervalBar fraction={status.fractionUsed} className="mt-3 w-full" />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-6 text-sm text-muted-foreground">{dict.components.detail.noIntervalsYet}</p>
+        )}
 
         <div className="mt-6 flex justify-center sm:hidden">{logMaintenanceButton}</div>
       </div>

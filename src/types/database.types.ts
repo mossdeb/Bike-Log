@@ -89,6 +89,57 @@ export type Database = {
         }
         Relationships: []
       }
+      component_service_intervals: {
+        Row: {
+          component_id: string
+          created_at: string
+          id: string
+          interval_type: string
+          interval_value: number
+          name: string
+          slot: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          component_id: string
+          created_at?: string
+          id?: string
+          interval_type: string
+          interval_value: number
+          name: string
+          slot: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          component_id?: string
+          created_at?: string
+          id?: string
+          interval_type?: string
+          interval_value?: number
+          name?: string
+          slot?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_service_intervals_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_service_intervals_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components_status"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       components: {
         Row: {
           active: boolean
@@ -178,6 +229,7 @@ export type Database = {
           id: string
           kms: number | null
           notes: string | null
+          reset_interval_id: string | null
           resets_interval: boolean
           type: string
           updated_at: string
@@ -194,6 +246,7 @@ export type Database = {
           id?: string
           kms?: number | null
           notes?: string | null
+          reset_interval_id?: string | null
           resets_interval?: boolean
           type: string
           updated_at?: string
@@ -210,6 +263,7 @@ export type Database = {
           id?: string
           kms?: number | null
           notes?: string | null
+          reset_interval_id?: string | null
           resets_interval?: boolean
           type?: string
           updated_at?: string
@@ -230,6 +284,20 @@ export type Database = {
             referencedRelation: "components_status"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "interventions_reset_interval_id_fkey"
+            columns: ["reset_interval_id"]
+            isOneToOne: false
+            referencedRelation: "component_interval_status"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interventions_reset_interval_id_fkey"
+            columns: ["reset_interval_id"]
+            isOneToOne: false
+            referencedRelation: "component_service_intervals"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notification_log: {
@@ -238,6 +306,7 @@ export type Database = {
           episode_date: string | null
           id: string
           sent_at: string
+          service_interval_id: string | null
           type: string
           user_id: string
         }
@@ -246,6 +315,7 @@ export type Database = {
           episode_date?: string | null
           id?: string
           sent_at?: string
+          service_interval_id?: string | null
           type: string
           user_id: string
         }
@@ -254,6 +324,7 @@ export type Database = {
           episode_date?: string | null
           id?: string
           sent_at?: string
+          service_interval_id?: string | null
           type?: string
           user_id?: string
         }
@@ -270,6 +341,20 @@ export type Database = {
             columns: ["component_id"]
             isOneToOne: false
             referencedRelation: "components_status"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_log_service_interval_id_fkey"
+            columns: ["service_interval_id"]
+            isOneToOne: false
+            referencedRelation: "component_interval_status"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_log_service_interval_id_fkey"
+            columns: ["service_interval_id"]
+            isOneToOne: false
+            referencedRelation: "component_service_intervals"
             referencedColumns: ["id"]
           },
         ]
@@ -374,6 +459,50 @@ export type Database = {
       }
     }
     Views: {
+      component_interval_status: {
+        Row: {
+          active: boolean | null
+          bike_hours_at_install: number | null
+          bike_id: string | null
+          bike_km_at_install: number | null
+          component_created_at: string | null
+          component_id: string | null
+          component_name: string | null
+          id: string | null
+          install_date: string | null
+          interval_type: string | null
+          interval_value: number | null
+          last_intervention_date: string | null
+          last_service_hours: number | null
+          last_service_km: number | null
+          name: string | null
+          slot: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_service_intervals_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_service_intervals_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "components_status"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "components_bike_id_fkey"
+            columns: ["bike_id"]
+            isOneToOne: false
+            referencedRelation: "bikes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       components_status: {
         Row: {
           active: boolean | null

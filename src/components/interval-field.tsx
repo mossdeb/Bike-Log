@@ -3,60 +3,191 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AlarmIcon, DistanceIcon, HoursIcon, MonthsIcon } from "@/components/interval-icons";
 import type { IntervalType } from "@/lib/validations/component.schema";
 
 const PLACEHOLDER: Record<IntervalType, string> = { km: "800", hours: "50", months: "6" };
+const TYPE_ICON: Record<IntervalType, typeof DistanceIcon> = {
+  km: DistanceIcon,
+  hours: HoursIcon,
+  months: MonthsIcon,
+};
 
-// Exactly one criterion drives a component's due-date calculation — this
-// select+number pair submits as `interval_type` + `interval_value`, with
-// the placeholder hinting at typical values for whichever type is picked.
-// Takes plain resolved strings rather than the dict object — dict entries
-// are functions, which can't cross the server/client boundary.
-export function IntervalField({
-  defaultType = "months",
-  defaultValue,
+export interface IntervalSlotDefault {
+  name: string;
+  type: IntervalType;
+  value: number | null;
+}
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
+  return (
+    <label className="relative inline-flex h-6 w-[42px] shrink-0 cursor-pointer items-center">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="peer sr-only"
+      />
+      <span className="absolute inset-0 rounded-full border border-input bg-background transition-colors peer-checked:border-transparent peer-checked:bg-primary" />
+      <span className="absolute left-0.5 size-[18px] rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px]" />
+    </label>
+  );
+}
+
+function ToggleRow({
+  icon,
   label,
-  hint,
+  checked,
+  onChange,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="flex items-center gap-2 text-base font-semibold">
+        {icon}
+        {label}
+      </span>
+      <Toggle checked={checked} onChange={onChange} />
+    </div>
+  );
+}
+
+function IntervalSlotFields({
+  slot,
+  defaultValue,
+  nameLabel,
+  namePlaceholder,
   kmLabel,
   hoursLabel,
   monthsLabel,
+  hint,
 }: {
-  defaultType?: IntervalType;
-  defaultValue?: number | null;
-  label: string;
-  hint: string;
+  slot: number;
+  defaultValue?: IntervalSlotDefault;
+  nameLabel: string;
+  namePlaceholder: string;
   kmLabel: string;
   hoursLabel: string;
   monthsLabel: string;
+  hint: string;
 }) {
-  const [type, setType] = useState<IntervalType>(defaultType);
+  const [type, setType] = useState<IntervalType>(defaultValue?.type ?? "months");
+  const TypeIcon = TYPE_ICON[type];
 
   return (
-    <div className="space-y-1.5 sm:col-span-2">
-      <Label htmlFor="interval_value">{label}</Label>
+    <div className="space-y-2">
       <div className="flex gap-2">
-        <select
-          id="interval_type"
-          name="interval_type"
-          value={type}
-          onChange={(e) => setType(e.target.value as IntervalType)}
-          className="flex h-[48px] items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
-        >
-          <option value="km">{kmLabel}</option>
-          <option value="hours">{hoursLabel}</option>
-          <option value="months">{monthsLabel}</option>
-        </select>
+        <div className="flex h-[48px] flex-1 items-center gap-1.5 rounded-sm border border-input bg-transparent px-2.5 dark:bg-input/30">
+          <TypeIcon className="size-4 shrink-0 text-foreground" />
+          <select
+            name={`interval_type_${slot}`}
+            value={type}
+            onChange={(e) => setType(e.target.value as IntervalType)}
+            className="h-full w-full bg-transparent text-base outline-none"
+          >
+            <option value="km">{kmLabel}</option>
+            <option value="hours">{hoursLabel}</option>
+            <option value="months">{monthsLabel}</option>
+          </select>
+        </div>
         <Input
-          id="interval_value"
-          name="interval_value"
+          name={`interval_value_${slot}`}
           type="number"
           step={type === "months" ? "1" : "0.1"}
           placeholder={PLACEHOLDER[type]}
-          defaultValue={defaultValue ?? ""}
-          className="max-w-[140px]"
+          defaultValue={defaultValue?.value ?? ""}
+          className="flex-1"
         />
       </div>
       <p className="text-xs text-muted-foreground">{hint}</p>
+      <div className="space-y-1.5">
+        <Label htmlFor={`interval_name_${slot}`}>{nameLabel}</Label>
+        <Input
+          id={`interval_name_${slot}`}
+          name={`interval_name_${slot}`}
+          placeholder={namePlaceholder}
+          defaultValue={defaultValue?.name ?? ""}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A component has 0-3 independent, named maintenance intervals (e.g. "Fork
+ * lower leg service" every 200km). Each revealed slot submits as
+ * interval_name_{slot}/interval_type_{slot}/interval_value_{slot} — a slot
+ * left untouched (fields never revealed) is simply absent from the
+ * submission and skipped server-side.
+ */
+export function IntervalFieldGroup({
+  defaults = [],
+  hint,
+  nameLabel,
+  namePlaceholder,
+  kmLabel,
+  hoursLabel,
+  monthsLabel,
+  reminderToggleLabel,
+  addAnotherLabel,
+}: {
+  defaults?: IntervalSlotDefault[];
+  hint: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  kmLabel: string;
+  hoursLabel: string;
+  monthsLabel: string;
+  reminderToggleLabel: string;
+  addAnotherLabel: string;
+}) {
+  const [enabled, setEnabled] = useState<[boolean, boolean, boolean]>([
+    defaults.length >= 1,
+    defaults.length >= 2,
+    defaults.length >= 3,
+  ]);
+
+  const slotFieldsProps = { nameLabel, namePlaceholder, kmLabel, hoursLabel, monthsLabel, hint };
+
+  return (
+    <div className="space-y-1.5 sm:col-span-2">
+      <div>
+        <div className="space-y-3 py-5 first:pt-0">
+          <ToggleRow
+            icon={<AlarmIcon className="size-4" />}
+            label={reminderToggleLabel}
+            checked={enabled[0]}
+            onChange={(v) => setEnabled([v, v && enabled[1], v && enabled[2]])}
+          />
+          {enabled[0] && <IntervalSlotFields slot={1} defaultValue={defaults[0]} {...slotFieldsProps} />}
+        </div>
+
+        {enabled[0] && (
+          <>
+            <div className="space-y-3 border-t border-border py-5">
+              <ToggleRow
+                label={addAnotherLabel}
+                checked={enabled[1]}
+                onChange={(v) => setEnabled([enabled[0], v, v && enabled[2]])}
+              />
+              {enabled[1] && <IntervalSlotFields slot={2} defaultValue={defaults[1]} {...slotFieldsProps} />}
+            </div>
+
+            <div className="space-y-3 border-t border-border py-5 last:pb-0">
+              <ToggleRow
+                label={addAnotherLabel}
+                checked={enabled[2]}
+                onChange={(v) => setEnabled([enabled[0], enabled[1], v])}
+              />
+              {enabled[2] && <IntervalSlotFields slot={3} defaultValue={defaults[2]} {...slotFieldsProps} />}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

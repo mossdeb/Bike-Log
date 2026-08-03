@@ -7,6 +7,13 @@ export interface ComponentStatusInput {
   installDate: string | null; // "YYYY-MM-DD"
   lastInterventionDate: string | null; // "YYYY-MM-DD", most recent logged intervention
 
+  // Last-resort base date for months criteria, when there's neither a
+  // logged intervention nor an explicit install date — the component's
+  // own creation date. Install date is an optional field the owner may
+  // never touch, so without this fallback a months reminder could stay
+  // stuck "not configured" indefinitely.
+  componentCreatedAt: string | null; // "YYYY-MM-DD"
+
   // Only needed for km/hours criteria — the bike's current totals and what
   // they were at this component's install and (if serviced since) its last
   // service, so usage accrued since then can be measured.
@@ -55,7 +62,7 @@ function daysBetween(a: Date, b: Date): number {
 }
 
 function calculateMonthsStatus(input: ComponentStatusInput, today: Date): ComponentStatusResult {
-  const baseDateStr = input.lastInterventionDate ?? input.installDate;
+  const baseDateStr = input.lastInterventionDate ?? input.installDate ?? input.componentCreatedAt;
   if (!baseDateStr || !input.intervalValue) return NOT_CONFIGURED;
 
   const baseDate = parseDateOnly(baseDateStr);
@@ -118,6 +125,38 @@ export function calculateComponentStatus(
         input.intervalValue
       );
   }
+}
+
+export interface NamedIntervalStatusInput extends ComponentStatusInput {
+  id: string; // component_service_intervals.id
+  name: string;
+}
+
+export interface ActiveIntervalResult {
+  interval: NamedIntervalStatusInput;
+  status: ComponentStatusResult;
+}
+
+/**
+ * Of a component's configured intervals, picks the one closest to
+ * expiring — highest fractionUsed — as the "active" one that drives the
+ * component's health badge/card. Once that interval is reset, whichever
+ * interval is next-closest naturally takes over on the next call. Returns
+ * null when there are no intervals, or none has a computable fractionUsed.
+ */
+export function selectActiveInterval(
+  intervals: NamedIntervalStatusInput[],
+  today: Date = new Date()
+): ActiveIntervalResult | null {
+  let best: ActiveIntervalResult | null = null;
+  for (const interval of intervals) {
+    const status = calculateComponentStatus(interval, today);
+    if (status.fractionUsed == null) continue;
+    if (best == null || status.fractionUsed > best.status.fractionUsed!) {
+      best = { interval, status };
+    }
+  }
+  return best;
 }
 
 export interface ComponentUsage {

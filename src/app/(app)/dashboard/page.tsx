@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Bike, Cog, ClipboardList, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, classifyHealth, healthPercent, type HealthLevel } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -35,18 +35,21 @@ export default async function DashboardPage() {
     ? await getUserSubscription(userId)
     : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
-  const [{ data: bikes }, { data: componentRows }, { data: recentRaw }] = await Promise.all([
+  const [{ data: bikes }, { data: componentRows }, { data: intervalRows }, { data: recentRaw }] = await Promise.all([
     supabase
       .from("bikes")
       .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")
       .order("usage_updated_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: true }),
     supabase
-      .from("components_status")
-      .select(
-        "id, bike_id, name, interval_type, interval_value, install_date, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
-      )
+      .from("components")
+      .select("id, bike_id, name")
       .order("created_at", { ascending: true }),
+    supabase
+      .from("component_interval_status")
+      .select(
+        "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+      ),
     supabase
       .from("interventions")
       .select("id, type, date, kms, hours_used, component_id")
@@ -59,25 +62,31 @@ export default async function DashboardPage() {
   const componentInfo = new Map(components.map((c) => [c.id, c]));
   const bikeInfo = new Map((bikes ?? []).map((b) => [b.id, b]));
 
+  const intervalsByComponent = new Map<string, NamedIntervalStatusInput[]>();
+  for (const row of intervalRows ?? []) {
+    if (!row.component_id || !row.id || !row.name) continue;
+    const bike = bikeInfo.get(componentInfo.get(row.component_id)?.bike_id ?? "");
+    const list = intervalsByComponent.get(row.component_id) ?? [];
+    list.push({
+      id: row.id,
+      name: row.name,
+      intervalType: row.interval_type as "km" | "hours" | "months" | null,
+      intervalValue: row.interval_value,
+      installDate: row.install_date,
+      componentCreatedAt: row.component_created_at,
+      lastInterventionDate: row.last_intervention_date,
+      currentKm: bike?.total_km ?? null,
+      currentHours: bike?.total_hours ?? null,
+      bikeKmAtInstall: row.bike_km_at_install,
+      bikeHoursAtInstall: row.bike_hours_at_install,
+      bikeKmAtLastService: row.last_service_km,
+      bikeHoursAtLastService: row.last_service_hours,
+    });
+    intervalsByComponent.set(row.component_id, list);
+  }
+
   const statusByComponent = new Map(
-    components.map((c) => {
-      const bike = c.bike_id ? bikeInfo.get(c.bike_id) : undefined;
-      return [
-        c.id,
-        calculateComponentStatus({
-          intervalType: c.interval_type as "km" | "hours" | "months" | null,
-          intervalValue: c.interval_value,
-          installDate: c.install_date,
-          lastInterventionDate: c.last_intervention_date,
-          currentKm: bike?.total_km ?? null,
-          currentHours: bike?.total_hours ?? null,
-          bikeKmAtInstall: c.bike_km_at_install,
-          bikeHoursAtInstall: c.bike_hours_at_install,
-          bikeKmAtLastService: c.last_service_km,
-          bikeHoursAtLastService: c.last_service_hours,
-        }),
-      ];
-    })
+    components.map((c) => [c.id, selectActiveInterval(intervalsByComponent.get(c.id) ?? [])?.status ?? null])
   );
 
   const totalBikes = bikes?.length ?? 0;
@@ -91,13 +100,13 @@ export default async function DashboardPage() {
   for (const bike of bikes ?? []) {
     const percents = components
       .filter((c) => c.bike_id === bike.id)
-      .map((c) => healthPercent(statusByComponent.get(c.id)!.fractionUsed));
+      .map((c) => healthPercent(statusByComponent.get(c.id)?.fractionUsed ?? null));
     bikeHealthById.set(bike.id, bikeHealthLevel(percents));
   }
 
   const needsAttention = components
     .map((c) => {
-      const fractionUsed = statusByComponent.get(c.id)!.fractionUsed;
+      const fractionUsed = statusByComponent.get(c.id)?.fractionUsed ?? null;
       return { component: c, fractionUsed, percent: healthPercent(fractionUsed) };
     })
     .filter(

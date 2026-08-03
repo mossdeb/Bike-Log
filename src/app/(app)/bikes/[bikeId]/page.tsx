@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { selectActiveInterval, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -70,35 +70,50 @@ export default async function BikeDetailPage({
       : { count: null };
   const atComponentLimit = maxComponents !== null && (totalComponentCount ?? 0) >= maxComponents;
 
-  // components_status joins in each component's most recent intervention
-  // date so status can be computed here without an N+1 query per row.
-  const { data: components } = await supabase
-    .from("components_status")
-    .select(
-      "id, name, category, brand, model, interval_type, interval_value, install_date, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
-    )
-    .eq("bike_id", bikeId)
-    .order("created_at", { ascending: true });
+  const [{ data: components }, { data: intervalRows }] = await Promise.all([
+    supabase
+      .from("components")
+      .select("id, name, category, brand, model")
+      .eq("bike_id", bikeId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("component_interval_status")
+      .select(
+        "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+      )
+      .eq("bike_id", bikeId),
+  ]);
 
+  const intervalsByComponent = new Map<string, NamedIntervalStatusInput[]>();
+  for (const row of intervalRows ?? []) {
+    if (!row.component_id || !row.id || !row.name) continue;
+    const list = intervalsByComponent.get(row.component_id) ?? [];
+    list.push({
+      id: row.id,
+      name: row.name,
+      intervalType: row.interval_type as "km" | "hours" | "months" | null,
+      intervalValue: row.interval_value,
+      installDate: row.install_date,
+      componentCreatedAt: row.component_created_at,
+      lastInterventionDate: row.last_intervention_date,
+      currentKm: bike.total_km,
+      currentHours: bike.total_hours,
+      bikeKmAtInstall: row.bike_km_at_install,
+      bikeHoursAtInstall: row.bike_hours_at_install,
+      bikeKmAtLastService: row.last_service_km,
+      bikeHoursAtLastService: row.last_service_hours,
+    });
+    intervalsByComponent.set(row.component_id, list);
+  }
+
+  const activeByComponent = new Map<string, ActiveIntervalResult | null>(
+    (components ?? []).map((c) => [c.id, selectActiveInterval(intervalsByComponent.get(c.id) ?? [])])
+  );
   const statusByComponent = new Map(
-    (components ?? []).map((c) => [
-      c.id,
-      calculateComponentStatus({
-        intervalType: c.interval_type as "km" | "hours" | "months" | null,
-        intervalValue: c.interval_value,
-        installDate: c.install_date,
-        lastInterventionDate: c.last_intervention_date,
-        currentKm: bike.total_km,
-        currentHours: bike.total_hours,
-        bikeKmAtInstall: c.bike_km_at_install,
-        bikeHoursAtInstall: c.bike_hours_at_install,
-        bikeKmAtLastService: c.last_service_km,
-        bikeHoursAtLastService: c.last_service_hours,
-      }),
-    ])
+    (components ?? []).map((c) => [c.id, activeByComponent.get(c.id)?.status ?? null])
   );
   const bikeHealth = bikeHealthLevel(
-    [...statusByComponent.values()].map((s) => healthPercent(s.fractionUsed))
+    [...statusByComponent.values()].map((s) => healthPercent(s?.fractionUsed ?? null))
   );
 
   const componentIds = (components ?? [])
@@ -293,8 +308,9 @@ export default async function BikeDetailPage({
         ) : (
           <div className="rounded-lg bg-card">
             {components.map((component, i) => {
-              const { fractionUsed } = statusByComponent.get(component.id)!;
+              const fractionUsed = statusByComponent.get(component.id)?.fractionUsed ?? null;
               const percent = healthPercent(fractionUsed);
+              const activeInterval = activeByComponent.get(component.id)?.interval ?? null;
               return (
                 <div
                   key={component.id}
@@ -312,13 +328,13 @@ export default async function BikeDetailPage({
                         <p className="font-semibold">{component.name}</p>
                         <p className="mt-0.5 text-sm text-muted-foreground sm:text-xs">
                           {[
-                            component.category,
-                            component.interval_type && component.interval_value != null
+                            activeInterval?.name ?? component.category,
+                            activeInterval
                               ? dict.bikes.detail.every(
-                                  component.interval_type === "km"
-                                    ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10
-                                    : component.interval_value,
-                                  component.interval_type as "km" | "hours" | "months",
+                                  activeInterval.intervalType === "km" && activeInterval.intervalValue != null
+                                    ? Math.round(kmToUnit(activeInterval.intervalValue, distanceUnit) * 10) / 10
+                                    : activeInterval.intervalValue!,
+                                  activeInterval.intervalType!,
                                   distanceUnit
                                 )
                               : null,

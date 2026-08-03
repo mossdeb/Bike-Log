@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { updateComponent, deleteComponent } from "@/lib/actions/components";
 import { COMPONENT_CATEGORIES, COMPONENT_NAME_SUGGESTIONS } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
-import { IntervalField } from "@/components/interval-field";
+import { IntervalFieldGroup, type IntervalSlotDefault } from "@/components/interval-field";
 import { FormError } from "@/components/form-error";
 import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
@@ -43,12 +43,20 @@ export default async function EditComponentPage({
     .single();
   if (!component) notFound();
 
-  const intervalValueDisplay =
-    component.interval_value != null
-      ? component.interval_type === "km"
-        ? Math.round(kmToUnit(component.interval_value, distanceUnit) * 10) / 10
-        : component.interval_value
-      : null;
+  const { data: intervals } = await supabase
+    .from("component_service_intervals")
+    .select("name, interval_type, interval_value")
+    .eq("component_id", componentId)
+    .order("slot");
+
+  const intervalDefaults: IntervalSlotDefault[] = (intervals ?? []).map((interval) => ({
+    name: interval.name,
+    type: interval.interval_type as IntervalType,
+    value:
+      interval.interval_type === "km"
+        ? Math.round(kmToUnit(interval.interval_value, distanceUnit) * 10) / 10
+        : interval.interval_value,
+  }));
 
   const manufacturers = await getBikeIndexManufacturers();
 
@@ -82,18 +90,12 @@ export default async function EditComponentPage({
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <BrandField manufacturers={manufacturers} defaultValue={component.brand} dict={dict} />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="model">{dict.components.form.model}</Label>
-            <Input id="model" name="model" defaultValue={component.model ?? ""} />
-          </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="category">{dict.components.form.category}</Label>
             <select
               id="category"
               name="category"
+              required
               defaultValue={component.category ?? COMPONENT_CATEGORIES[0]}
               className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
@@ -103,6 +105,13 @@ export default async function EditComponentPage({
                 </option>
               ))}
             </select>
+          </div>
+
+          <BrandField manufacturers={manufacturers} defaultValue={component.brand} dict={dict} required />
+
+          <div className="space-y-1.5">
+            <Label htmlFor="model">{dict.components.form.model}</Label>
+            <Input id="model" name="model" required defaultValue={component.model ?? ""} />
           </div>
 
           <div className="space-y-1.5">
@@ -121,14 +130,16 @@ export default async function EditComponentPage({
             </datalist>
           </div>
 
-          <IntervalField
-            defaultType={(component.interval_type as IntervalType) ?? "months"}
-            defaultValue={intervalValueDisplay}
-            label={dict.components.form.intervalLabel}
+          <IntervalFieldGroup
+            defaults={intervalDefaults}
             hint={dict.components.form.intervalHint}
+            nameLabel={dict.components.form.intervalNameLabel}
+            namePlaceholder={dict.components.form.intervalNamePlaceholder}
             kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
             hoursLabel={dict.components.form.intervalTypeHours}
             monthsLabel={dict.components.form.intervalTypeMonths}
+            reminderToggleLabel={dict.components.form.reminderToggleLabel}
+            addAnotherLabel={dict.components.form.addAnotherReminder}
           />
 
           <ComponentOptionalFields

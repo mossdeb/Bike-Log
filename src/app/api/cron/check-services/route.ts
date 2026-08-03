@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { calculateComponentStatus } from "@/lib/maintenance/calculation";
+import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
 import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
 import { localeFromMetadata } from "@/lib/i18n";
 import { formatDate, formatDistance, formatNumber } from "@/lib/format";
@@ -43,12 +43,39 @@ export async function GET(request: Request) {
       if (bikeById.size === 0) continue;
 
       const { data: components } = await admin
-        .from("components_status")
-        .select(
-          "id, name, bike_id, interval_type, interval_value, install_date, last_intervention_date, created_at, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
-        )
+        .from("components")
+        .select("id, name, bike_id, created_at")
         .eq("user_id", user.id)
         .eq("active", true);
+
+      const { data: intervalRows } = await admin
+        .from("component_interval_status")
+        .select(
+          "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+        )
+        .eq("user_id", user.id);
+
+      const intervalsByComponent = new Map<string, NamedIntervalStatusInput[]>();
+      for (const row of intervalRows ?? []) {
+        if (!row.component_id || !row.id || !row.name) continue;
+        const list = intervalsByComponent.get(row.component_id) ?? [];
+        list.push({
+          id: row.id,
+          name: row.name,
+          intervalType: row.interval_type as "km" | "hours" | "months" | null,
+          intervalValue: row.interval_value,
+          installDate: row.install_date,
+          componentCreatedAt: row.component_created_at,
+          lastInterventionDate: row.last_intervention_date,
+          currentKm: null,
+          currentHours: null,
+          bikeKmAtInstall: row.bike_km_at_install,
+          bikeHoursAtInstall: row.bike_hours_at_install,
+          bikeKmAtLastService: row.last_service_km,
+          bikeHoursAtLastService: row.last_service_hours,
+        });
+        intervalsByComponent.set(row.component_id, list);
+      }
 
       const dueSoonItems: WeeklySummaryItem[] = [];
       const overdueItems: WeeklySummaryItem[] = [];
@@ -58,18 +85,15 @@ export async function GET(request: Request) {
         const bike = bikeById.get(component.bike_id);
         if (!bike) continue;
 
-        const { status, nextDueDate, daysRemaining, amountRemaining, fractionUsed } = calculateComponentStatus({
-          intervalType: component.interval_type as "km" | "hours" | "months" | null,
-          intervalValue: component.interval_value,
-          installDate: component.install_date,
-          lastInterventionDate: component.last_intervention_date,
+        const intervals = (intervalsByComponent.get(component.id) ?? []).map((interval) => ({
+          ...interval,
           currentKm: bike.total_km,
           currentHours: bike.total_hours,
-          bikeKmAtInstall: component.bike_km_at_install,
-          bikeHoursAtInstall: component.bike_hours_at_install,
-          bikeKmAtLastService: component.last_service_km,
-          bikeHoursAtLastService: component.last_service_hours,
-        });
+        }));
+        const activeResult = selectActiveInterval(intervals);
+        if (!activeResult) continue;
+        const { interval, status } = activeResult;
+        const { status: statusKind, nextDueDate, daysRemaining, amountRemaining, fractionUsed } = status;
 
         // "Overdue" notifications now fire off the same Service Due threshold
         // (health < 5%) shown in the UI, rather than the old strict
@@ -78,32 +102,34 @@ export async function GET(request: Request) {
         // tracks which wording the email should use for that edge.
         const percent = healthPercent(fractionUsed);
         const isCritical = percent != null && classifyHealth(percent) === "critical";
-        const type: "due_soon" | "overdue" | null = isCritical ? "overdue" : status === "due_soon" ? "due_soon" : null;
+        const type: "due_soon" | "overdue" | null =
+          isCritical ? "overdue" : statusKind === "due_soon" ? "due_soon" : null;
         if (!type) continue;
         const isPastDue = (daysRemaining ?? amountRemaining ?? 0) <= 0;
 
         // km/hours criteria have no base date at all — fall back to when the
         // component was created, which is stable until an intervention (or
         // edited install date) starts a new episode of its own.
-        const episodeDate = component.last_intervention_date ?? component.install_date ?? component.created_at!;
+        const episodeDate = interval.lastInterventionDate ?? interval.installDate ?? component.created_at!;
         const componentUrl = `/bikes/${component.bike_id}/components/${component.id}`;
+        const componentLabel = `${component.name} — ${interval.name}`;
         const amountDetail =
           amountRemaining != null
-            ? component.interval_type === "km"
+            ? interval.intervalType === "km"
               ? formatDistance(Math.abs(amountRemaining), distanceUnit)
               : `${formatNumber(Math.abs(amountRemaining))} h`
             : null;
 
         if (type === "due_soon") {
           dueSoonItems.push({
-            componentName: component.name,
+            componentName: componentLabel,
             bikeName: bike.name,
             detail: amountDetail ?? formatDate(nextDueDate!),
             url: componentUrl,
           });
         } else {
           overdueItems.push({
-            componentName: component.name,
+            componentName: componentLabel,
             bikeName: bike.name,
             detail: amountDetail ?? `${Math.abs(daysRemaining ?? 0)}d`,
             url: componentUrl,
@@ -118,6 +144,7 @@ export async function GET(request: Request) {
           .select("id")
           .eq("user_id", user.id)
           .eq("component_id", component.id)
+          .eq("service_interval_id", interval.id)
           .eq("type", type)
           .eq("episode_date", episodeDate)
           .maybeSingle();
@@ -128,7 +155,7 @@ export async function GET(request: Request) {
             ? await sendDueSoonEmail({
                 to: user.email,
                 locale,
-                componentName: component.name,
+                componentName: componentLabel,
                 bikeName: bike.name,
                 detail: amountDetail ? { kind: "amount", amount: amountDetail } : { kind: "date", date: nextDueDate! },
                 componentUrl,
@@ -137,7 +164,7 @@ export async function GET(request: Request) {
             : await sendOverdueEmail({
                 to: user.email,
                 locale,
-                componentName: component.name,
+                componentName: componentLabel,
                 bikeName: bike.name,
                 detail: amountDetail
                   ? { kind: "amount", amount: amountDetail }
@@ -151,10 +178,11 @@ export async function GET(request: Request) {
         await admin.from("notification_log").insert({
           user_id: user.id,
           component_id: component.id,
+          service_interval_id: interval.id,
           type,
           episode_date: episodeDate,
         });
-        sent.push(`${type}:${component.id}`);
+        sent.push(`${type}:${component.id}:${interval.id}`);
       }
 
       if (notifyWeeklySummary && isWeeklySummaryDay) {

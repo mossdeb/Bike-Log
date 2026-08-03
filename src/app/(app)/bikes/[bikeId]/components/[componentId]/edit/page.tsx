@@ -28,26 +28,27 @@ export default async function EditComponentPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getClaims();
+
+  // Independent of each other (bike/component/intervals are keyed off the
+  // URL's ids, manufacturers is an external API call) — fired together.
+  const [{ data: userData }, { data: bike }, { data: component }, { data: intervals }, manufacturers] =
+    await Promise.all([
+      supabase.auth.getClaims(),
+      supabase.from("bikes").select("id, name").eq("id", bikeId).single(),
+      supabase.from("components").select("*").eq("id", componentId).eq("bike_id", bikeId).single(),
+      supabase
+        .from("component_service_intervals")
+        .select("name, interval_type, interval_value")
+        .eq("component_id", componentId)
+        .order("slot"),
+      getBikeIndexManufacturers(),
+    ]);
+
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
-  const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
-
-  const { data: component } = await supabase
-    .from("components")
-    .select("*")
-    .eq("id", componentId)
-    .eq("bike_id", bikeId)
-    .single();
   if (!component) notFound();
-
-  const { data: intervals } = await supabase
-    .from("component_service_intervals")
-    .select("name, interval_type, interval_value")
-    .eq("component_id", componentId)
-    .order("slot");
 
   const intervalDefaults: IntervalSlotDefault[] = (intervals ?? []).map((interval) => ({
     name: interval.name,
@@ -57,8 +58,6 @@ export default async function EditComponentPage({
         ? Math.round(kmToUnit(interval.interval_value, distanceUnit) * 10) / 10
         : interval.interval_value,
   }));
-
-  const manufacturers = await getBikeIndexManufacturers();
 
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">

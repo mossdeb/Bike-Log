@@ -34,29 +34,37 @@ export default async function EditBikePage({
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const displayError = error === "strava-gear-conflict" ? dict.bikes.form.stravaGearConflict : error;
 
-  const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
-  if (!bike) notFound();
-
-  const [manufacturers, { count: componentCount }] = await Promise.all([
-    getBikeIndexManufacturers(),
-    supabase.from("components").select("id", { count: "exact", head: true }).eq("bike_id", bikeId),
-  ]);
-
   const userId = userData?.claims?.sub as string | undefined;
-  const stravaAccessToken = userId ? await getValidStravaAccessToken(supabase, userId) : null;
-  const stravaBikes = stravaAccessToken ? await fetchStravaBikes(stravaAccessToken) : [];
-  const gearOwnerByGearId = new Map<string, string>();
-  if (stravaBikes.length > 0 && userId) {
-    const { data: linkedBikes } = await supabase
-      .from("bikes")
-      .select("name, strava_gear_id")
-      .eq("user_id", userId)
-      .not("strava_gear_id", "is", null)
-      .neq("id", bikeId);
-    for (const b of linkedBikes ?? []) {
-      if (b.strava_gear_id) gearOwnerByGearId.set(b.strava_gear_id, b.name);
-    }
-  }
+
+  // Independent of each other — bike/manufacturers/componentCount only need
+  // the URL's bikeId, and the Strava lookup chain only needs userId, so all
+  // four fire together instead of the Strava round trips queuing up after
+  // the rest.
+  const [{ data: bike }, manufacturers, { count: componentCount }, { stravaAccessToken, stravaBikes, gearOwnerByGearId }] =
+    await Promise.all([
+      supabase.from("bikes").select("*").eq("id", bikeId).single(),
+      getBikeIndexManufacturers(),
+      supabase.from("components").select("id", { count: "exact", head: true }).eq("bike_id", bikeId),
+      (async () => {
+        const stravaAccessToken = userId ? await getValidStravaAccessToken(supabase, userId) : null;
+        const stravaBikes = stravaAccessToken ? await fetchStravaBikes(stravaAccessToken) : [];
+        const gearOwnerByGearId = new Map<string, string>();
+        if (stravaBikes.length > 0 && userId) {
+          const { data: linkedBikes } = await supabase
+            .from("bikes")
+            .select("name, strava_gear_id")
+            .eq("user_id", userId)
+            .not("strava_gear_id", "is", null)
+            .neq("id", bikeId);
+          for (const b of linkedBikes ?? []) {
+            if (b.strava_gear_id) gearOwnerByGearId.set(b.strava_gear_id, b.name);
+          }
+        }
+        return { stravaAccessToken, stravaBikes, gearOwnerByGearId };
+      })(),
+    ]);
+
+  if (!bike) notFound();
   const isStravaLinked = !!bike.strava_gear_id;
 
   return (

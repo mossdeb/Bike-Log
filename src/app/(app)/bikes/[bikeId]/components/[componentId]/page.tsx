@@ -52,23 +52,26 @@ export default async function ComponentDetailPage({
   const { bikeId, componentId } = await params;
   const supabase = await createClient();
 
-  const { data: userData } = await supabase.auth.getClaims();
+  // None of these depend on each other's results (all keyed off the URL's
+  // bikeId/componentId), so they fire as one round trip instead of five.
+  const [{ data: userData }, { data: bike }, { data: component }, { data: interventions }, { data: rawIntervals }] =
+    await Promise.all([
+      supabase.auth.getClaims(),
+      supabase.from("bikes").select("id, name, total_km, total_hours").eq("id", bikeId).single(),
+      supabase.from("components").select("*").eq("id", componentId).eq("bike_id", bikeId).single(),
+      supabase
+        .from("interventions")
+        .select("*")
+        .eq("component_id", componentId)
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false }),
+      supabase.from("component_service_intervals").select("*").eq("component_id", componentId).order("slot"),
+    ]);
+
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
-  const { data: bike } = await supabase
-    .from("bikes")
-    .select("id, name, total_km, total_hours")
-    .eq("id", bikeId)
-    .single();
   if (!bike) notFound();
-
-  const { data: component } = await supabase
-    .from("components")
-    .select("*")
-    .eq("id", componentId)
-    .eq("bike_id", bikeId)
-    .single();
   if (!component) notFound();
 
   const usage = calculateComponentUsage({
@@ -77,19 +80,6 @@ export default async function ComponentDetailPage({
     bikeKmAtInstall: component.bike_km_at_install,
     bikeHoursAtInstall: component.bike_hours_at_install,
   });
-
-  const { data: interventions } = await supabase
-    .from("interventions")
-    .select("*")
-    .eq("component_id", componentId)
-    .order("date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  const { data: rawIntervals } = await supabase
-    .from("component_service_intervals")
-    .select("*")
-    .eq("component_id", componentId)
-    .order("slot");
 
   // Each interval's own baseline is the most recent intervention that
   // specifically reset THAT interval (not just the most recent one on the

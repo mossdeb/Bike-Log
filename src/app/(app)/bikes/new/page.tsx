@@ -27,21 +27,29 @@ export default async function NewBikePage({
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const userId = userData?.claims?.sub as string | undefined;
-  const manufacturers = await getBikeIndexManufacturers();
 
-  const stravaAccessToken = userId ? await getValidStravaAccessToken(supabase, userId) : null;
-  const stravaBikes = stravaAccessToken ? await fetchStravaBikes(stravaAccessToken) : [];
-  const gearOwnerByGearId = new Map<string, string>();
-  if (stravaBikes.length > 0 && userId) {
-    const { data: linkedBikes } = await supabase
-      .from("bikes")
-      .select("name, strava_gear_id")
-      .eq("user_id", userId)
-      .not("strava_gear_id", "is", null);
-    for (const b of linkedBikes ?? []) {
-      if (b.strava_gear_id) gearOwnerByGearId.set(b.strava_gear_id, b.name);
-    }
-  }
+  // Manufacturers (external API) and the Strava lookup chain don't depend on
+  // each other, so they fire together instead of the Strava round trips
+  // queuing up after the manufacturers fetch.
+  const [manufacturers, { stravaAccessToken, stravaBikes, gearOwnerByGearId }] = await Promise.all([
+    getBikeIndexManufacturers(),
+    (async () => {
+      const stravaAccessToken = userId ? await getValidStravaAccessToken(supabase, userId) : null;
+      const stravaBikes = stravaAccessToken ? await fetchStravaBikes(stravaAccessToken) : [];
+      const gearOwnerByGearId = new Map<string, string>();
+      if (stravaBikes.length > 0 && userId) {
+        const { data: linkedBikes } = await supabase
+          .from("bikes")
+          .select("name, strava_gear_id")
+          .eq("user_id", userId)
+          .not("strava_gear_id", "is", null);
+        for (const b of linkedBikes ?? []) {
+          if (b.strava_gear_id) gearOwnerByGearId.set(b.strava_gear_id, b.name);
+        }
+      }
+      return { stravaAccessToken, stravaBikes, gearOwnerByGearId };
+    })(),
+  ]);
 
   const step1 = (
     <Fragment key="step-1">

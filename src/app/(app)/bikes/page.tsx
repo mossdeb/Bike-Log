@@ -20,11 +20,16 @@ export default async function BikesPage() {
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const userId = userData?.claims?.sub as string | undefined;
-  const subscription = userId
-    ? await getUserSubscription(userId)
-    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
-  const [{ data: bikes }, { data: intervalRows }] = await Promise.all([
+  const [subscription, { data: bikes }, { data: intervalRows }] = await Promise.all([
+    userId
+      ? getUserSubscription(userId)
+      : Promise.resolve({
+          plan: "free" as const,
+          status: "active" as const,
+          currentPeriodEnd: null,
+          cancelAtPeriodEnd: false,
+        }),
     supabase
       .from("bikes")
       .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")

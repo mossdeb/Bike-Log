@@ -27,15 +27,18 @@ export default async function NewComponentPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getClaims();
+
+  // Independent of each other (bike is keyed off the URL's id, manufacturers
+  // is an external API call) — fired together instead of one after another.
+  const [{ data: userData }, { data: bike }, manufacturers] = await Promise.all([
+    supabase.auth.getClaims(),
+    supabase.from("bikes").select("id, name, total_km, total_hours").eq("id", bikeId).single(),
+    getBikeIndexManufacturers(),
+  ]);
+
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
-  const { data: bike } = await supabase
-    .from("bikes")
-    .select("id, name, total_km, total_hours")
-    .eq("id", bikeId)
-    .single();
   if (!bike) notFound();
 
   // Most components being added are original equipment that's been on the
@@ -45,8 +48,6 @@ export default async function NewComponentPage({
   // without this component.
   const defaultInitialKm = Math.round(kmToUnit(bike.total_km ?? 0, distanceUnit) * 10) / 10;
   const defaultInitialHours = Math.round((bike.total_hours ?? 0) * 10) / 10;
-
-  const manufacturers = await getBikeIndexManufacturers();
 
   const step1 = (
     <Fragment key="step-1">

@@ -25,27 +25,20 @@ export default async function EditInterventionPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getClaims();
+
+  // Independent of each other (all keyed off the URL's ids) — one round trip.
+  const [{ data: userData }, { data: bike }, { data: component }, { data: intervention }] = await Promise.all([
+    supabase.auth.getClaims(),
+    supabase.from("bikes").select("id, name").eq("id", bikeId).single(),
+    supabase.from("components").select("id, name").eq("id", componentId).eq("bike_id", bikeId).single(),
+    supabase.from("interventions").select("*").eq("id", interventionId).eq("component_id", componentId).single(),
+  ]);
+
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
-  const { data: bike } = await supabase.from("bikes").select("id, name").eq("id", bikeId).single();
   if (!bike) notFound();
-
-  const { data: component } = await supabase
-    .from("components")
-    .select("id, name")
-    .eq("id", componentId)
-    .eq("bike_id", bikeId)
-    .single();
   if (!component) notFound();
-
-  const { data: intervention } = await supabase
-    .from("interventions")
-    .select("*")
-    .eq("id", interventionId)
-    .eq("component_id", componentId)
-    .single();
   if (!intervention) notFound();
 
   return (

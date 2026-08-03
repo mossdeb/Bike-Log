@@ -25,23 +25,23 @@ export default async function NewInterventionPage({
   const { error } = await searchParams;
 
   const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getClaims();
+
+  // Independent of each other (both keyed off the URL's ids) — one round trip.
+  const [{ data: userData }, { data: bike }, { data: component }] = await Promise.all([
+    supabase.auth.getClaims(),
+    supabase.from("bikes").select("id, name, total_km, total_hours").eq("id", bikeId).single(),
+    supabase
+      .from("components")
+      .select("id, name, bike_km_at_install, bike_hours_at_install")
+      .eq("id", componentId)
+      .eq("bike_id", bikeId)
+      .single(),
+  ]);
+
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
 
-  const { data: bike } = await supabase
-    .from("bikes")
-    .select("id, name, total_km, total_hours")
-    .eq("id", bikeId)
-    .single();
   if (!bike) notFound();
-
-  const { data: component } = await supabase
-    .from("components")
-    .select("id, name, bike_km_at_install, bike_hours_at_install")
-    .eq("id", componentId)
-    .eq("bike_id", bikeId)
-    .single();
   if (!component) notFound();
 
   const usage = calculateComponentUsage({

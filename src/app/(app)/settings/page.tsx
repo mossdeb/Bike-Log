@@ -97,13 +97,20 @@ export default async function SettingsPage({
   const locale = localeFromMetadata(user?.user_metadata);
   const dict = getDictionary(locale);
 
-  const { data: stravaConnection } = user?.sub
-    ? await supabase
-        .from("strava_connections")
-        .select("user_id, athlete_id")
-        .eq("user_id", user.sub as string)
-        .maybeSingle()
-    : { data: null };
+  // Independent of each other (both only need user.sub) — one round trip.
+  const [{ data: stravaConnection }, subscription] = await Promise.all([
+    user?.sub
+      ? supabase.from("strava_connections").select("user_id, athlete_id").eq("user_id", user.sub as string).maybeSingle()
+      : Promise.resolve({ data: null }),
+    user?.sub
+      ? getUserSubscription(user.sub as string)
+      : Promise.resolve({
+          plan: "free" as const,
+          status: "active" as const,
+          currentPeriodEnd: null,
+          cancelAtPeriodEnd: false,
+        }),
+  ]);
   const isStravaConnected = !!stravaConnection;
   const stravaError =
     error === "strava-connection-failed"
@@ -111,9 +118,6 @@ export default async function SettingsPage({
       : error === "strava-already-connected"
         ? dict.settings.strava.alreadyConnected
         : error;
-  const subscription = user?.sub
-    ? await getUserSubscription(user.sub as string)
-    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
 
   return (
     <div className="pt-4 sm:pt-8">

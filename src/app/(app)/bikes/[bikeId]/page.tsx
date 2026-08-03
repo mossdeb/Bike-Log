@@ -57,11 +57,13 @@ export default async function BikeDetailPage({
   const { syncStatus, syncCount, syncMinutes } = await searchParams;
   const supabase = await createClient();
 
-  const { data: userData } = await supabase.auth.getClaims();
+  // Auth and the bike row don't depend on each other.
+  const [{ data: userData }, { data: bike }] = await Promise.all([
+    supabase.auth.getClaims(),
+    supabase.from("bikes").select("*").eq("id", bikeId).single(),
+  ]);
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
-
-  const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
 
   const syncIsError = syncStatus === "error" || syncStatus === "rate-limited" || syncStatus === "not-connected";
@@ -79,29 +81,38 @@ export default async function BikeDetailPage({
             : null;
 
   const userId = userData?.claims?.sub as string | undefined;
-  const subscription = userId
-    ? await getUserSubscription(userId)
-    : { plan: "free" as const, status: "active" as const, currentPeriodEnd: null, cancelAtPeriodEnd: false };
-  const maxComponents = PLAN_LIMITS[subscription.plan].maxComponents;
-  const { count: totalComponentCount } =
-    maxComponents !== null && userId
-      ? await supabase.from("components").select("id", { count: "exact", head: true }).eq("user_id", userId)
-      : { count: null };
-  const atComponentLimit = maxComponents !== null && (totalComponentCount ?? 0) >= maxComponents;
 
-  const [{ data: components }, { data: intervalRows }] = await Promise.all([
-    supabase
-      .from("components")
-      .select("id, name, category, brand, model")
-      .eq("bike_id", bikeId)
-      .order("created_at", { ascending: true }),
-    supabase
-      .from("component_interval_status")
-      .select(
-        "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
-      )
-      .eq("bike_id", bikeId),
-  ]);
+  // Subscription, this bike's component/interval rows, and the user's total
+  // component count (for the plan-limit check) are all independent of each
+  // other — fired together instead of two sequential round trips.
+  const [subscription, { count: totalComponentCount }, { data: components }, { data: intervalRows }] =
+    await Promise.all([
+      userId
+        ? getUserSubscription(userId)
+        : Promise.resolve({
+            plan: "free" as const,
+            status: "active" as const,
+            currentPeriodEnd: null,
+            cancelAtPeriodEnd: false,
+          }),
+      userId
+        ? supabase.from("components").select("id", { count: "exact", head: true }).eq("user_id", userId)
+        : Promise.resolve({ count: null }),
+      supabase
+        .from("components")
+        .select("id, name, category, brand, model")
+        .eq("bike_id", bikeId)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("component_interval_status")
+        .select(
+          "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
+        )
+        .eq("bike_id", bikeId),
+    ]);
+
+  const maxComponents = PLAN_LIMITS[subscription.plan].maxComponents;
+  const atComponentLimit = maxComponents !== null && (totalComponentCount ?? 0) >= maxComponents;
 
   const intervalsByComponent = new Map<string, NamedIntervalStatusInput[]>();
   for (const row of intervalRows ?? []) {

@@ -37,19 +37,19 @@ const pt: Dictionary = {
       {
         greeting: (name: string) => `Olá ${name} 👋`,
         title: "Bem-vindo à Bikit",
-        subtitle: "Mantenha o registo de cada bicicleta, componente e serviço num só lugar.",
+        subtitle: "Mantém o registo de cada bicicleta, componente e serviço num só lugar.",
       },
       {
-        title: "Comece pelas suas bicicletas",
-        subtitle: "Adicione uma ou mais bicicletas. A Bikit monitoriza cada uma separadamente.",
+        title: "Começa pelas tuas bicicletas",
+        subtitle: "Adiciona uma ou mais bicicletas. A Bikit monitoriza cada uma separadamente.",
       },
       {
-        title: "Conheça a saúde de cada componente",
+        title: "Conhece a saúde de cada componente",
         subtitle: "Cada componente indica quando é altura de fazer manutenção.",
       },
       {
-        title: "Nunca perca um serviço",
-        subtitle: "Nós calculamos o desgaste. Você aproveita o passeio.",
+        title: "Nunca percas um serviço",
+        subtitle: "Nós calculamos o desgaste. Tu aproveitas o passeio.",
       },
     ],
     getStarted: "Começar",

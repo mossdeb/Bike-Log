@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { getDictionary } from "@/lib/i18n";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
@@ -10,13 +11,17 @@ export function BrandField({
   manufacturers,
   defaultValue,
   dict = getDictionary("en"),
+  className,
+  required,
 }: {
   manufacturers: string[];
   defaultValue?: string | null;
   dict?: Dictionary;
+  className?: string;
+  required?: boolean;
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className={cn("space-y-1.5", className)}>
       <Label htmlFor="brand">{dict.brandField.brand}</Label>
       <Input
         id="brand"
@@ -25,6 +30,7 @@ export function BrandField({
         autoComplete="off"
         placeholder={dict.brandField.placeholder}
         defaultValue={defaultValue ?? ""}
+        required={required}
       />
       <datalist id="brand-suggestions">
         {manufacturers.map((name) => (

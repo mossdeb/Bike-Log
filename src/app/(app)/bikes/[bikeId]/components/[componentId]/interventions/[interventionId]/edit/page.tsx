@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { InterventionDateField } from "@/components/intervention-date-field";
+import { ResetIntervalToggle } from "@/components/reset-interval-toggle";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { kmToUnit } from "@/lib/format";
 import { INTERVENTION_TYPE_ICON } from "@/lib/intervention-type";
@@ -103,36 +105,41 @@ export default async function EditInterventionPage({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="date">{dict.interventions.form.date}</Label>
-            <Input id="date" name="date" type="date" defaultValue={intervention.date} required />
-          </div>
-          <div />
+          <InterventionDateField
+            label={dict.interventions.form.date}
+            todayLabel={dict.interventions.form.dateToday}
+            yesterdayLabel={dict.interventions.form.dateYesterday}
+            customLabel={dict.interventions.form.dateCustom}
+            defaultValue={intervention.date}
+          />
+          <div className="hidden sm:block" />
 
-          <div className="space-y-1.5">
-            <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
-            <Input
-              id="hours_used"
-              name="hours_used"
-              type="number"
-              step="0.1"
-              defaultValue={intervention.hours_used ?? ""}
-              readOnly
-              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
-            />
-          </div>
+          <div className="grid grid-cols-2 gap-5 sm:contents">
+            <div className="space-y-1.5">
+              <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
+              <Input
+                id="hours_used"
+                name="hours_used"
+                type="number"
+                step="0.1"
+                defaultValue={intervention.hours_used ?? ""}
+                readOnly
+                className="cursor-not-allowed bg-muted/50 text-muted-foreground"
+              />
+            </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
-            <Input
-              id="kms"
-              name="kms"
-              type="number"
-              step="0.1"
-              defaultValue={intervention.kms != null ? Math.round(kmToUnit(intervention.kms, distanceUnit) * 10) / 10 : ""}
-              readOnly
-              className="cursor-not-allowed bg-muted/50 text-muted-foreground"
-            />
+            <div className="space-y-1.5">
+              <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
+              <Input
+                id="kms"
+                name="kms"
+                type="number"
+                step="0.1"
+                defaultValue={intervention.kms != null ? Math.round(kmToUnit(intervention.kms, distanceUnit) * 10) / 10 : ""}
+                readOnly
+                className="cursor-not-allowed bg-muted/50 text-muted-foreground"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5 sm:col-span-2">
@@ -149,6 +156,12 @@ export default async function EditInterventionPage({
             <Label htmlFor="notes">{dict.interventions.form.notes}</Label>
             <Textarea id="notes" name="notes" defaultValue={intervention.notes ?? ""} />
           </div>
+
+          <ResetIntervalToggle
+            title={dict.interventions.form.maintenanceTitle}
+            label={dict.interventions.form.resetInterval}
+            defaultChecked={intervention.resets_interval}
+          />
         </div>
 
         <div className="mt-6 flex flex-col gap-3">

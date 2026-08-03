@@ -178,6 +178,7 @@ export type Database = {
           id: string
           kms: number | null
           notes: string | null
+          resets_interval: boolean
           type: string
           updated_at: string
           user_id: string
@@ -193,6 +194,7 @@ export type Database = {
           id?: string
           kms?: number | null
           notes?: string | null
+          resets_interval?: boolean
           type: string
           updated_at?: string
           user_id: string
@@ -208,6 +210,7 @@ export type Database = {
           id?: string
           kms?: number | null
           notes?: string | null
+          resets_interval?: boolean
           type?: string
           updated_at?: string
           user_id?: string
@@ -390,9 +393,12 @@ export type Database = {
           model: string | null
           name: string | null
           notes: string | null
+          purchase_date: string | null
           serial_number: string | null
           updated_at: string | null
           user_id: string | null
+          warranty: string | null
+          year: number | null
         }
         Relationships: [
           {

@@ -14,6 +14,7 @@ function parseInterventionFormData(formData: FormData) {
     kms: formData.get("kms"),
     description: formData.get("description"),
     notes: formData.get("notes"),
+    resets_interval: formData.get("resets_interval"),
   });
 }
 

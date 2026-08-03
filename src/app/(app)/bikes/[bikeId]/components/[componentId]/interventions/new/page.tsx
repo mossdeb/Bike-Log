@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { InterventionDateField } from "@/components/intervention-date-field";
+import { ResetIntervalToggle } from "@/components/reset-interval-toggle";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { calculateComponentUsage } from "@/lib/maintenance/calculation";
 import { kmToUnit } from "@/lib/format";
@@ -53,7 +55,7 @@ export default async function NewInterventionPage({
 
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">
-      <div className="mb-2 text-sm text-muted-foreground">
+      <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
         </Link>
@@ -108,36 +110,6 @@ export default async function NewInterventionPage({
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="date">{dict.interventions.form.date}</Label>
-            <Input id="date" name="date" type="date" required />
-          </div>
-          <div />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
-            <Input
-              id="hours_used"
-              name="hours_used"
-              type="number"
-              step="0.1"
-              defaultValue={hoursUsedValue}
-              placeholder={dict.interventions.form.optional}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
-            <Input
-              id="kms"
-              name="kms"
-              type="number"
-              step="0.1"
-              defaultValue={kmsValue}
-              placeholder={dict.interventions.form.optional}
-            />
-          </div>
-
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="description">{dict.interventions.form.description}</Label>
             <Input
@@ -148,10 +120,49 @@ export default async function NewInterventionPage({
             />
           </div>
 
+          <InterventionDateField
+            label={dict.interventions.form.date}
+            todayLabel={dict.interventions.form.dateToday}
+            yesterdayLabel={dict.interventions.form.dateYesterday}
+            customLabel={dict.interventions.form.dateCustom}
+          />
+          <div className="hidden sm:block" />
+
+          <div className="grid grid-cols-2 gap-5 sm:contents">
+            <div className="space-y-1.5">
+              <Label htmlFor="hours_used">{dict.interventions.form.hoursOfUse}</Label>
+              <Input
+                id="hours_used"
+                name="hours_used"
+                type="number"
+                step="0.1"
+                defaultValue={hoursUsedValue}
+                placeholder={dict.interventions.form.optional}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="kms">{dict.interventions.form.distance(distanceUnit)}</Label>
+              <Input
+                id="kms"
+                name="kms"
+                type="number"
+                step="0.1"
+                defaultValue={kmsValue}
+                placeholder={dict.interventions.form.optional}
+              />
+            </div>
+          </div>
+
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="notes">{dict.interventions.form.notes}</Label>
             <Textarea id="notes" name="notes" placeholder={dict.interventions.form.notesPlaceholder} />
           </div>
+
+          <ResetIntervalToggle
+            title={dict.interventions.form.maintenanceTitle}
+            label={dict.interventions.form.resetInterval}
+          />
         </div>
 
         <div className="mt-6 flex flex-col gap-3">

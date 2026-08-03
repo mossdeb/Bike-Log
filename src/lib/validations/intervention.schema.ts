@@ -19,6 +19,9 @@ export const interventionSchema = z.object({
   kms: optionalNumber(0, 1000000),
   description: optionalText(500),
   notes: optionalText(2000),
+  // Native checkboxes only appear in FormData when checked, so an absent
+  // value means "unchecked" here — not "unspecified".
+  resets_interval: z.preprocess((v) => v === "on", z.boolean()),
 });
 
 export type InterventionFormValues = z.infer<typeof interventionSchema>;

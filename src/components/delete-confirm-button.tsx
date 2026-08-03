@@ -38,8 +38,8 @@ export function DeleteConfirmButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
-          <form action={action}>
-            <AlertDialogAction type="submit" variant="destructive">
+          <form action={action} className="w-full">
+            <AlertDialogAction type="submit" variant="destructive" className="w-full">
               {triggerLabel}
             </AlertDialogAction>
           </form>

@@ -266,23 +266,23 @@ export default async function SettingsPage({
         <SettingsSection title={dict.settings.about.title}>
           <div className="flex flex-col divide-y divide-border">
             <AboutRow
-              icon={<OnboardingIcon className="size-[18px]" />}
+              icon={<OnboardingIcon className="h-6 w-auto" />}
               title={dict.settings.about.onboarding.title}
               subtitle={dict.settings.about.onboarding.subtitle}
               href="/dashboard?onboarding=1"
             />
             <AboutRow
-              icon={<SecurityIcon className="size-5" />}
+              icon={<SecurityIcon className="h-6 w-auto" />}
               title={dict.settings.about.privacy.title}
               subtitle={dict.settings.about.privacy.subtitle}
             />
             <AboutRow
-              icon={<SupportIcon className="size-[22px]" />}
+              icon={<SupportIcon className="h-6 w-auto" />}
               title={dict.settings.about.support.title}
               subtitle={dict.settings.about.support.subtitle}
             />
             <AboutRow
-              icon={<DocsIcon className="size-4" />}
+              icon={<DocsIcon className="h-6 w-auto" />}
               title={dict.settings.about.docs.title}
               subtitle={dict.settings.about.docs.subtitle}
             />

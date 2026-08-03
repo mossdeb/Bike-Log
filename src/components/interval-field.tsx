@@ -28,8 +28,8 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (value: boo
         onChange={(e) => onChange(e.target.checked)}
         className="peer sr-only"
       />
-      <span className="absolute inset-0 rounded-full border border-input bg-background transition-colors peer-checked:border-transparent peer-checked:bg-primary" />
-      <span className="absolute left-0.5 size-[18px] rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px]" />
+      <span className="absolute inset-0 rounded-full border border-input bg-background transition-colors peer-checked:border-transparent peer-checked:bg-foreground" />
+      <span className="absolute left-0.5 size-[18px] rounded-full bg-white shadow transition-transform peer-checked:translate-x-[18px] peer-checked:bg-background" />
     </label>
   );
 }

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBikeIndexManufacturers } from "@/lib/bikeindex";
@@ -7,11 +8,11 @@ import { COMPONENT_CATEGORIES, COMPONENT_NAME_SUGGESTIONS } from "@/lib/constant
 import { BrandField } from "@/components/brand-field";
 import { IntervalFieldGroup } from "@/components/interval-field";
 import { FormError } from "@/components/form-error";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ComponentOptionalFields } from "@/components/component-optional-fields";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
+import { NewComponentWizard } from "@/components/new-component-wizard";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { kmToUnit } from "@/lib/format";
 
@@ -47,6 +48,84 @@ export default async function NewComponentPage({
 
   const manufacturers = await getBikeIndexManufacturers();
 
+  const step1 = (
+    <Fragment key="step-1">
+      <div className="space-y-1.5">
+        <Label htmlFor="category">{dict.components.form.category}</Label>
+        <select
+          id="category"
+          name="category"
+          required
+          defaultValue={COMPONENT_CATEGORIES[0]}
+          className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+        >
+          {COMPONENT_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <BrandField manufacturers={manufacturers} dict={dict} required />
+
+      <div className="space-y-1.5">
+        <Label htmlFor="model">{dict.components.form.model}</Label>
+        <Input id="model" name="model" required placeholder={dict.components.form.modelPlaceholder} />
+      </div>
+    </Fragment>
+  );
+
+  const step2 = (
+    <Fragment key="step-2">
+      <div className="space-y-1.5">
+        <Label htmlFor="name">{dict.components.form.name}</Label>
+        <Input
+          id="name"
+          name="name"
+          list="component-suggestions"
+          autoComplete="off"
+          placeholder={dict.components.form.namePlaceholder}
+        />
+        <datalist id="component-suggestions">
+          {COMPONENT_NAME_SUGGESTIONS.map((s) => (
+            <option key={s} value={s} />
+          ))}
+        </datalist>
+      </div>
+
+      <div className="space-y-1.5 sm:col-span-2">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="initial_km">{dict.components.form.totalDistance(distanceUnit)}</Label>
+            <Input id="initial_km" name="initial_km" type="number" step="0.1" defaultValue={defaultInitialKm} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="initial_hours">{dict.components.form.totalHours}</Label>
+            <Input id="initial_hours" name="initial_hours" type="number" step="0.1" defaultValue={defaultInitialHours} />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">{dict.components.form.totalUsageHint}</p>
+      </div>
+
+      <ComponentOptionalFields labels={componentOptionalFieldLabels(dict)} />
+    </Fragment>
+  );
+
+  const step3 = (
+    <IntervalFieldGroup
+      key="step-3"
+      hint={dict.components.form.intervalHint}
+      nameLabel={dict.components.form.intervalNameLabel}
+      namePlaceholder={dict.components.form.intervalNamePlaceholder}
+      kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
+      hoursLabel={dict.components.form.intervalTypeHours}
+      monthsLabel={dict.components.form.intervalTypeMonths}
+      reminderToggleLabel={dict.components.form.reminderToggleLabel}
+      addAnotherLabel={dict.components.form.addAnotherReminder}
+    />
+  );
+
   return (
     <div className="max-w-2xl pt-4 sm:pt-8">
       <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
@@ -63,97 +142,27 @@ export default async function NewComponentPage({
 
       <FormError message={error} />
 
-      <form
+      <NewComponentWizard
         action={createComponent.bind(null, bike.id)}
-        className="rounded-lg bg-card p-6"
-      >
-        <div className="mb-6">
-          <h1 className="text-2xl font-display font-bold">{dict.components.form.addTitle}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.addSubtitle(bike.name)}</p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="category">{dict.components.form.category}</Label>
-            <select
-              id="category"
-              name="category"
-              required
-              defaultValue={COMPONENT_CATEGORIES[0]}
-              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
-            >
-              {COMPONENT_CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <BrandField manufacturers={manufacturers} dict={dict} required />
-
-          <div className="space-y-1.5">
-            <Label htmlFor="model">{dict.components.form.model}</Label>
-            <Input id="model" name="model" required placeholder={dict.components.form.modelPlaceholder} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="name">{dict.components.form.name}</Label>
-            <Input
-              id="name"
-              name="name"
-              list="component-suggestions"
-              autoComplete="off"
-              placeholder={dict.components.form.namePlaceholder}
-            />
-            <datalist id="component-suggestions">
-              {COMPONENT_NAME_SUGGESTIONS.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
-          </div>
-
-          <div className="space-y-1.5 sm:col-span-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="initial_km">{dict.components.form.totalDistance(distanceUnit)}</Label>
-                <Input id="initial_km" name="initial_km" type="number" step="0.1" defaultValue={defaultInitialKm} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="initial_hours">{dict.components.form.totalHours}</Label>
-                <Input id="initial_hours" name="initial_hours" type="number" step="0.1" defaultValue={defaultInitialHours} />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">{dict.components.form.totalUsageHint}</p>
-          </div>
-
-          <IntervalFieldGroup
-            hint={dict.components.form.intervalHint}
-            nameLabel={dict.components.form.intervalNameLabel}
-            namePlaceholder={dict.components.form.intervalNamePlaceholder}
-            kmLabel={dict.components.form.intervalTypeKm(distanceUnit)}
-            hoursLabel={dict.components.form.intervalTypeHours}
-            monthsLabel={dict.components.form.intervalTypeMonths}
-            reminderToggleLabel={dict.components.form.reminderToggleLabel}
-            addAnotherLabel={dict.components.form.addAnotherReminder}
-          />
-
-          <ComponentOptionalFields labels={componentOptionalFieldLabels(dict)} />
-        </div>
-
-        <div className="mt-6 flex flex-col gap-3">
-          <Button type="submit" className="w-full">{dict.components.form.saveNew}</Button>
-          <Button
-            render={<Link href={`/bikes/${bike.id}`} />}
-            nativeButton={false}
-            type="button"
-            variant="outline"
-            className="w-full"
-          >
-            {dict.components.form.cancel}
-          </Button>
-        </div>
-      </form>
+        title={dict.components.form.addTitle}
+        desktopSubtitle={dict.components.form.addSubtitle(bike.name)}
+        stepSubtitles={[
+          dict.components.form.wizardStep1Subtitle,
+          dict.components.form.wizardStep2Subtitle,
+          dict.components.form.wizardStep3Subtitle,
+        ]}
+        stepLabels={[
+          dict.components.form.wizardStep1Label,
+          dict.components.form.wizardStep2Label,
+          dict.components.form.wizardStep3Label,
+        ]}
+        cancelHref={`/bikes/${bike.id}`}
+        nextLabel={dict.bikes.form.wizardNext}
+        backLabel={dict.bikes.form.wizardBack}
+        cancelLabel={dict.components.form.cancel}
+        saveLabel={dict.components.form.saveNew}
+        steps={[step1, step2, step3]}
+      />
     </div>
   );
 }

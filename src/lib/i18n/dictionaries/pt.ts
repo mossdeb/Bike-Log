@@ -265,6 +265,12 @@ const pt: Dictionary = {
     form: {
       addTitle: "Adicionar um componente",
       addSubtitle: (bikeName: string) => `Adicionar um novo componente a ${bikeName}.`,
+      wizardStep1Subtitle: "Escolha a categoria, marca e modelo do componente.",
+      wizardStep2Subtitle: "Adicione informação opcional sobre o componente.",
+      wizardStep3Subtitle: "Configure os lembretes de manutenção.",
+      wizardStep1Label: "Escolher o componente",
+      wizardStep2Label: "Detalhes do componente",
+      wizardStep3Label: "Calendário de manutenção",
       editTitle: "Editar componente",
       editSubtitle: (name: string) => `Atualize os detalhes de ${name}.`,
       editBreadcrumb: "Editar",

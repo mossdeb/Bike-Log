@@ -263,6 +263,12 @@ const en = {
     form: {
       addTitle: "Add a component",
       addSubtitle: (bikeName: string) => `Add a new component to ${bikeName}.`,
+      wizardStep1Subtitle: "Choose the component's category, brand, and model.",
+      wizardStep2Subtitle: "Add optional information about the component.",
+      wizardStep3Subtitle: "Set up maintenance reminders.",
+      wizardStep1Label: "Choose the component",
+      wizardStep2Label: "Component details",
+      wizardStep3Label: "Maintenance schedule",
       editTitle: "Edit component",
       editSubtitle: (name: string) => `Update details for ${name}.`,
       editBreadcrumb: "Edit",

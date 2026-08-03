@@ -60,7 +60,7 @@ export default async function EditComponentPage({
   }));
 
   return (
-    <div className="max-w-2xl pt-4 sm:pt-8">
+    <div className="flex flex-1 flex-col max-w-2xl pt-4 sm:block sm:pt-8">
       <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}
@@ -81,7 +81,7 @@ export default async function EditComponentPage({
 
       <form
         action={updateComponent.bind(null, bike.id, component.id)}
-        className="rounded-lg bg-card p-6"
+        className="flex flex-1 flex-col rounded-lg bg-card p-6 sm:block"
       >
         <div className="mb-6">
           <h1 className="text-2xl font-display font-bold">{dict.components.form.editTitle}</h1>
@@ -154,7 +154,7 @@ export default async function EditComponentPage({
           />
         </div>
 
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-auto flex flex-col gap-3 pt-6 sm:mt-6 sm:pt-0">
           <Button type="submit" className="w-full">{dict.components.form.saveEdit}</Button>
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}

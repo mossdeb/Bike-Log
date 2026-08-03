@@ -34,9 +34,12 @@ export function BikeCarousel({ children }: { children: ReactNode }) {
 
   return (
     <div>
+      {/* -mr-5/pr-5 must match the page's own 20px mobile margin (main's
+          px-5) — a wider negative margin pushes the track past the viewport
+          and gives the whole page a few px of horizontal scroll. */}
       <div
         ref={trackRef}
-        className="scrollbar-none -mr-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pr-6 pb-1 sm:mr-0 sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:pr-0 sm:pb-0 lg:grid-cols-3"
+        className="scrollbar-none -mr-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pr-5 pb-1 sm:mr-0 sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:pr-0 sm:pb-0 lg:grid-cols-3"
       >
         {items.map((child, i) => (
           <div key={i} className="w-[97%] shrink-0 snap-start sm:w-auto sm:shrink">

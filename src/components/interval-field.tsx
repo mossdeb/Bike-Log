@@ -97,6 +97,7 @@ function IntervalSlotFields({
         <Input
           name={`interval_value_${slot}`}
           type="number"
+          required
           step={type === "months" ? "1" : "0.1"}
           placeholder={PLACEHOLDER[type]}
           defaultValue={defaultValue?.value ?? ""}
@@ -109,6 +110,7 @@ function IntervalSlotFields({
         <Input
           id={`interval_name_${slot}`}
           name={`interval_name_${slot}`}
+          required
           placeholder={namePlaceholder}
           defaultValue={defaultValue?.name ?? ""}
         />
@@ -145,8 +147,12 @@ export function IntervalFieldGroup({
   reminderToggleLabel: string;
   addAnotherLabel: string;
 }) {
+  // The first reminder starts pre-activated — both for a brand-new
+  // component (no defaults at all) and when editing one that happens to
+  // have no intervals configured yet, encouraging one to be set up rather
+  // than defaulting to "off".
   const [enabled, setEnabled] = useState<[boolean, boolean, boolean]>([
-    defaults.length >= 1,
+    true,
     defaults.length >= 2,
     defaults.length >= 3,
   ]);

@@ -91,25 +91,12 @@ export function ComponentOptionalFields({
     );
   }
 
-  const purchaseActive = activeFields.has("purchase_date");
-  const warrantyActive = activeFields.has("warranty");
-
   return (
     <>
       {activeFields.has("install_date") && renderField("install_date", true)}
       {activeFields.has("serial_number") && renderField("serial_number", true)}
-
-      {purchaseActive && warrantyActive ? (
-        <div className="grid grid-cols-2 gap-5 sm:contents">
-          {renderField("purchase_date", false)}
-          {renderField("warranty", false)}
-        </div>
-      ) : (
-        <>
-          {purchaseActive && renderField("purchase_date", true)}
-          {warrantyActive && renderField("warranty", true)}
-        </>
-      )}
+      {activeFields.has("purchase_date") && renderField("purchase_date", true)}
+      {activeFields.has("warranty") && renderField("warranty", true)}
 
       {activeFields.has("year") && renderField("year", false)}
       {activeFields.has("notes") && renderField("notes", true)}

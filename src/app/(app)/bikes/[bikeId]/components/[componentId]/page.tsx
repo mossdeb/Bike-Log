@@ -257,22 +257,22 @@ export default async function ComponentDetailPage({
                   <div className="flex items-center gap-4">
                     <MaintenanceIcon className="size-8 shrink-0 text-foreground" />
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-semibold">
-                          {interval.name}
-                          {cadence ? ` — ${cadence}` : ""}
-                        </p>
+                      <p className="text-sm font-semibold">
+                        {interval.name}
+                        {cadence ? ` — ${cadence}` : ""}
                         {isActive && (
-                          <span className="shrink-0 rounded-[7px] bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                          <span className="ml-2 inline-block shrink-0 rounded-[7px] bg-muted px-2 py-0.5 align-middle text-[11px] font-semibold text-muted-foreground">
                             {dict.components.detail.activeIntervalTag}
                           </span>
                         )}
+                      </p>
+                      <div className="mt-0.5 flex items-center justify-between gap-2">
+                        {remaining && <p className="text-sm text-muted-foreground">{remaining}</p>}
+                        <HealthPercentBadge percent={rowPercent} className="ml-auto shrink-0" />
                       </div>
-                      {remaining && <p className="mt-0.5 text-sm text-muted-foreground">{remaining}</p>}
                     </div>
-                    <HealthPercentBadge percent={rowPercent} className="shrink-0" />
                   </div>
-                  <ServiceIntervalBar fraction={status.fractionUsed} className="mt-3 w-full" />
+                  <ServiceIntervalBar fraction={status.fractionUsed} className="mt-1 w-full" />
                 </div>
               );
             })}

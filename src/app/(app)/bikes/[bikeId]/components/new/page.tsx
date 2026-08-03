@@ -125,7 +125,7 @@ export default async function NewComponentPage({
   );
 
   return (
-    <div className="max-w-2xl pt-4 sm:pt-8">
+    <div className="flex flex-1 flex-col max-w-2xl pt-4 sm:block sm:pt-8">
       <div className="mb-2 hidden text-sm text-muted-foreground sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}

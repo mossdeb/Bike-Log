@@ -4,10 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MOBILE_NAV_ITEMS } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
+import { isFullscreenFormRoute } from "@/lib/fullscreen-form-routes";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 
 export function MobileNav({ nav }: { nav: Dictionary["nav"] }) {
   const pathname = usePathname();
+
+  // The create forms take over the whole screen — no nav competing with
+  // their bottom buttons.
+  if (isFullscreenFormRoute(pathname)) return null;
 
   return (
     <nav

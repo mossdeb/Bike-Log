@@ -9,6 +9,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { UserMenu } from "@/components/user-menu";
 import { HeaderBackButton, HeaderEditButton } from "@/components/header-back-button";
 import { AppHeader } from "@/components/app-header";
+import { AppMain } from "@/components/app-main";
 import { ToastProvider, Toaster } from "@/components/ui/toast";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -26,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <ToastProvider>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex min-h-dvh bg-background">
         <AppSidebar nav={dict.nav} />
         <div className="mx-auto flex min-w-0 w-full max-w-[1440px] flex-1 flex-col">
           <AppHeader>
@@ -42,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <UserMenu name={user.user_metadata?.full_name} email={user.email as string} common={dict.common} />
             </div>
           </AppHeader>
-          <main className="flex-1 px-5 pb-24 sm:px-6 sm:pb-10">{children}</main>
+          <AppMain>{children}</AppMain>
         </div>
         <MobileNav nav={dict.nav} />
       </div>

@@ -53,7 +53,11 @@ export function NewComponentWizard({
   }
 
   return (
-    <form ref={formRef} action={action} className="rounded-lg bg-card p-6">
+    <form
+      ref={formRef}
+      action={action}
+      className="flex flex-1 flex-col rounded-lg bg-card p-6 sm:block"
+    >
       <div className="mb-6">
         <h1 className="text-2xl font-display font-bold">{title}</h1>
         <p className="mt-1 text-sm text-muted-foreground sm:hidden">{stepSubtitles[step - 1]}</p>
@@ -98,7 +102,7 @@ export function NewComponentWizard({
         </Button>
       </div>
 
-      <div className="mt-6 flex flex-col gap-3 sm:hidden">
+      <div className="mt-auto flex flex-col gap-3 pt-6 sm:hidden">
         {step < 3 ? (
           <Button
             key="next"

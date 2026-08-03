@@ -170,7 +170,7 @@ export default async function NewBikePage({
   );
 
   return (
-    <div className="max-w-2xl pt-4 sm:pt-8">
+    <div className="flex flex-1 flex-col max-w-2xl pt-4 sm:block sm:pt-8">
       <FormError message={error} />
 
       <NewBikeWizard

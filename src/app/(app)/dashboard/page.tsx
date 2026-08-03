@@ -18,8 +18,15 @@ import { NewToBikitCard } from "@/components/new-to-bikit-card";
 import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS } from "@/lib/plans";
+import { OnboardingDialog } from "@/components/onboarding-dialog";
+import { completeOnboarding } from "@/lib/actions/onboarding";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onboarding?: string }>;
+}) {
+  const { onboarding } = await searchParams;
   const supabase = await createClient();
 
   const { data: userData } = await supabase.auth.getClaims();
@@ -28,6 +35,11 @@ export default async function DashboardPage() {
     (claims?.user_metadata as { full_name?: string } | undefined)?.full_name?.split(" ")[0] ??
     (claims?.email as string | undefined)?.split("@")[0] ??
     "there";
+  // The settings page's "User Onboarding" row re-opens the tour on demand
+  // via ?onboarding=1, regardless of whether it was already completed.
+  const showOnboarding =
+    onboarding === "1" ||
+    !(claims?.user_metadata as { onboarding_completed?: boolean } | undefined)?.onboarding_completed;
   const dict = getDictionary(localeFromMetadata(claims?.user_metadata));
   const distanceUnit = ((claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const userId = claims?.sub as string | undefined;
@@ -118,6 +130,21 @@ export default async function DashboardPage() {
 
   return (
     <div className="pt-4 sm:pt-8">
+      <OnboardingDialog
+        open={showOnboarding}
+        steps={dict.onboarding.steps.map((s) => ({
+          ...s,
+          greeting: s.greeting?.(displayName),
+        }))}
+        labels={{
+          getStarted: dict.onboarding.getStarted,
+          next: dict.onboarding.next,
+          skip: dict.onboarding.skip,
+          addFirstBike: dict.onboarding.addFirstBike,
+          addLater: dict.onboarding.addLater,
+        }}
+        action={completeOnboarding}
+      />
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold">{dict.dashboard.welcome(displayName)}</h1>

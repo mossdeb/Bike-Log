@@ -163,6 +163,13 @@ const en = {
       viewDetails: "View details",
       closeDetails: "Close Details",
       stravaGear: "Strava Gear",
+      stravaSync: "Strava Sync",
+      reload: "Reload",
+      syncSynced: (count: number) => (count === 1 ? "1 activity synced" : `${count} activities synced`),
+      syncNoActivity: "No new activities found",
+      syncNotConnected: "Strava not connected",
+      syncRateLimited: (minutes: number) => `Try again in ${minutes} min`,
+      syncError: "Sync failed — try again later",
       componentsTitle: "Components",
       addComponent: "Add component",
       noComponentsYet:

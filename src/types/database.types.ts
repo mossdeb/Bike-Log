@@ -397,6 +397,7 @@ export type Database = {
           athlete_id: number
           created_at: string
           expires_at: string
+          last_manual_sync_at: string | null
           refresh_token: string
           updated_at: string
           user_id: string
@@ -406,6 +407,7 @@ export type Database = {
           athlete_id: number
           created_at?: string
           expires_at: string
+          last_manual_sync_at?: string | null
           refresh_token: string
           updated_at?: string
           user_id: string
@@ -415,6 +417,7 @@ export type Database = {
           athlete_id?: number
           created_at?: string
           expires_at?: string
+          last_manual_sync_at?: string | null
           refresh_token?: string
           updated_at?: string
           user_id?: string

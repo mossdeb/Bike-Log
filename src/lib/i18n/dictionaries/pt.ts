@@ -165,6 +165,13 @@ const pt: Dictionary = {
       viewDetails: "Ver detalhes",
       closeDetails: "Fechar detalhes",
       stravaGear: "Bicicleta Strava",
+      stravaSync: "Sincronização Strava",
+      reload: "Recarregar",
+      syncSynced: (count: number) => (count === 1 ? "1 atividade sincronizada" : `${count} atividades sincronizadas`),
+      syncNoActivity: "Sem novas atividades",
+      syncNotConnected: "Strava não ligado",
+      syncRateLimited: (minutes: number) => `Tenta novamente daqui a ${minutes} min`,
+      syncError: "Falha na sincronização — tenta novamente mais tarde",
       componentsTitle: "Componentes",
       addComponent: "Adicionar componente",
       noComponentsYet:

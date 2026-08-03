@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Plus } from "lucide-react";
+import { Pencil, Plus, RefreshCw } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { manualSyncStrava } from "@/lib/actions/strava";
 import { selectActiveInterval, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
@@ -12,6 +13,7 @@ import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { BikeIcon } from "@/components/bike-icon";
 import { BikeDetailsToggle } from "@/components/bike-details-toggle";
 import { StravaBadgeIcon } from "@/components/strava-icon";
+import { StravaSyncToast } from "@/components/strava-sync-toast";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -46,10 +48,13 @@ function DetailField({
 
 export default async function BikeDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ bikeId: string }>;
+  searchParams: Promise<{ syncStatus?: string; syncCount?: string; syncMinutes?: string }>;
 }) {
   const { bikeId } = await params;
+  const { syncStatus, syncCount, syncMinutes } = await searchParams;
   const supabase = await createClient();
 
   const { data: userData } = await supabase.auth.getClaims();
@@ -58,6 +63,20 @@ export default async function BikeDetailPage({
 
   const { data: bike } = await supabase.from("bikes").select("*").eq("id", bikeId).single();
   if (!bike) notFound();
+
+  const syncIsError = syncStatus === "error" || syncStatus === "rate-limited" || syncStatus === "not-connected";
+  const syncMessage =
+    syncStatus === "synced"
+      ? Number(syncCount) > 0
+        ? dict.bikes.detail.syncSynced(Number(syncCount))
+        : dict.bikes.detail.syncNoActivity
+      : syncStatus === "rate-limited"
+        ? dict.bikes.detail.syncRateLimited(Number(syncMinutes))
+        : syncStatus === "not-connected"
+          ? dict.bikes.detail.syncNotConnected
+          : syncStatus === "error"
+            ? dict.bikes.detail.syncError
+            : null;
 
   const userId = userData?.claims?.sub as string | undefined;
   const subscription = userId
@@ -230,6 +249,23 @@ export default async function BikeDetailPage({
           className={fieldBasis}
         />
       )}
+      {bike.strava_gear_id && (
+        <div className={cn("min-w-0", fieldBasis)}>
+          <p className="text-xs text-muted-foreground">{dict.bikes.detail.stravaSync}</p>
+          <form action={manualSyncStrava} className="mt-1.5">
+            <input type="hidden" name="bikeId" value={bike.id} />
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              className="h-7 gap-1 rounded-full px-2.5 text-sm bg-transparent [&_svg:not([class*='size-'])]:size-3"
+            >
+              <RefreshCw className="size-3" />
+              {dict.bikes.detail.reload}
+            </Button>
+          </form>
+        </div>
+      )}
       {bike.notes && (
         <DetailField label={dict.bikes.form.notes} value={bike.notes} className="min-w-[220px] flex-1" />
       )}
@@ -238,6 +274,7 @@ export default async function BikeDetailPage({
 
   return (
     <div className="sm:pt-8">
+      {syncMessage && <StravaSyncToast message={syncMessage} isError={syncIsError} />}
       <div className="hidden text-sm text-muted-foreground sm:mb-2 sm:block">
         <Link href="/bikes" className="hover:text-foreground">
           {dict.bikes.breadcrumb}

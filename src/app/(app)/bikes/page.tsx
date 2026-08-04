@@ -30,10 +30,15 @@ export default async function BikesPage() {
           currentPeriodEnd: null,
           cancelAtPeriodEnd: false,
         }),
+    // Most recently ridden first, same as the dashboard carousel:
+    // usage_updated_at only moves when a bike's km/hours change (manual edit
+    // or Strava sync), so a bike that was merely renamed keeps its place.
+    // Bikes that have never logged any usage fall to the end, oldest first.
     supabase
       .from("bikes")
       .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")
-      .order("created_at", { ascending: false }),
+      .order("usage_updated_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: true }),
     supabase
       .from("component_interval_status")
       .select(

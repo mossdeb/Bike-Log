@@ -9,9 +9,10 @@ export function LandingHero({ dict }: { dict: LandingDictionary["hero"] }) {
     <section className="bg-white pb-1 pt-4 xl:px-8">
       {/* Full bleed until the desktop layout: no side margin, square corners. */}
       <div className="relative mx-auto max-w-[1470px] overflow-hidden bg-[#B8B3AF] xl:rounded-[20px]">
-        {/* On mobile the DOM order is the reading order. On desktop the visual is
-            lifted out of the flow to fill the card's full height and run off its
-            right edge, and `pr` keeps the copy clear of it. */}
+        {/* The DOM order is the desktop reading order; on mobile the subtitle
+            block alone is moved below the buttons (see `order-last`). On desktop
+            the visual is lifted out of the flow to fill the card's full height
+            and run off its right edge, and `pr` keeps the copy clear of it. */}
         <div className="grid grid-cols-1 gap-8 px-6 py-12 sm:px-12 lg:px-24 xl:min-h-[792px] xl:content-center xl:py-20 xl:pr-[54%]">
           <div className="flex flex-col gap-6">
             <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white py-2 pl-3 pr-4 shadow-sm">
@@ -26,7 +27,12 @@ export function LandingHero({ dict }: { dict: LandingDictionary["hero"] }) {
               <br />
               {dict.titleLine2}.
             </h1>
+          </div>
 
+          {/* Sits under the buttons on mobile, back under the heading from xl.
+              `-mt-2` cancels the 8px difference between the grid's gap-8 and the
+              gap-6 this block had while it lived inside the heading's column. */}
+          <div className="order-last flex flex-col gap-6 xl:order-none xl:-mt-2">
             <p className="max-w-[460px] text-base font-medium leading-relaxed text-[#101014]/80 sm:text-[16.8px]">
               {dict.subtitle}
             </p>

@@ -128,6 +128,7 @@ function IntervalSlotFields({
  */
 export function IntervalFieldGroup({
   defaults = [],
+  startWithReminder = false,
   hint,
   nameLabel,
   namePlaceholder,
@@ -138,6 +139,7 @@ export function IntervalFieldGroup({
   addAnotherLabel,
 }: {
   defaults?: IntervalSlotDefault[];
+  startWithReminder?: boolean;
   hint: string;
   nameLabel: string;
   namePlaceholder: string;
@@ -147,12 +149,12 @@ export function IntervalFieldGroup({
   reminderToggleLabel: string;
   addAnotherLabel: string;
 }) {
-  // The first reminder starts pre-activated — both for a brand-new
-  // component (no defaults at all) and when editing one that happens to
-  // have no intervals configured yet, encouraging one to be set up rather
-  // than defaulting to "off".
+  // Only the create form pre-arms the first reminder, to nudge one into being
+  // set up. Everywhere else the toggles mirror what's stored, which is what
+  // makes "off" reachable at all: a component saved without reminders used to
+  // reopen with the first one back on, so switching it off never stuck.
   const [enabled, setEnabled] = useState<[boolean, boolean, boolean]>([
-    true,
+    startWithReminder || defaults.length >= 1,
     defaults.length >= 2,
     defaults.length >= 3,
   ]);

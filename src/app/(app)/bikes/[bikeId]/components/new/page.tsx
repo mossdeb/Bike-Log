@@ -113,6 +113,7 @@ export default async function NewComponentPage({
   const step3 = (
     <IntervalFieldGroup
       key="step-3"
+      startWithReminder
       hint={dict.components.form.intervalHint}
       nameLabel={dict.components.form.intervalNameLabel}
       namePlaceholder={dict.components.form.intervalNamePlaceholder}

@@ -6,6 +6,7 @@ const en = {
     faq: "FAQ",
     login: "Log in",
     getStarted: "Get started free",
+    switchLanguage: "Switch to Portuguese",
   },
   hero: {
     eyebrow: "Smart maintenance management",

@@ -8,6 +8,7 @@ const pt: LandingDictionary = {
     faq: "FAQ",
     login: "Entrar",
     getStarted: "Começar grátis",
+    switchLanguage: "Mudar para inglês",
   },
   hero: {
     eyebrow: "Gestão inteligente da manutenção",

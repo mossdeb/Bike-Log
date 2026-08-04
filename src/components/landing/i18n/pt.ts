@@ -125,7 +125,7 @@ const pt: LandingDictionary = {
       {
         name: "Pessoal",
         description: "Para quem tem mais que uma bicicleta.",
-        price: "€3,99",
+        price: "€2,99",
         period: "/ mês",
         features: ["Até 3 bicicletas", "Componentes ilimitados", "Histórico de intervenções", "Alertas de manutenção"],
         cta: "Escolher Pessoal",

@@ -123,7 +123,7 @@ const en = {
       {
         name: "Personal",
         description: "For those with more than one bike.",
-        price: "€3.99",
+        price: "€2.99",
         period: "/ month",
         features: ["Up to 3 bikes", "Unlimited components", "Intervention history", "Maintenance alerts"],
         cta: "Choose Personal",

@@ -3,6 +3,11 @@ import { getDictionary, type Locale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
 
 const FROM = "Bikit <hello@mail.bikit.app>";
+// Absolute and hardcoded rather than derived from the request's origin: an
+// email sent from a local run or a preview deployment would otherwise point
+// the logo at a host the recipient's mail client can't reach, and show a
+// broken image. Links can be origin-relative — the logo can't.
+const LOGO_URL = "https://bikit.app/icons/icon-192.png";
 
 // Constructed lazily (and only once RESEND_API_KEY exists) so the app and
 // the cron route still run — just without sending — before it's configured.
@@ -19,6 +24,13 @@ function wrapEmail(heading: string, bodyHtml: string, ctaLabel: string, ctaHref:
 <html>
   <body style="margin:0;padding:24px;background:#efefef;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#101014;">
     <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;">
+      <!-- Remote PNG rather than inline SVG: SVG is unsupported in Outlook
+           and stripped by Gmail. Width/height are set as attributes as well
+           as styles because Outlook ignores CSS sizing on images, and the alt
+           text carries the brand for clients that block remote images by
+           default. -->
+      <img src="${LOGO_URL}" alt="Bikit" width="40" height="40"
+           style="display:block;width:40px;height:40px;border:0;border-radius:10px;margin:0 0 20px;" />
       <h1 style="font-size:20px;margin:0 0 16px;">${heading}</h1>
       ${bodyHtml}
       <a href="${ctaHref}" style="display:inline-block;margin-top:24px;padding:10px 22px;background:#43f3af;color:#062a20;border-radius:999px;text-decoration:none;font-weight:600;font-size:14px;">${ctaLabel}</a>
@@ -135,7 +147,13 @@ export async function sendWeeklySummaryEmail(params: {
        ${renderSection(dict.weeklySummary.dueSoonSection, params.dueSoon)}`
     : `<p style="margin:0;font-size:15px;line-height:1.5;">${dict.weeklySummary.noneNeedAttention}</p>`;
 
-  const html = wrapEmail(dict.weeklySummary.heading, body, dict.cta, `${params.siteUrl}/dashboard`, dict.footer);
+  const html = wrapEmail(
+    dict.weeklySummary.heading,
+    body,
+    dict.cta,
+    `${params.siteUrl}/dashboard`,
+    dict.footer
+  );
 
   const { error } = await client.emails.send({
     from: FROM,

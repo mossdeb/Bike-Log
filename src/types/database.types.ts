@@ -619,7 +619,29 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      claim_interval_notification: {
+        Args: {
+          p_channel: string
+          p_level: string
+          p_service_interval_id: string
+          p_user_id: string
+        }
+        Returns: {
+          claimed: boolean
+          previous_level: string
+          previous_notified_at: string
+        }[]
+      }
+      release_interval_notification: {
+        Args: {
+          p_channel: string
+          p_claimed_level: string
+          p_previous_level: string
+          p_previous_notified_at: string
+          p_service_interval_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

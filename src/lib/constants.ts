@@ -12,12 +12,18 @@ export const BIKE_TYPES = [
 
 export type BikeType = (typeof BIKE_TYPES)[number];
 
+// Adding a category here also requires an icon in COMPONENT_CATEGORY_ICON
+// (src/components/component-category-icon.tsx) — the map is typed off this list,
+// so a missing icon is a build error. The value is what gets stored in
+// components.category, which is free text: existing rows are never migrated.
 export const COMPONENT_CATEGORIES = [
   "Front Suspension (Fork)",
   "Rear Suspension",
   "Transmission",
   "Brakes",
+  "Brake Pads",
   "Wheels",
+  "Tire",
   "Cockpit",
   "Frame",
   "Other",

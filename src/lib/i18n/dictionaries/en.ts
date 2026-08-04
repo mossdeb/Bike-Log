@@ -215,6 +215,7 @@ const en = {
       stravaGear: "Strava Gear",
       stravaSync: "Strava Sync",
       reload: "Reload",
+      syncPending: "Syncing with Strava…",
       syncSynced: (count: number) => (count === 1 ? "1 activity synced" : `${count} activities synced`),
       syncNoActivity: "No new activities found",
       syncNotConnected: "Strava not connected",

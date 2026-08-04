@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Plus, RefreshCw } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { manualSyncStrava } from "@/lib/actions/strava";
 import { selectActiveInterval, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
@@ -15,6 +15,7 @@ import { BikeIcon } from "@/components/bike-icon";
 import { BikeDetailsToggle } from "@/components/bike-details-toggle";
 import { StravaBadgeIcon } from "@/components/strava-icon";
 import { StravaSyncToast } from "@/components/strava-sync-toast";
+import { StravaSyncButton } from "@/components/strava-sync-button";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -270,15 +271,7 @@ export default async function BikeDetailPage({
           <p className="text-xs text-muted-foreground">{dict.bikes.detail.stravaSync}</p>
           <form action={manualSyncStrava} className="mt-1.5">
             <input type="hidden" name="bikeId" value={bike.id} />
-            <Button
-              type="submit"
-              variant="outline"
-              size="sm"
-              className="h-7 gap-1 rounded-full px-2.5 text-sm bg-transparent [&_svg:not([class*='size-'])]:size-3"
-            >
-              <RefreshCw className="size-3" />
-              {dict.bikes.detail.reload}
-            </Button>
+            <StravaSyncButton label={dict.bikes.detail.reload} pendingMessage={dict.bikes.detail.syncPending} />
           </form>
         </div>
       )}

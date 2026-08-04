@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { stravaAuthorizeUrl, getValidStravaAccessToken, syncActivityToBike, type StravaActivity } from "@/lib/strava";
+import { stravaAuthorizeUrl, accessTokenForConnection, syncActivitiesToBikes, type StravaActivity } from "@/lib/strava";
 
 const MANUAL_SYNC_LOOKBACK_DAYS = 30;
 const MANUAL_SYNC_COOLDOWN_MINUTES = 60;
@@ -49,9 +49,12 @@ export async function manualSyncStrava(formData: FormData) {
 
   const admin = createAdminClient();
 
+  // The cooldown stamp and the tokens live in the same row, so they come back
+  // in one read — asking for the tokens separately was a round trip spent
+  // re-reading a row we already had.
   const { data: connection } = await admin
     .from("strava_connections")
-    .select("last_manual_sync_at")
+    .select("last_manual_sync_at, access_token, refresh_token, expires_at")
     .eq("user_id", userId)
     .maybeSingle();
   if (!connection) {
@@ -66,33 +69,26 @@ export async function manualSyncStrava(formData: FormData) {
     }
   }
 
-  const accessToken = await getValidStravaAccessToken(admin, userId);
-  if (!accessToken) {
-    redirect(`${redirectTo}?syncStatus=not-connected`);
-  }
-
-  // Recorded before the fetch so a failed/slow request still starts the
-  // cooldown — otherwise a user hitting a transient Strava error could retry
-  // in a tight loop.
-  await admin
-    .from("strava_connections")
-    .update({ last_manual_sync_at: new Date().toISOString() })
-    .eq("user_id", userId);
+  const accessToken = await accessTokenForConnection(admin, userId, connection);
 
   const after = Math.floor(Date.now() / 1000) - MANUAL_SYNC_LOOKBACK_DAYS * 86_400;
-  const res = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=100`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+
+  // The cooldown stamp is recorded before the fetch resolves, so a failed or
+  // slow request still starts it — otherwise a user hitting a transient Strava
+  // error could retry in a tight loop. Nothing downstream reads it back, so it
+  // rides along with the fetch instead of delaying it.
+  const [, res] = await Promise.all([
+    admin.from("strava_connections").update({ last_manual_sync_at: new Date().toISOString() }).eq("user_id", userId),
+    fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=100`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }),
+  ]);
   if (!res.ok) {
     redirect(`${redirectTo}?syncStatus=error`);
   }
 
   const activities: StravaActivity[] = await res.json();
-  let synced = 0;
-  for (const activity of activities) {
-    const result = await syncActivityToBike(admin, userId, activity);
-    if (result === "synced") synced += 1;
-  }
+  const synced = await syncActivitiesToBikes(admin, userId, activities);
 
   revalidatePath("/bikes/[bikeId]", "page");
   redirect(`${redirectTo}?syncStatus=synced&syncCount=${synced}`);

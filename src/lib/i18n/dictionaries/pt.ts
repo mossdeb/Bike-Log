@@ -216,6 +216,7 @@ const pt: Dictionary = {
       stravaGear: "Bicicleta Strava",
       stravaSync: "Sincronização Strava",
       reload: "Recarregar",
+      syncPending: "A sincronizar com o Strava…",
       syncSynced: (count: number) => (count === 1 ? "1 atividade sincronizada" : `${count} atividades sincronizadas`),
       syncNoActivity: "Sem novas atividades",
       syncNotConnected: "Strava não ligado",

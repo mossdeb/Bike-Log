@@ -56,6 +56,12 @@ export function exchangeStravaCode(code: string): Promise<StravaTokenResponse> {
   return requestStravaToken({ code, grant_type: "authorization_code" });
 }
 
+export interface StravaConnectionTokens {
+  access_token: string;
+  refresh_token: string;
+  expires_at: string;
+}
+
 /** Returns a usable access token, refreshing (and persisting the refresh)
  * first if the stored one is at or near expiry. Null if never connected. */
 export async function getValidStravaAccessToken(
@@ -69,6 +75,17 @@ export async function getValidStravaAccessToken(
     .maybeSingle();
   if (!connection) return null;
 
+  return accessTokenForConnection(supabase, userId, connection);
+}
+
+/** Same as getValidStravaAccessToken for a connection row the caller already
+ * has in hand — lets a caller that needs other columns of the row read it
+ * once instead of paying a second round trip for the tokens. */
+export async function accessTokenForConnection(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  connection: StravaConnectionTokens
+): Promise<string> {
   const expiresAt = new Date(connection.expires_at).getTime();
   if (expiresAt - Date.now() > 5 * 60 * 1000) {
     return connection.access_token;
@@ -170,6 +187,86 @@ export async function syncActivityToBike(
     .eq("id", bike.id);
 
   return "synced";
+}
+
+/** Batch equivalent of syncActivityToBike for a whole list of activities, used
+ * by the manual "Reload" button. Per activity the single-activity path costs
+ * three sequential round trips (find the bike, insert, bump the bike's
+ * totals); over a 30-day window that's what made the button feel slow. This
+ * spends four regardless of how many activities came back: one to load the
+ * athlete's gear-linked bikes, one insert for all of them, and one update per
+ * bike whose totals actually moved. Returns how many were newly recorded. */
+export async function syncActivitiesToBikes(
+  admin: SupabaseClient<Database>,
+  userId: string,
+  activities: StravaActivity[]
+): Promise<number> {
+  const { data: bikes } = await admin
+    .from("bikes")
+    .select("id, total_km, total_hours, strava_gear_id")
+    .eq("user_id", userId)
+    .not("strava_gear_id", "is", null);
+  if (!bikes?.length) return 0;
+
+  const bikeByGear = new Map(bikes.map((bike) => [bike.strava_gear_id, bike]));
+
+  // Anything without a gear-linked bike is dropped here rather than costing a
+  // query, which is most of a busy athlete's activities.
+  const rows = new Map(
+    activities.flatMap((activity) => {
+      const bike = activity.gear_id ? bikeByGear.get(activity.gear_id) : undefined;
+      if (!bike || !isCyclingActivity(activity)) return [];
+      return [
+        [
+          activity.id,
+          {
+            strava_activity_id: activity.id,
+            bike_id: bike.id,
+            distance_km: activity.distance / 1000,
+            moving_time_hours: activity.moving_time / 3600,
+          },
+        ] as const,
+      ];
+    })
+  );
+  if (rows.size === 0) return 0;
+
+  // ON CONFLICT DO NOTHING ... RETURNING: what comes back is exactly what this
+  // call inserted, so an activity the webhook already recorded is never added
+  // to a bike's totals twice — same idempotency the single-activity path gets
+  // from the primary key on strava_activity_id.
+  const { data: inserted, error } = await admin
+    .from("strava_activities")
+    .upsert([...rows.values()], { onConflict: "strava_activity_id", ignoreDuplicates: true })
+    .select("bike_id, distance_km, moving_time_hours");
+  if (error) {
+    console.error("[strava] failed to record activities", error.message);
+    return 0;
+  }
+  if (!inserted?.length) return 0;
+
+  const deltaByBike = new Map<string, { km: number; hours: number }>();
+  for (const row of inserted) {
+    const delta = deltaByBike.get(row.bike_id) ?? { km: 0, hours: 0 };
+    delta.km += row.distance_km ?? 0;
+    delta.hours += row.moving_time_hours ?? 0;
+    deltaByBike.set(row.bike_id, delta);
+  }
+
+  await Promise.all(
+    [...deltaByBike].map(([bikeId, delta]) => {
+      const bike = bikes.find((b) => b.id === bikeId)!;
+      return admin
+        .from("bikes")
+        .update({
+          total_km: (bike.total_km ?? 0) + delta.km,
+          total_hours: (bike.total_hours ?? 0) + delta.hours,
+        })
+        .eq("id", bikeId);
+    })
+  );
+
+  return inserted.length;
 }
 
 const STRAVA_WEBHOOK_CALLBACK = "https://www.bikit.app/api/strava/webhook";

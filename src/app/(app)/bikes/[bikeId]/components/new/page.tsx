@@ -10,6 +10,7 @@ import { IntervalFieldGroup } from "@/components/interval-field";
 import { FormError } from "@/components/form-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { ComponentOptionalFields } from "@/components/component-optional-fields";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { NewComponentWizard } from "@/components/new-component-wizard";
@@ -50,19 +51,18 @@ export default async function NewComponentPage({
     <Fragment key="step-1">
       <div className="space-y-1.5">
         <Label htmlFor="category">{dict.components.form.category}</Label>
-        <select
+        <NativeSelect
           id="category"
           name="category"
           required
           defaultValue={COMPONENT_CATEGORIES[0]}
-          className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
         >
           {COMPONENT_CATEGORIES.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </div>
 
       <BrandField manufacturers={manufacturers} dict={dict} required />

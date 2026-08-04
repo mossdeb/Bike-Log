@@ -46,13 +46,15 @@ export function InterventionDateField({
           id="date-mode"
           value={mode}
           onChange={(e) => setMode(e.target.value as Mode)}
-          className="flex h-[48px] w-full appearance-none items-center rounded-sm border border-input bg-transparent px-2.5 pr-10 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+          className="flex h-[48px] w-full appearance-none items-center rounded-sm border border-input bg-transparent pr-11 pl-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
         >
           <option value="today">{todayLabel}</option>
           <option value="yesterday">{yesterdayLabel}</option>
           <option value="custom">{customLabel}</option>
         </select>
-        <Calendar className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        {/* Keeps the calendar glyph instead of a chevron, but on the same 20px
+            inset as every other dropdown. */}
+        <Calendar className="pointer-events-none absolute top-1/2 right-5 size-4 -translate-y-1/2 text-muted-foreground" />
       </div>
       {mode === "custom" && (
         <input

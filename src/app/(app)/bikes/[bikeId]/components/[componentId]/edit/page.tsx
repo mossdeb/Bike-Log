@@ -11,6 +11,7 @@ import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { ComponentOptionalFields } from "@/components/component-optional-fields";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
@@ -91,19 +92,18 @@ export default async function EditComponentPage({
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="category">{dict.components.form.category}</Label>
-            <select
+            <NativeSelect
               id="category"
               name="category"
               required
               defaultValue={component.category ?? COMPONENT_CATEGORIES[0]}
-              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {COMPONENT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           <BrandField manufacturers={manufacturers} defaultValue={component.brand} dict={dict} required />

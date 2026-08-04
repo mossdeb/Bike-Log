@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
+import { NativeSelect } from "@/components/ui/native-select";
 
 const emptySubscribe = () => () => {};
 
@@ -16,25 +17,15 @@ function useMounted() {
   );
 }
 
-export function ThemeSelect({
-  prefs,
-  className,
-}: {
-  prefs: Dictionary["settings"]["preferences"];
-  className?: string;
-}) {
+export function ThemeSelect({ prefs }: { prefs: Dictionary["settings"]["preferences"] }) {
   const { theme, setTheme } = useTheme();
   const mounted = useMounted();
 
   return (
-    <select
-      value={mounted ? theme : "system"}
-      onChange={(e) => setTheme(e.target.value)}
-      className={className}
-    >
+    <NativeSelect value={mounted ? theme : "system"} onChange={(e) => setTheme(e.target.value)}>
       <option value="system">{prefs.themeSystem}</option>
       <option value="light">{prefs.themeLight}</option>
       <option value="dark">{prefs.themeDark}</option>
-    </select>
+    </NativeSelect>
   );
 }

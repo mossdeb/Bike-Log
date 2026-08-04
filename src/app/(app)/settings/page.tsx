@@ -22,9 +22,6 @@ import { logout } from "@/lib/actions/auth";
 import { connectStrava, disconnectStrava } from "@/lib/actions/strava";
 import { getUserSubscription } from "@/lib/subscription";
 
-const selectClassName =
-  "flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30";
-
 function SettingsSection({
   title,
   description,
@@ -187,11 +184,10 @@ export default async function SettingsPage({
               distanceUnit={distanceUnit}
               language={locale}
               prefs={dict.settings.preferences}
-              selectClassName={selectClassName}
             />
             <div className="space-y-1.5">
               <Label htmlFor="theme-preference">{dict.settings.preferences.theme}</Label>
-              <ThemeSelect prefs={dict.settings.preferences} className={selectClassName} />
+              <ThemeSelect prefs={dict.settings.preferences} />
             </div>
           </div>
         </SettingsSection>

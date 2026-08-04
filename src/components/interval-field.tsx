@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlarmIcon, DistanceIcon, HoursIcon, MonthsIcon } from "@/components/interval-icons";
@@ -81,18 +82,25 @@ function IntervalSlotFields({
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <div className="flex h-[48px] flex-1 items-center gap-1.5 rounded-sm border border-input bg-transparent px-2.5 dark:bg-input/30">
+        {/* Not a NativeSelect: this one shares a bordered box with the type
+            icon. The chevron is drawn here for the same reason — 20px from the
+            edge, which the browser's own arrow can't be moved to. */}
+        <div className="relative flex h-[48px] flex-1 items-center gap-1.5 rounded-sm border border-input bg-transparent px-2.5 dark:bg-input/30">
           <TypeIcon className="size-4 shrink-0 text-foreground" />
           <select
             name={`interval_type_${slot}`}
             value={type}
             onChange={(e) => setType(e.target.value as IntervalType)}
-            className="h-full w-full bg-transparent text-base outline-none"
+            className="h-full w-full appearance-none bg-transparent pr-8 text-base outline-none"
           >
             <option value="km">{kmLabel}</option>
             <option value="hours">{hoursLabel}</option>
             <option value="months">{monthsLabel}</option>
           </select>
+          {/* 19px, not 20: here the border is on the positioning box itself,
+              so the offset starts inside it — this lands the chevron the same
+              20px from the field's outer edge as everywhere else. */}
+          <ChevronDown className="pointer-events-none absolute top-1/2 right-[19px] size-4 -translate-y-1/2 text-foreground" />
         </div>
         <Input
           name={`interval_value_${slot}`}

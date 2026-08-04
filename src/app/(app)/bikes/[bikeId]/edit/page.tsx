@@ -14,6 +14,7 @@ import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { BikeOptionalFields } from "@/components/bike-optional-fields";
 import { bikeOptionalFieldLabels } from "@/lib/bike-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
@@ -95,18 +96,17 @@ export default async function EditBikePage({
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="type">{dict.bikes.form.type}</Label>
-            <select
+            <NativeSelect
               id="type"
               name="type"
               defaultValue={bike.type ?? "Enduro"}
-              className="flex h-[48px] w-full items-center rounded-sm border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
             >
               {BIKE_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           <BrandField manufacturers={manufacturers} defaultValue={bike.brand} dict={dict} />
@@ -161,11 +161,12 @@ export default async function EditBikePage({
                 <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white ring-1 ring-inset ring-border">
                   <StravaIcon className="size-4" />
                 </span>
-                <select
+                <NativeSelect
                   id="strava_gear_id"
                   name="strava_gear_id"
                   defaultValue={bike.strava_gear_id ?? ""}
-                  className="ml-auto flex h-[48px] w-56 items-center rounded-sm border border-input bg-background px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+                  wrapperClassName="ml-auto w-56"
+                  className="bg-background"
                 >
                   <option value="">{dict.bikes.form.stravaNone}</option>
                   {stravaBikes.map((gear) => {
@@ -176,7 +177,7 @@ export default async function EditBikePage({
                       </option>
                     );
                   })}
-                </select>
+                </NativeSelect>
               </div>
             ) : (
               <StravaConnectRow label={dict.settings.strava.strava} connectLabel={dict.settings.strava.connect} />

@@ -144,10 +144,7 @@ export default async function SettingsPage({
               <Label htmlFor="full-name">{dict.settings.profile.fullName}</Label>
               <div className="flex gap-3">
                 <Input id="full-name" name="full-name" defaultValue={name ?? ""} className="flex-1" />
-                <Button
-                  type="submit"
-                  className="shrink-0 border-transparent bg-foreground text-background hover:bg-foreground/90"
-                >
+                <Button type="submit" variant="inverted" className="shrink-0">
                   {dict.common.save}
                 </Button>
               </div>

@@ -85,9 +85,9 @@ export default async function BikesPage() {
           <Button
             type="button"
             disabled
-            variant="outline"
+            variant="inverted"
             size="lg"
-            className="border-transparent bg-foreground text-background disabled:opacity-10"
+            className="disabled:opacity-10"
           >
             <Plus className="size-4" />
             {dict.bikes.addBike}
@@ -96,9 +96,8 @@ export default async function BikesPage() {
           <Button
             render={<Link href="/bikes/new" />}
             nativeButton={false}
-            variant="outline"
+            variant="inverted"
             size="lg"
-            className="border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
           >
             <Plus className="size-4" />
             {dict.bikes.addBike}

@@ -130,8 +130,9 @@ export default async function ComponentDetailPage({
     <Button
       render={<Link href={`/bikes/${bike.id}/components/${component.id}/interventions/new`} />}
       nativeButton={false}
+      variant="inverted"
       size="sm"
-      className="h-[52px] w-[196px] border-transparent bg-foreground text-sm text-background hover:bg-foreground/90 hover:text-background"
+      className="h-[52px] w-[196px] text-sm"
     >
       <ToolIcon className="size-3.5" />
       {dict.dashboard.logMaintenance}

@@ -190,7 +190,8 @@ export function OnboardingDialog({
                 <Button
                   key="next"
                   type="button"
-                  className="w-full border-transparent bg-foreground text-background hover:bg-foreground/90"
+                  variant="inverted"
+                  className="w-full"
                   onClick={() => goToStep(step + 1)}
                 >
                   {step === 1 ? labels.getStarted : labels.next}
@@ -199,7 +200,8 @@ export function OnboardingDialog({
                 <Button
                   key="final"
                   type="button"
-                  className="w-full border-transparent bg-foreground text-background hover:bg-foreground/90"
+                  variant="inverted"
+                  className="w-full"
                   onClick={goToFirstBike}
                 >
                   {labels.addFirstBike}

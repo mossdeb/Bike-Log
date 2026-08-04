@@ -29,9 +29,9 @@ export function NewToBikitCard({
       <Button
         render={<Link href="/bikes/new" />}
         nativeButton={false}
-        variant="outline"
+        variant="inverted"
         size="lg"
-        className="h-[52px] w-[90%] border-transparent bg-foreground text-background hover:bg-foreground/90 hover:text-background"
+        className="h-[52px] w-[90%]"
       >
         {cta}
       </Button>

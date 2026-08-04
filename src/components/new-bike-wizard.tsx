@@ -108,7 +108,8 @@ export function NewBikeWizard({
           <Button
             key="next"
             type="button"
-            className="w-full border-transparent bg-foreground text-background hover:bg-foreground/90"
+            variant="inverted"
+            className="w-full"
             onClick={goNext}
           >
             {nextLabel}

@@ -9,6 +9,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        // The app's "black button": it inverts with the theme, so it reads
+        // white-on-dark in dark mode. Must be its own variant — layering these
+        // classes over `outline` left the outline's own `dark:bg-input/30` in
+        // play, which won in dark mode and gave dark text on a dark button.
+        inverted: "bg-foreground text-background hover:bg-foreground/90 hover:text-background",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:

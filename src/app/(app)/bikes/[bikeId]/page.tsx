@@ -190,9 +190,9 @@ export default async function BikeDetailPage({
     <Button
       type="button"
       disabled
-      variant="outline"
+      variant="inverted"
       size="sm"
-      className="h-[52px] w-[187px] border-transparent bg-foreground text-sm text-background disabled:opacity-10"
+      className="h-[52px] w-[187px] text-sm disabled:opacity-10"
     >
       <Plus className="size-3.5" />
       {dict.bikes.detail.addComponent}
@@ -201,9 +201,9 @@ export default async function BikeDetailPage({
     <Button
       render={<Link href={`/bikes/${bike.id}/components/new`} />}
       nativeButton={false}
-      variant="outline"
+      variant="inverted"
       size="sm"
-      className="h-[52px] w-[187px] border-transparent bg-foreground text-sm text-background hover:bg-foreground/90 hover:text-background"
+      className="h-[52px] w-[187px] text-sm"
     >
       <Plus className="size-3.5" />
       {dict.bikes.detail.addComponent}

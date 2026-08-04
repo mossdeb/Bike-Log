@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { cn } from "@/lib/utils";
-import { formatDate, formatDistance, formatNumber } from "@/lib/format";
+import { formatDate, formatDistance, formatHours } from "@/lib/format";
 import type { TimelineEvent } from "@/lib/timeline";
 import { INTERVENTION_TYPE_ICON } from "@/lib/intervention-type";
 import { INTERVENTION_TYPE_STYLES } from "@/components/type-badge";
@@ -9,6 +9,7 @@ import { ManufacturedIcon, PurchasedIcon, WarrantyIcon } from "@/components/time
 import { LogoIcon } from "@/components/logo";
 import { BikeIcon } from "@/components/bike-icon";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
+import type { Locale } from "@/lib/i18n";
 
 function TimelineDot({ large }: { large?: boolean }) {
   return <span className={cn("shrink-0 rounded-full bg-foreground", large ? "size-3" : "size-2.5")} />;
@@ -79,12 +80,14 @@ function MilestoneCard({
 export function BikeTimeline({
   events,
   dict,
+  locale,
   distanceUnit,
   bikeId,
   bikeType,
 }: {
   events: TimelineEvent[];
   dict: Dictionary;
+  locale: Locale;
   distanceUnit: "km" | "mi";
   bikeId: string;
   bikeType?: string | null;
@@ -107,8 +110,8 @@ export function BikeTimeline({
             const Icon = INTERVENTION_TYPE_ICON[event.type];
             const stats = [
               event.componentName,
-              event.kms != null ? formatDistance(event.kms, distanceUnit) : null,
-              event.hoursUsed != null ? `${formatNumber(event.hoursUsed)} h` : null,
+              event.kms != null ? formatDistance(event.kms, distanceUnit, locale) : null,
+              event.hoursUsed != null ? formatHours(event.hoursUsed, locale) : null,
             ]
               .filter(Boolean)
               .join(" · ");

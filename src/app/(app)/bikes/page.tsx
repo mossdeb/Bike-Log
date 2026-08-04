@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BikeIcon } from "@/components/bike-icon";
 import { HealthBadge } from "@/components/health-badge";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
-import { formatDistance, formatNumber } from "@/lib/format";
+import { formatDistance, formatHours } from "@/lib/format";
 import { StravaBadgeIcon } from "@/components/strava-icon";
 import { NewToBikitCard } from "@/components/new-to-bikit-card";
 import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
@@ -17,7 +17,8 @@ import { PLAN_LIMITS } from "@/lib/plans";
 export default async function BikesPage() {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
-  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const locale = localeFromMetadata(userData?.claims?.user_metadata);
+  const dict = getDictionary(locale);
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const userId = userData?.claims?.sub as string | undefined;
 
@@ -132,8 +133,8 @@ export default async function BikesPage() {
                     they mirror — the muted grey was the odd one out. */}
                 <p className="font-mono text-sm font-semibold text-foreground">
                   {[
-                    bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null,
-                    bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null,
+                    bike.total_km != null ? formatDistance(bike.total_km, distanceUnit, locale) : null,
+                    bike.total_hours != null ? formatHours(bike.total_hours, locale) : null,
                   ]
                     .filter(Boolean)
                     .join(" · ")}

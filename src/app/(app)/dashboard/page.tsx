@@ -3,7 +3,7 @@ import { Bike, Cog, ClipboardList, Inbox, AlertTriangle, Clock } from "lucide-re
 import { createClient } from "@/lib/supabase/server";
 import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, classifyHealth, healthPercent, type HealthLevel } from "@/lib/maintenance/health";
-import { formatDate, formatDistance, formatNumber } from "@/lib/format";
+import { formatDate, formatDistance, formatHours } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { BikeIcon } from "@/components/bike-icon";
@@ -40,7 +40,8 @@ export default async function DashboardPage({
   const showOnboarding =
     onboarding === "1" ||
     !(claims?.user_metadata as { onboarding_completed?: boolean } | undefined)?.onboarding_completed;
-  const dict = getDictionary(localeFromMetadata(claims?.user_metadata));
+  const locale = localeFromMetadata(claims?.user_metadata);
+  const dict = getDictionary(locale);
   const distanceUnit = ((claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
   const userId = claims?.sub as string | undefined;
 
@@ -228,8 +229,8 @@ export default async function DashboardPage({
                       they mirror — the muted grey was the odd one out. */}
                   <p className="font-mono text-sm font-semibold text-foreground">
                     {[
-                      bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null,
-                      bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null,
+                      bike.total_km != null ? formatDistance(bike.total_km, distanceUnit, locale) : null,
+                      bike.total_hours != null ? formatHours(bike.total_hours, locale) : null,
                     ]
                       .filter(Boolean)
                       .join(" · ")}
@@ -320,7 +321,7 @@ export default async function DashboardPage({
                       </p>
                     </div>
                     <div className="shrink-0 font-mono text-xs text-muted-foreground">
-                      {iv.kms != null ? formatDistance(iv.kms, distanceUnit) : iv.hours_used != null ? `${formatNumber(iv.hours_used)} h` : ""}
+                      {iv.kms != null ? formatDistance(iv.kms, distanceUnit, locale) : iv.hours_used != null ? formatHours(iv.hours_used, locale) : ""}
                     </div>
                   </Link>
                 );

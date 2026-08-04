@@ -10,7 +10,7 @@ import {
   type NamedIntervalStatusInput,
 } from "@/lib/maintenance/calculation";
 import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
-import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
+import { formatDate, formatDistance, formatHours, kmToUnit } from "@/lib/format";
 import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,8 @@ export default async function ComponentDetailPage({
     ]);
 
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
-  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const locale = localeFromMetadata(userData?.claims?.user_metadata);
+  const dict = getDictionary(locale);
 
   if (!bike) notFound();
   if (!component) notFound();
@@ -110,8 +111,8 @@ export default async function ComponentDetailPage({
   const percent = healthPercent(activeResult?.status.fractionUsed ?? null);
   const healthLevel = percent != null ? classifyHealth(percent) : null;
 
-  const distanceDetail = usage.km != null ? formatDistance(usage.km, distanceUnit) : null;
-  const hoursDetail = usage.hours != null ? `${formatNumber(usage.hours)} h` : null;
+  const distanceDetail = usage.km != null ? formatDistance(usage.km, distanceUnit, locale) : null;
+  const hoursDetail = usage.hours != null ? formatHours(usage.hours, locale) : null;
 
   const editButton = (
     <Button
@@ -234,13 +235,13 @@ export default async function ComponentDetailPage({
                   ? status.amountRemaining <= 0
                     ? dict.components.detail.overdueLabel(
                         interval.intervalType === "km"
-                          ? formatDistance(Math.abs(status.amountRemaining), distanceUnit)
-                          : `${formatNumber(Math.abs(status.amountRemaining))} h`
+                          ? formatDistance(Math.abs(status.amountRemaining), distanceUnit, locale)
+                          : formatHours(Math.abs(status.amountRemaining), locale)
                       )
                     : dict.components.detail.remainingLabel(
                         interval.intervalType === "km"
-                          ? formatDistance(status.amountRemaining, distanceUnit)
-                          : `${formatNumber(status.amountRemaining)} h`
+                          ? formatDistance(status.amountRemaining, distanceUnit, locale)
+                          : formatHours(status.amountRemaining, locale)
                       )
                   : status.daysRemaining != null
                     ? status.daysRemaining <= 0
@@ -312,8 +313,8 @@ export default async function ComponentDetailPage({
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{iv.description || dict.components.detail.noDescription}</p>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                    {iv.kms != null && <span>{formatDistance(iv.kms, distanceUnit)}</span>}
-                    {iv.hours_used != null && <span>{formatNumber(iv.hours_used)} h</span>}
+                    {iv.kms != null && <span>{formatDistance(iv.kms, distanceUnit, locale)}</span>}
+                    {iv.hours_used != null && <span>{formatHours(iv.hours_used, locale)}</span>}
                   </div>
                   {iv.notes && (
                     <p className="mt-3 rounded-[7px] bg-muted/50 px-4 py-3 text-sm text-muted-foreground">{iv.notes}</p>

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { manualSyncStrava } from "@/lib/actions/strava";
 import { selectActiveInterval, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
-import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
+import { formatDate, formatDistance, formatHours, kmToUnit } from "@/lib/format";
 import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -65,7 +65,8 @@ export default async function BikeDetailPage({
     supabase.from("bikes").select("*").eq("id", bikeId).single(),
   ]);
   const distanceUnit = ((userData?.claims?.user_metadata?.distance_unit as string) ?? "km") as "km" | "mi";
-  const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
+  const locale = localeFromMetadata(userData?.claims?.user_metadata);
+  const dict = getDictionary(locale);
   if (!bike) notFound();
 
   const syncIsError = syncStatus === "error" || syncStatus === "rate-limited" || syncStatus === "not-connected";
@@ -184,8 +185,8 @@ export default async function BikeDetailPage({
     interventions: timelineInterventions,
   });
 
-  const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null;
-  const hoursDetail = bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null;
+  const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit, locale) : null;
+  const hoursDetail = bike.total_hours != null ? formatHours(bike.total_hours, locale) : null;
 
   const addComponentButton = atComponentLimit ? (
     <Button
@@ -431,6 +432,7 @@ export default async function BikeDetailPage({
           <BikeTimeline
             events={timelineEvents}
             dict={dict}
+            locale={locale}
             distanceUnit={distanceUnit}
             bikeId={bike.id}
             bikeType={bike.type}

@@ -1,4 +1,9 @@
 const en = {
+  // Formatters live here rather than in `common`: `common` is handed whole to
+  // a Client Component (UserMenu), and functions can't cross that boundary.
+  format: {
+    warrantyYears: (years: number): string => `${years} ${years === 1 ? "year" : "years"}`,
+  },
   common: {
     save: "Save",
     cancel: "Cancel",
@@ -247,7 +252,8 @@ const en = {
       serialNumber: "Serial Number",
       purchaseDate: "Purchase Date",
       warranty: "Warranty",
-      warrantyPlaceholder: "e.g. 2 years",
+      warrantyLabel: "Warranty (years)",
+      warrantyPlaceholder: "e.g. 2",
       frameSize: "Frame size",
       frameSizePlaceholder: "e.g. L",
       wheelSize: "Wheel Size",
@@ -334,7 +340,8 @@ const en = {
       installDate: "Install date",
       purchaseDate: "Purchase Date",
       warranty: "Warranty",
-      warrantyPlaceholder: "e.g. 2 years",
+      warrantyLabel: "Warranty (years)",
+      warrantyPlaceholder: "e.g. 2",
       year: "Year",
       intervalLabel: "Maintenance reminders",
       intervalTypeKm: (unit: "km" | "mi"): string => (unit === "mi" ? "Miles" : "Kilometers"),

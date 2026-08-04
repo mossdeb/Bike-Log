@@ -10,7 +10,7 @@ export function bikeOptionalFieldLabels(dict: Dictionary): BikeOptionalFieldLabe
     serialNumber: form.serialNumber,
     year: form.year,
     purchaseDate: form.purchaseDate,
-    warranty: form.warranty,
+    warranty: form.warrantyLabel,
     warrantyPlaceholder: form.warrantyPlaceholder,
     frameSize: form.frameSize,
     frameSizePlaceholder: form.frameSizePlaceholder,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { warrantyYears } from "@/lib/warranty";
 import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,11 +58,14 @@ export function ComponentOptionalFields({
   labels: ComponentOptionalFieldLabels;
   defaults?: ComponentOptionalFieldDefaults;
 }) {
-  const fieldConfig: Record<FieldKey, { label: string; placeholder?: string; type?: string }> = {
+  const fieldConfig: Record<
+    FieldKey,
+    { label: string; placeholder?: string; type?: string; min?: number; step?: number }
+  > = {
     install_date: { label: labels.installDate, type: "date" },
     serial_number: { label: labels.serialNumber, placeholder: labels.optional },
     purchase_date: { label: labels.purchaseDate, type: "date" },
-    warranty: { label: labels.warranty, placeholder: labels.warrantyPlaceholder },
+    warranty: { label: labels.warranty, placeholder: labels.warrantyPlaceholder, type: "number", min: 0, step: 0.5 },
     year: { label: labels.year, type: "number" },
     notes: { label: labels.notes, placeholder: labels.notesPlaceholder },
   };
@@ -78,14 +82,25 @@ export function ComponentOptionalFields({
   const [open, setOpen] = useState(false);
 
   function renderField(key: FieldKey, fullWidth: boolean) {
-    const { label, placeholder, type } = fieldConfig[key];
+    const { label, placeholder, type, min, step } = fieldConfig[key];
+    // Warranty is stored as text (the column predates the numeric field), so a
+    // legacy "2 anos" has to come back as a number for the input to show it.
+    const defaultValue = key === "warranty" ? warrantyYears(defaults.warranty) ?? "" : defaults[key] ?? "";
     return (
       <div key={key} className={fullWidth ? "space-y-1.5 sm:col-span-2" : "space-y-1.5"}>
         <Label htmlFor={key}>{label}</Label>
         {key === "notes" ? (
           <Textarea id={key} name={key} placeholder={placeholder} defaultValue={defaults.notes ?? ""} />
         ) : (
-          <Input id={key} name={key} type={type ?? "text"} placeholder={placeholder} defaultValue={defaults[key] ?? ""} />
+          <Input
+            id={key}
+            name={key}
+            type={type ?? "text"}
+            min={min}
+            step={step}
+            placeholder={placeholder}
+            defaultValue={defaultValue}
+          />
         )}
       </div>
     );

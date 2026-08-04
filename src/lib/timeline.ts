@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { warrantyExpiryDate } from "@/lib/warranty";
 import type { InterventionType } from "@/lib/intervention-type";
 
@@ -57,7 +58,9 @@ export function buildBikeTimeline(input: {
 
   const expiry = warrantyExpiryDate(input.bike.purchase_date, input.bike.warranty);
   if (expiry) {
-    const expiryDate = expiry.toISOString().slice(0, 10);
+    // Local date parts, not toISOString(): the expiry is a local midnight, and
+    // UTC would shift it a day back for anyone ahead of UTC.
+    const expiryDate = format(expiry, "yyyy-MM-dd");
     events.push({ kind: "warrantyExpired", sortDate: expiryDate, date: expiryDate });
   }
 

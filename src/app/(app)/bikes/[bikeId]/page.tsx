@@ -6,6 +6,7 @@ import { manualSyncStrava } from "@/lib/actions/strava";
 import { selectActiveInterval, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
+import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
@@ -238,7 +239,11 @@ export default async function BikeDetailPage({
         <DetailField label={dict.bikes.form.purchaseDate} value={formatDate(bike.purchase_date)} className={fieldBasis} />
       )}
       {bike.warranty && (
-        <DetailField label={dict.bikes.form.warranty} value={bike.warranty} className={fieldBasis} />
+        <DetailField
+          label={dict.bikes.form.warranty}
+          value={formatWarranty(bike.warranty, dict.format.warrantyYears)}
+          className={fieldBasis}
+        />
       )}
       {bike.year && <DetailField label={dict.bikes.form.year} value={bike.year} className={fieldBasis} />}
       {bike.frame_size && (

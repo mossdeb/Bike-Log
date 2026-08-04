@@ -10,7 +10,7 @@ export function componentOptionalFieldLabels(dict: Dictionary): ComponentOptiona
     installDate: form.installDate,
     serialNumber: form.serialNumber,
     purchaseDate: form.purchaseDate,
-    warranty: form.warranty,
+    warranty: form.warrantyLabel,
     warrantyPlaceholder: form.warrantyPlaceholder,
     year: form.year,
     notes: form.notes,

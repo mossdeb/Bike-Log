@@ -11,6 +11,7 @@ import {
 } from "@/lib/maintenance/calculation";
 import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatNumber, kmToUnit } from "@/lib/format";
+import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
@@ -177,7 +178,11 @@ export default async function ComponentDetailPage({
               <DetailField label={dict.components.form.purchaseDate} value={formatDate(component.purchase_date)} className={fieldBasis} />
             )}
             {component.warranty && (
-              <DetailField label={dict.components.form.warranty} value={component.warranty} className={fieldBasis} />
+              <DetailField
+                label={dict.components.form.warranty}
+                value={formatWarranty(component.warranty, dict.format.warrantyYears)}
+                className={fieldBasis}
+              />
             )}
             {component.year && (
               <DetailField label={dict.components.form.year} value={component.year} className={fieldBasis} />

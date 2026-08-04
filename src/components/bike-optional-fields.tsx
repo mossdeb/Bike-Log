@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { warrantyYears } from "@/lib/warranty";
 import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,11 +99,14 @@ export function BikeOptionalFields({
   labels: BikeOptionalFieldLabels;
   defaults?: BikeOptionalFieldDefaults;
 }) {
-  const fieldConfig: Record<FieldKey, { label: string; placeholder?: string; type?: string }> = {
+  const fieldConfig: Record<
+    FieldKey,
+    { label: string; placeholder?: string; type?: string; min?: number; step?: number }
+  > = {
     serial_number: { label: labels.serialNumber, placeholder: labels.optional },
     year: { label: labels.year, type: "number" },
     purchase_date: { label: labels.purchaseDate, type: "date" },
-    warranty: { label: labels.warranty, placeholder: labels.warrantyPlaceholder },
+    warranty: { label: labels.warranty, placeholder: labels.warrantyPlaceholder, type: "number", min: 0, step: 0.5 },
     frame_size: { label: labels.frameSize, placeholder: labels.frameSizePlaceholder },
     color: { label: labels.color, placeholder: labels.colorPlaceholder },
     wheel_size: { label: labels.wheelSize, placeholder: labels.wheelSizePlaceholder },
@@ -123,8 +127,11 @@ export function BikeOptionalFields({
   return (
     <>
       {FIELD_ORDER.filter((key) => activeFields.has(key)).map((key) => {
-        const { label, placeholder, type } = fieldConfig[key];
+        const { label, placeholder, type, min, step } = fieldConfig[key];
         const fullWidth = FULL_WIDTH_FIELDS.has(key);
+        // Warranty is stored as text (the column predates the numeric field),
+        // so a legacy "2 anos" has to come back as a number for the input.
+        const defaultValue = key === "warranty" ? warrantyYears(defaults.warranty) ?? "" : defaults[key] ?? "";
         return (
           <div key={key} className={fullWidth ? "space-y-1.5 sm:col-span-2" : "space-y-1.5"}>
             <Label htmlFor={key}>{label}</Label>
@@ -135,8 +142,10 @@ export function BikeOptionalFields({
                 id={key}
                 name={key}
                 type={type ?? "text"}
+                min={min}
+                step={step}
                 placeholder={placeholder}
-                defaultValue={defaults[key] ?? ""}
+                defaultValue={defaultValue}
               />
             )}
           </div>

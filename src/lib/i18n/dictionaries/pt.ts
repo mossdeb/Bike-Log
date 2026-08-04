@@ -1,6 +1,10 @@
 import type { Dictionary } from "./en";
 
 const pt: Dictionary = {
+  format: {
+    warrantyYears: (years: number): string =>
+      `${String(years).replace(".", ",")} ${years === 1 ? "ano" : "anos"}`,
+  },
   common: {
     save: "Guardar",
     cancel: "Cancelar",
@@ -249,7 +253,8 @@ const pt: Dictionary = {
       serialNumber: "Nº de série",
       purchaseDate: "Data de compra",
       warranty: "Garantia",
-      warrantyPlaceholder: "ex. 2 anos",
+      warrantyLabel: "Garantia (anos)",
+      warrantyPlaceholder: "ex. 2",
       frameSize: "Tamanho do quadro",
       frameSizePlaceholder: "ex. L",
       wheelSize: "Tamanho da roda",
@@ -336,7 +341,8 @@ const pt: Dictionary = {
       installDate: "Data de instalação",
       purchaseDate: "Data de compra",
       warranty: "Garantia",
-      warrantyPlaceholder: "ex. 2 anos",
+      warrantyLabel: "Garantia (anos)",
+      warrantyPlaceholder: "ex. 2",
       year: "Ano",
       intervalLabel: "Lembretes de manutenção",
       intervalTypeKm: (unit: "km" | "mi"): string => (unit === "mi" ? "Milhas" : "Quilómetros"),

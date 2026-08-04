@@ -117,6 +117,35 @@ const en = {
       weeklySummary: "Weekly summary",
       weeklySummarySub: "A weekly digest of your fleet's maintenance status.",
     },
+    pushNotifications: {
+      title: "Push notifications",
+      description: "Alerts on your phone or desktop, even when Bikit isn't open.",
+      enable: "Notifications on this device",
+      enableSub: "Every device you use has to be turned on separately.",
+      dueSoon: "Maintenance due soon",
+      dueSoonSub: "When a component's health drops to Need Attention.",
+      overdue: "Service due",
+      overdueSub: "When a component's health drops to Service Due.",
+      stravaSync: "Strava sync",
+      stravaSyncSub: "When a ride updates a bike's distance or hours.",
+      unsupported: "This browser doesn't support push notifications.",
+      iosHint: "On iPhone and iPad, add Bikit to your Home Screen first — Safari only delivers notifications to installed apps.",
+      offTitle: "Notifications are off on this device.",
+      offBody: "Turn them on to get maintenance alerts and Strava syncs.",
+      offAction: "Turn on notifications",
+      blockedTitle: "Notifications are blocked on this device.",
+      blockedBody: "Allow them in your browser settings to get maintenance alerts and Strava syncs.",
+      // Where to go once the browser has been told "no" — at that point
+      // nothing in the page can reopen the prompt, so the only help we can
+      // give is the path through that particular browser's own settings.
+      blockedPath: {
+        ios: "Settings → Notifications → Bikit → Allow",
+        safari: "Safari → Settings → Websites → Notifications",
+        chrome: "Chrome → Settings → Privacy and security → Site settings → Notifications",
+        firefox: "Firefox → Settings → Privacy & Security → Permissions → Notifications",
+        other: "Your browser's settings → Site permissions → Notifications",
+      },
+    },
     preferences: {
       title: "Preferences",
       description: "Units and appearance.",
@@ -440,6 +469,17 @@ const en = {
     },
     cta: "View in Bikit",
     footer: "You're receiving this because you enabled maintenance email alerts in your Bikit settings.",
+  },
+  // Web Push copy. The maintenance notifications borrow their heading and
+  // body from `email` above rather than restating them (see the
+  // check-services cron) — those sentences already read as one line, and a
+  // second copy would be one more thing to keep in sync across languages.
+  // Strava sync is the only push with no email equivalent to borrow from.
+  push: {
+    stravaSync: {
+      title: (bikeName: string): string => `${bikeName} updated`,
+      body: (distance: string, hours: string): string => `Strava added ${distance} · ${hours}.`,
+    },
   },
   auth: {
     login: {

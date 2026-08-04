@@ -302,6 +302,7 @@ export type Database = {
       }
       notification_log: {
         Row: {
+          channel: string
           component_id: string | null
           episode_date: string | null
           id: string
@@ -311,6 +312,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          channel?: string
           component_id?: string | null
           episode_date?: string | null
           id?: string
@@ -320,6 +322,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          channel?: string
           component_id?: string | null
           episode_date?: string | null
           id?: string
@@ -358,6 +361,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       strava_activities: {
         Row: {

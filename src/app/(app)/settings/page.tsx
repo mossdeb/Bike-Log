@@ -13,6 +13,7 @@ import { FormError } from "@/components/form-error";
 import { ThemeSelect } from "@/components/theme-select";
 import { PreferencesForm } from "@/components/preferences-form";
 import { NotificationsForm } from "@/components/notifications-form";
+import { PushNotificationsForm } from "@/components/push-notifications-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
 import { BillingSection } from "@/components/billing-section";
 import { InstallAppButton } from "@/components/install-app-button";
@@ -87,6 +88,13 @@ export default async function SettingsPage({
     dueSoon: (user?.user_metadata?.notify_due_soon as boolean) ?? true,
     overdue: (user?.user_metadata?.notify_overdue as boolean) ?? true,
     weeklySummary: (user?.user_metadata?.notify_weekly_summary as boolean) ?? false,
+  };
+  const pushPrefs = {
+    dueSoon: (user?.user_metadata?.push_due_soon as boolean) ?? true,
+    overdue: (user?.user_metadata?.push_overdue as boolean) ?? true,
+    // Opt-in, unlike the two maintenance alerts: this one fires on every ride
+    // that syncs rather than on a state the rider needs to act on.
+    stravaSync: (user?.user_metadata?.push_strava_sync as boolean) ?? false,
   };
   const providers = (user?.app_metadata?.providers as string[] | undefined) ?? [];
   const isGoogleUser = providers.includes("google");
@@ -173,6 +181,17 @@ export default async function SettingsPage({
           description={dict.settings.notifications.description}
         >
           <NotificationsForm prefs={notificationPrefs} dict={dict.settings.notifications} />
+        </SettingsSection>
+
+        <SettingsSection
+          title={dict.settings.pushNotifications.title}
+          description={dict.settings.pushNotifications.description}
+        >
+          <PushNotificationsForm
+            prefs={pushPrefs}
+            vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""}
+            dict={dict.settings.pushNotifications}
+          />
         </SettingsSection>
 
         <SettingsSection

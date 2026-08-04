@@ -118,6 +118,33 @@ const pt: Dictionary = {
       weeklySummary: "Resumo semanal",
       weeklySummarySub: "Um resumo semanal do estado de manutenção da sua frota.",
     },
+    pushNotifications: {
+      title: "Notificações push",
+      description: "Alertas no telemóvel ou no computador, mesmo com a Bikit fechada.",
+      enable: "Notificações neste dispositivo",
+      enableSub: "Cada dispositivo que usa tem de ser ativado separadamente.",
+      dueSoon: "Manutenção a chegar",
+      dueSoonSub: 'Quando a saúde de um componente desce para "Precisa de Atenção".',
+      overdue: "Serviço Necessário",
+      overdueSub: 'Quando a saúde de um componente desce para "Serviço Necessário".',
+      stravaSync: "Sincronização Strava",
+      stravaSyncSub: "Quando uma atividade atualiza os quilómetros ou as horas de uma bicicleta.",
+      unsupported: "Este navegador não suporta notificações push.",
+      iosHint: "No iPhone e no iPad, adicione primeiro a Bikit ao ecrã principal — o Safari só entrega notificações a apps instaladas.",
+      offTitle: "As notificações estão desativadas neste dispositivo.",
+      offBody: "Ative-as para receber alertas de manutenção e sincronizações do Strava.",
+      offAction: "Ativar notificações",
+      blockedTitle: "As notificações estão bloqueadas neste dispositivo.",
+      blockedBody:
+        "Ative-as nas definições do navegador para receber alertas de manutenção e sincronizações do Strava.",
+      blockedPath: {
+        ios: "Definições → Notificações → Bikit → Permitir",
+        safari: "Safari → Definições → Sites → Notificações",
+        chrome: "Chrome → Definições → Privacidade e segurança → Definições do site → Notificações",
+        firefox: "Firefox → Definições → Privacidade e Segurança → Permissões → Notificações",
+        other: "Definições do navegador → Permissões do site → Notificações",
+      },
+    },
     preferences: {
       title: "Preferências",
       description: "Unidades e aparência.",
@@ -443,6 +470,12 @@ const pt: Dictionary = {
     },
     cta: "Ver na Bikit",
     footer: "Está a receber este email porque ativou os alertas de manutenção nas definições da Bikit.",
+  },
+  push: {
+    stravaSync: {
+      title: (bikeName: string): string => `${bikeName} atualizada`,
+      body: (distance: string, hours: string): string => `O Strava somou ${distance} · ${hours}.`,
+    },
   },
   auth: {
     login: {

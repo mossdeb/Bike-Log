@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkStravaSubscriptionHealth, getValidStravaAccessToken, syncActivityToBike, type StravaActivity } from "@/lib/strava";
+import { sendStravaSyncPush, type SyncedBike } from "@/lib/push";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +41,21 @@ export async function GET(request: Request) {
     }
 
     const activities: StravaActivity[] = await res.json();
+    // Three days of backfill can be several rides on the same bike; they're
+    // rolled up per bike so the rider gets one notification saying how much
+    // the bike moved, not one per ride.
+    const byBike = new Map<string, SyncedBike>();
     for (const activity of activities) {
       const result = await syncActivityToBike(admin, connection.user_id, activity);
-      if (result === "synced") synced += 1;
+      if (result.status !== "synced") continue;
+      synced += 1;
+      const entry = byBike.get(result.bikeId) ?? { id: result.bikeId, name: result.bikeName, km: 0, hours: 0 };
+      entry.km += result.distanceKm;
+      entry.hours += result.movingHours;
+      byBike.set(result.bikeId, entry);
     }
+
+    await sendStravaSyncPush(admin, connection.user_id, [...byBike.values()]);
   }
 
   return Response.json({ synced });

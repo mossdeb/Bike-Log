@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchStravaActivity, getValidStravaAccessToken, syncActivityToBike } from "@/lib/strava";
+import { sendStravaSyncPush } from "@/lib/push";
 
 export const dynamic = "force-dynamic";
 
@@ -48,8 +49,13 @@ export async function POST(request: Request) {
   }
 
   const result = await syncActivityToBike(admin, connection.user_id, activity);
-  if (result === "error") {
+  if (result.status === "error") {
     console.error("[strava webhook] failed to sync activity", activity.id);
+  }
+  if (result.status === "synced") {
+    await sendStravaSyncPush(admin, connection.user_id, [
+      { id: result.bikeId, name: result.bikeName, km: result.distanceKm, hours: result.movingHours },
+    ]);
   }
 
   return Response.json({ ok: true });

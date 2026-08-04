@@ -143,6 +143,12 @@ export function isCyclingActivity(activity: StravaActivity): boolean {
   return CYCLING_TYPES.has(activity.sport_type) || CYCLING_TYPES.has(activity.type);
 }
 
+/** A "synced" result carries the bike it landed on and how much it moved, so
+ * the caller can notify without re-reading the bike. */
+export type SyncActivityResult =
+  | { status: "skipped" | "duplicate" | "error" }
+  | { status: "synced"; bikeId: string; bikeName: string; distanceKm: number; movingHours: number };
+
 /** Records one Strava activity against the Bikit bike its gear maps to.
  * Idempotent via the unique key on strava_activity_id — safe to call for an
  * activity that's already been synced (by the webhook or a prior cron pass).
@@ -152,16 +158,16 @@ export async function syncActivityToBike(
   admin: SupabaseClient<Database>,
   userId: string,
   activity: StravaActivity
-): Promise<"synced" | "skipped" | "duplicate" | "error"> {
-  if (!activity.gear_id || !isCyclingActivity(activity)) return "skipped";
+): Promise<SyncActivityResult> {
+  if (!activity.gear_id || !isCyclingActivity(activity)) return { status: "skipped" };
 
   const { data: bike } = await admin
     .from("bikes")
-    .select("id, total_km, total_hours")
+    .select("id, name, total_km, total_hours")
     .eq("strava_gear_id", activity.gear_id)
     .eq("user_id", userId)
     .maybeSingle();
-  if (!bike) return "skipped";
+  if (!bike) return { status: "skipped" };
 
   const distanceKm = activity.distance / 1000;
   const movingHours = activity.moving_time / 3600;
@@ -173,9 +179,9 @@ export async function syncActivityToBike(
     moving_time_hours: movingHours,
   });
   if (insertError) {
-    if (insertError.code === "23505") return "duplicate";
+    if (insertError.code === "23505") return { status: "duplicate" };
     console.error("[strava] failed to record activity", activity.id, insertError.message);
-    return "error";
+    return { status: "error" };
   }
 
   await admin
@@ -186,7 +192,7 @@ export async function syncActivityToBike(
     })
     .eq("id", bike.id);
 
-  return "synced";
+  return { status: "synced", bikeId: bike.id, bikeName: bike.name, distanceKm, movingHours };
 }
 
 /** Batch equivalent of syncActivityToBike for a whole list of activities, used

@@ -27,8 +27,6 @@ export function LandingHero({ dict }: { dict: LandingDictionary["hero"] }) {
               {dict.titleLine2}.
             </h1>
 
-            <div className="h-px w-full bg-[#101014]/20" />
-
             <p className="max-w-[460px] text-base font-medium leading-relaxed text-[#101014]/80 sm:text-[16.8px]">
               {dict.subtitle}
             </p>

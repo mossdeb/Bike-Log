@@ -15,7 +15,7 @@ export function LandingHero({ dict }: { dict: LandingDictionary["hero"] }) {
             block alone is moved below the buttons (see `order-last`). On desktop
             the visual is lifted out of the flow to fill the card's full height
             and run off its right edge, and `pr` keeps the copy clear of it. */}
-        <div className="grid grid-cols-1 gap-8 px-6 py-12 sm:px-12 lg:px-24 xl:min-h-[792px] xl:content-center xl:py-20 xl:pr-[54%]">
+        <div className="grid grid-cols-1 gap-8 px-6 pb-12 pt-6 sm:px-12 sm:pt-12 lg:px-24 xl:min-h-[792px] xl:content-center xl:py-20 xl:pr-[54%]">
           <div className="flex flex-col gap-6">
             <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white py-2 pl-3 pr-4 shadow-sm">
               <img src="/landing/icons/bike-enduro.svg" alt="" className="h-3.5 w-auto" />

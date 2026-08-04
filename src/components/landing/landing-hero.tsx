@@ -6,7 +6,9 @@ export function LandingHero({ dict }: { dict: LandingDictionary["hero"] }) {
   return (
     // pb-1 because the next section already brings 96px of its own padding-top:
     // 4 + 96 = the 100px gap the design asks for.
-    <section className="bg-white pb-1 pt-4 xl:px-8">
+    // No padding-top below xl: there the header already carries the card's
+    // colour, and 16px of white between the two would split the surface.
+    <section className="bg-white pb-1 xl:px-8 xl:pt-4">
       {/* Full bleed until the desktop layout: no side margin, square corners. */}
       <div className="relative mx-auto max-w-[1470px] overflow-hidden bg-[#B8B3AF] xl:rounded-[20px]">
         {/* The DOM order is the desktop reading order; on mobile the subtitle

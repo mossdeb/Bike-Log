@@ -18,7 +18,10 @@ export function LandingHeader({
   ];
 
   return (
-    <header className="bg-white">
+    // While the hero card bleeds to the viewport edges (below xl) the header
+    // wears the card's own colour, so the two read as one surface. From xl the
+    // card is inset with rounded corners and the header goes back to white.
+    <header className="bg-[#B8B3AF] xl:bg-white">
       <div className="mx-auto flex max-w-[1160px] items-center px-5 py-4 sm:px-8">
         <a href="#top" className="flex items-center gap-2.5">
           <img src="/landing/icons/logo.svg" alt="" className="h-[34px] w-[34px]" />

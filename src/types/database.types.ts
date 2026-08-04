@@ -89,6 +89,45 @@ export type Database = {
         }
         Relationships: []
       }
+      component_interval_notifications: {
+        Row: {
+          channel: string
+          level: string
+          notified_at: string
+          service_interval_id: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          level: string
+          notified_at?: string
+          service_interval_id: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          level?: string
+          notified_at?: string
+          service_interval_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_interval_notifications_service_interval_id_fkey"
+            columns: ["service_interval_id"]
+            isOneToOne: false
+            referencedRelation: "component_interval_status"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_interval_notifications_service_interval_id_fkey"
+            columns: ["service_interval_id"]
+            isOneToOne: false
+            referencedRelation: "component_service_intervals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       component_service_intervals: {
         Row: {
           component_id: string

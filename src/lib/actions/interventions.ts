@@ -103,6 +103,15 @@ export async function createIntervention(bikeId: string, componentId: string, fo
     );
   }
 
+  // Servicing an interval clears whatever maintenance state the owner was
+  // last notified about, so the next decline announces itself again. The
+  // cron also clears this once it sees the interval healthy, but doing it
+  // here closes the gap for an interval short enough to wear back down
+  // before tomorrow's run.
+  if (resetIntervalId) {
+    await supabase.from("component_interval_notifications").delete().eq("service_interval_id", resetIntervalId);
+  }
+
   revalidatePath(`/bikes/${bikeId}`);
   revalidatePath(`/bikes/${bikeId}/components/${componentId}`);
   redirect(`/bikes/${bikeId}/components/${componentId}`);

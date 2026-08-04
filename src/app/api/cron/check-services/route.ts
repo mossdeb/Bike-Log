@@ -1,13 +1,23 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
+import {
+  calculateComponentStatus,
+  selectActiveInterval,
+  type NamedIntervalStatusInput,
+} from "@/lib/maintenance/calculation";
 import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
-import { localeFromMetadata } from "@/lib/i18n";
-import { formatDate, formatDistance, formatNumber } from "@/lib/format";
+import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { formatDate, formatDistance, formatHours } from "@/lib/format";
 import { sendDueSoonEmail, sendOverdueEmail, sendWeeklySummaryEmail, type WeeklySummaryItem } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
 
 export const dynamic = "force-dynamic";
 
 const WEEKLY_SUMMARY_MIN_GAP_DAYS = 6;
+
+type NotifyLevel = "attention" | "critical";
+/** Only a move to a *worse* band is news. */
+const LEVEL_RANK: Record<NotifyLevel, number> = { attention: 1, critical: 2 };
+const CHANNELS = ["email", "push"] as const;
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
@@ -33,9 +43,15 @@ export async function GET(request: Request) {
       const notifyDueSoon = (meta.notify_due_soon as boolean) ?? true;
       const notifyOverdue = (meta.notify_overdue as boolean) ?? true;
       const notifyWeeklySummary = (meta.notify_weekly_summary as boolean) ?? false;
-      if (!user.email || (!notifyDueSoon && !notifyOverdue && !notifyWeeklySummary)) continue;
+      const pushDueSoon = (meta.push_due_soon as boolean) ?? true;
+      const pushOverdue = (meta.push_overdue as boolean) ?? true;
+      // Email needs an address; push doesn't, so an account with every email
+      // toggle off still has to be processed for its push notifications.
+      const wantsEmail = !!user.email && (notifyDueSoon || notifyOverdue || notifyWeeklySummary);
+      if (!wantsEmail && !pushDueSoon && !pushOverdue) continue;
 
       const locale = localeFromMetadata(meta);
+      const dict = getDictionary(locale);
       const distanceUnit = ((meta.distance_unit as string) ?? "km") as "km" | "mi";
 
       const { data: bikes } = await admin.from("bikes").select("id, name, total_km, total_hours").eq("user_id", user.id);
@@ -54,6 +70,17 @@ export async function GET(request: Request) {
           "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
         )
         .eq("user_id", user.id);
+
+      // The band we last told this owner about, per interval and channel.
+      // Absence means "nothing outstanding" — either never notified, or the
+      // interval has since been serviced.
+      const { data: notifiedRows } = await admin
+        .from("component_interval_notifications")
+        .select("service_interval_id, channel, level")
+        .eq("user_id", user.id);
+      const notified = new Map(
+        (notifiedRows ?? []).map((row) => [`${row.service_interval_id}:${row.channel}`, row.level as NotifyLevel])
+      );
 
       const intervalsByComponent = new Map<string, NamedIntervalStatusInput[]>();
       for (const row of intervalRows ?? []) {
@@ -79,6 +106,7 @@ export async function GET(request: Request) {
 
       const dueSoonItems: WeeklySummaryItem[] = [];
       const overdueItems: WeeklySummaryItem[] = [];
+      const recoveredIntervalIds: string[] = [];
 
       for (const component of components ?? []) {
         if (!component.id || !component.bike_id || !component.name) continue;
@@ -90,21 +118,42 @@ export async function GET(request: Request) {
           currentKm: bike.total_km,
           currentHours: bike.total_hours,
         }));
+
+        // Forget the stored band for any interval that's climbed back into a
+        // healthy range, so it can announce itself again next time it wears
+        // down. Every interval is checked, not just the active one: an
+        // interval that was critical and then had its value raised stops
+        // being active without any intervention, and its stale row would
+        // otherwise silence it forever.
+        for (const candidate of intervals) {
+          const candidatePercent = healthPercent(calculateComponentStatus(candidate).fractionUsed);
+          const candidateLevel = candidatePercent == null ? null : classifyHealth(candidatePercent);
+          if (candidateLevel === "attention" || candidateLevel === "critical") continue;
+          if (CHANNELS.some((channel) => notified.has(`${candidate.id}:${channel}`))) {
+            recoveredIntervalIds.push(candidate.id);
+          }
+        }
+
         const activeResult = selectActiveInterval(intervals);
         if (!activeResult) continue;
         const { interval, status } = activeResult;
-        const { status: statusKind, nextDueDate, daysRemaining, amountRemaining, fractionUsed } = status;
+        const { nextDueDate, daysRemaining, amountRemaining, fractionUsed } = status;
 
-        // "Overdue" notifications now fire off the same Service Due threshold
-        // (health < 5%) shown in the UI, rather than the old strict
-        // amountRemaining/daysRemaining <= 0 check — so a component can reach
-        // "overdue" here slightly before it's technically past due. isPastDue
-        // tracks which wording the email should use for that edge.
+        // Both notifications fire off exactly the health bands the UI paints
+        // on the badge — Need Attention below 25%, Service Due below 5%. They
+        // used to key off calculation.ts's own "due soon" window (the last 10%
+        // of a km/hours interval, or 14 days), which sits almost entirely
+        // inside the Service Due band: a component showing "Need Attention"
+        // in the app could pass through the whole state without ever
+        // qualifying. Consequence of firing on health rather than on time
+        // remaining: a component can reach "overdue" here before it's
+        // technically past due, so isPastDue picks the right wording.
         const percent = healthPercent(fractionUsed);
-        const isCritical = percent != null && classifyHealth(percent) === "critical";
-        const type: "due_soon" | "overdue" | null =
-          isCritical ? "overdue" : statusKind === "due_soon" ? "due_soon" : null;
-        if (!type) continue;
+        const health = percent == null ? null : classifyHealth(percent);
+        const level: NotifyLevel | null =
+          health === "critical" ? "critical" : health === "attention" ? "attention" : null;
+        if (!level) continue;
+        const type = level === "critical" ? "overdue" : "due_soon";
         const isPastDue = (daysRemaining ?? amountRemaining ?? 0) <= 0;
 
         // km/hours criteria have no base date at all — fall back to when the
@@ -116,8 +165,8 @@ export async function GET(request: Request) {
         const amountDetail =
           amountRemaining != null
             ? interval.intervalType === "km"
-              ? formatDistance(Math.abs(amountRemaining), distanceUnit)
-              : `${formatNumber(Math.abs(amountRemaining))} h`
+              ? formatDistance(Math.abs(amountRemaining), distanceUnit, locale)
+              : formatHours(Math.abs(amountRemaining), locale)
             : null;
 
         if (type === "due_soon") {
@@ -136,56 +185,103 @@ export async function GET(request: Request) {
           });
         }
 
-        const shouldNotify = type === "due_soon" ? notifyDueSoon : notifyOverdue;
-        if (!shouldNotify) continue;
+        // Fires on the transition into a band, not on the component sitting
+        // in one: the same band as last time (or a milder one) means the
+        // owner has already been told, and only a move to something worse is
+        // news. Email and push track their own band, since they're opted into
+        // separately — neither having gone out stops the other.
+        async function deliver(channel: "email" | "push", enabled: boolean, send: () => Promise<boolean>) {
+          if (!enabled) return;
 
-        const { data: existingLog } = await admin
-          .from("notification_log")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("component_id", component.id)
-          .eq("service_interval_id", interval.id)
-          .eq("type", type)
-          .eq("episode_date", episodeDate)
-          .maybeSingle();
-        if (existingLog) continue;
+          const previous = notified.get(`${interval.id}:${channel}`);
+          if (previous && LEVEL_RANK[previous] >= LEVEL_RANK[level!]) return;
 
-        const wasSent =
+          if (!(await send())) return;
+
+          await Promise.all([
+            admin.from("component_interval_notifications").upsert({
+              service_interval_id: interval.id,
+              channel,
+              user_id: user.id,
+              level: level!,
+              notified_at: new Date().toISOString(),
+            }),
+            // Kept purely as an audit trail now that it no longer gates
+            // anything — episode_date included because it's what tells you
+            // which service cycle a past send belonged to.
+            admin.from("notification_log").insert({
+              user_id: user.id,
+              component_id: component.id,
+              service_interval_id: interval.id,
+              type,
+              episode_date: episodeDate,
+              channel,
+            }),
+          ]);
+          sent.push(`${channel}:${type}:${component.id}:${interval.id}`);
+        }
+
+        const emailDict = type === "due_soon" ? dict.email.dueSoon : dict.email.overdue;
+        // The push body is deliberately the same sentence as the email's —
+        // it already reads as one line, and a second copy of it would be one
+        // more thing to keep in sync across two languages.
+        const pushBody =
           type === "due_soon"
-            ? await sendDueSoonEmail({
-                to: user.email,
-                locale,
-                componentName: componentLabel,
-                bikeName: bike.name,
-                detail: amountDetail ? { kind: "amount", amount: amountDetail } : { kind: "date", date: nextDueDate! },
-                componentUrl,
-                siteUrl,
-              })
-            : await sendOverdueEmail({
-                to: user.email,
-                locale,
-                componentName: componentLabel,
-                bikeName: bike.name,
-                detail: amountDetail
-                  ? { kind: "amount", amount: amountDetail }
-                  : { kind: "days", days: Math.abs(daysRemaining ?? 0) },
-                isPastDue,
-                componentUrl,
-                siteUrl,
-              });
-        if (!wasSent) continue;
+            ? amountDetail
+              ? dict.email.dueSoon.bodyByAmount(componentLabel, bike.name, amountDetail)
+              : dict.email.dueSoon.bodyByDate(componentLabel, bike.name, formatDate(nextDueDate!))
+            : amountDetail
+              ? dict.email.overdue.bodyByAmount(componentLabel, bike.name, amountDetail, isPastDue)
+              : dict.email.overdue.bodyByDays(componentLabel, bike.name, Math.abs(daysRemaining ?? 0), isPastDue);
 
-        await admin.from("notification_log").insert({
-          user_id: user.id,
-          component_id: component.id,
-          service_interval_id: interval.id,
-          type,
-          episode_date: episodeDate,
-        });
-        sent.push(`${type}:${component.id}:${interval.id}`);
+        await Promise.all([
+          deliver("email", !!user.email && (type === "due_soon" ? notifyDueSoon : notifyOverdue), () =>
+            type === "due_soon"
+              ? sendDueSoonEmail({
+                  to: user.email!,
+                  locale,
+                  componentName: componentLabel,
+                  bikeName: bike.name,
+                  detail: amountDetail
+                    ? { kind: "amount", amount: amountDetail }
+                    : { kind: "date", date: nextDueDate! },
+                  componentUrl,
+                  siteUrl,
+                })
+              : sendOverdueEmail({
+                  to: user.email!,
+                  locale,
+                  componentName: componentLabel,
+                  bikeName: bike.name,
+                  detail: amountDetail
+                    ? { kind: "amount", amount: amountDetail }
+                    : { kind: "days", days: Math.abs(daysRemaining ?? 0) },
+                  isPastDue,
+                  componentUrl,
+                  siteUrl,
+                })
+          ),
+          deliver("push", type === "due_soon" ? pushDueSoon : pushOverdue, () =>
+            sendPushToUser(admin, user.id, {
+              title: emailDict.heading,
+              body: pushBody,
+              url: componentUrl,
+              // One live notification per interval per state, so a device
+              // that's been offline doesn't wake up to a stack of them.
+              tag: `${type}:${interval.id}`,
+            })
+          ),
+        ]);
       }
 
-      if (notifyWeeklySummary && isWeeklySummaryDay) {
+      if (recoveredIntervalIds.length) {
+        await admin
+          .from("component_interval_notifications")
+          .delete()
+          .in("service_interval_id", recoveredIntervalIds);
+      }
+
+      if (user.email && notifyWeeklySummary && isWeeklySummaryDay) {
         const { data: recentSummary } = await admin
           .from("notification_log")
           .select("sent_at")

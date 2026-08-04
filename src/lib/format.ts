@@ -11,7 +11,7 @@ export function formatDate(dateStr: string): string {
  * everywhere the reader's language is known it should be passed, since the
  * two swap the meaning of a dot: "3,288" is three thousand in English and
  * three-and-a-bit in Portuguese. */
-export function formatNumber(n: number, locale: Locale = "en"): string {
+function formatNumber(n: number, locale: Locale = "en"): string {
   return n.toLocaleString(NUMBER_LOCALE[locale]);
 }
 

@@ -79,6 +79,21 @@ export default async function BikesPage() {
   const maxBikes = PLAN_LIMITS[subscription.plan].maxBikes;
   const atBikeLimit = maxBikes !== null && (bikes?.length ?? 0) >= maxBikes;
 
+  // Same button in two places, like "Add component" on the bike detail page:
+  // beside the heading on desktop, and at the foot of the stack on mobile,
+  // where reaching the top of the screen costs a thumb stretch.
+  const addBikeButton = atBikeLimit ? (
+    <Button type="button" disabled variant="inverted" size="lg" className="disabled:opacity-10">
+      <Plus className="size-4" />
+      {dict.bikes.addBike}
+    </Button>
+  ) : (
+    <Button render={<Link href="/bikes/new" />} nativeButton={false} variant="inverted" size="lg">
+      <Plus className="size-4" />
+      {dict.bikes.addBike}
+    </Button>
+  );
+
   return (
     <div className="pt-4 sm:pt-8">
       <div className="mb-6 flex items-start justify-between gap-4">
@@ -86,28 +101,7 @@ export default async function BikesPage() {
           <h1 className="text-2xl font-display font-bold">{dict.bikes.breadcrumb}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{dict.bikes.fleetCount(bikes?.length ?? 0)}</p>
         </div>
-        {atBikeLimit ? (
-          <Button
-            type="button"
-            disabled
-            variant="inverted"
-            size="lg"
-            className="disabled:opacity-10"
-          >
-            <Plus className="size-4" />
-            {dict.bikes.addBike}
-          </Button>
-        ) : (
-          <Button
-            render={<Link href="/bikes/new" />}
-            nativeButton={false}
-            variant="inverted"
-            size="lg"
-          >
-            <Plus className="size-4" />
-            {dict.bikes.addBike}
-          </Button>
-        )}
+        <div className="hidden sm:block">{addBikeButton}</div>
       </div>
 
       {!bikes || bikes.length === 0 ? (
@@ -166,6 +160,8 @@ export default async function BikesPage() {
           )}
         </div>
       )}
+
+      <div className="mt-4 flex justify-center sm:hidden">{addBikeButton}</div>
     </div>
   );
 }

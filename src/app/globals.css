@@ -235,6 +235,20 @@
   h3 {
     @apply font-display font-bold tracking-tight;
   }
+  /* iOS Safari keeps <input type="date"> as a native control sized to its own
+     content, which won't shrink below that width — so on a phone these fields
+     render wider than every other input and push past the card holding them.
+     Dropping the native appearance makes WebKit lay them out like the text
+     inputs they're meant to match. Desktop is unaffected: it already honoured
+     the width, and keeps its calendar button, which is a pseudo-element
+     appearance doesn't touch. Do not add `display: flex` here to centre the
+     value — it re-flows Chrome's shadow DOM and drags that button in from the
+     right edge to sit against the text. */
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+  }
 }
 
 /* iOS tints Safari/PWA chrome (status bar, address bar) to match the

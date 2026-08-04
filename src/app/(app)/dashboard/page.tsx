@@ -224,7 +224,9 @@ export default async function DashboardPage({
                   </p>
                 </div>
                 <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-                  <p className="text-sm text-muted-foreground">
+                  {/* Mono and full-contrast, like the totals in the bike header
+                      they mirror — the muted grey was the odd one out. */}
+                  <p className="font-mono text-sm font-semibold text-foreground">
                     {[
                       bike.total_km != null ? formatDistance(bike.total_km, distanceUnit) : null,
                       bike.total_hours != null ? `${formatNumber(bike.total_hours)} h` : null,

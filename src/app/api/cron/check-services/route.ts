@@ -193,31 +193,58 @@ export async function GET(request: Request) {
         async function deliver(channel: "email" | "push", enabled: boolean, send: () => Promise<boolean>) {
           if (!enabled) return;
 
+          // Cheap short-circuit on the map loaded at the top of this user's
+          // pass, so an interval that's plainly settled costs no round trip.
+          // The claim below is the authority, not this.
           const previous = notified.get(`${interval.id}:${channel}`);
           if (previous && LEVEL_RANK[previous] >= LEVEL_RANK[level!]) return;
 
-          if (!(await send())) return;
+          // Claim before sending. The Strava webhook evaluates the same
+          // intervals now, and this pass reads its map once at the start —
+          // a ride landing mid-pass would otherwise be invisible here and
+          // the owner would get the same alert twice, once from each.
+          const { data: claims } = await admin.rpc("claim_interval_notification", {
+            p_service_interval_id: interval.id,
+            p_channel: channel,
+            p_user_id: user.id,
+            p_level: level!,
+          });
+          const claim = claims?.[0];
+          if (!claim?.claimed) return;
 
-          await Promise.all([
-            admin.from("component_interval_notifications").upsert({
-              service_interval_id: interval.id,
-              channel,
-              user_id: user.id,
-              level: level!,
-              notified_at: new Date().toISOString(),
-            }),
-            // Kept purely as an audit trail now that it no longer gates
-            // anything — episode_date included because it's what tells you
-            // which service cycle a past send belonged to.
-            admin.from("notification_log").insert({
-              user_id: user.id,
-              component_id: component.id,
-              service_interval_id: interval.id,
-              type,
-              episode_date: episodeDate,
-              channel,
-            }),
-          ]);
+          // A throw past this point would leave the band claimed with nothing
+          // delivered, which reads as "already told" and silences the
+          // interval until it recovers — so failures have to come back as a
+          // value and hand the band back.
+          let delivered = false;
+          try {
+            delivered = await send();
+          } catch (e) {
+            console.error("[check-services] send threw", channel, interval.id, e);
+          }
+
+          if (!delivered) {
+            await admin.rpc("release_interval_notification", {
+              p_service_interval_id: interval.id,
+              p_channel: channel,
+              p_claimed_level: level!,
+              p_previous_level: claim.previous_level,
+              p_previous_notified_at: claim.previous_notified_at,
+            });
+            return;
+          }
+
+          // Kept purely as an audit trail now that it no longer gates
+          // anything — episode_date included because it's what tells you
+          // which service cycle a past send belonged to.
+          await admin.from("notification_log").insert({
+            user_id: user.id,
+            component_id: component.id,
+            service_interval_id: interval.id,
+            type,
+            episode_date: episodeDate,
+            channel,
+          });
           sent.push(`${channel}:${type}:${component.id}:${interval.id}`);
         }
 

@@ -1,6 +1,8 @@
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchStravaActivity, getValidStravaAccessToken, syncActivityToBike } from "@/lib/strava";
 import { sendStravaSyncPush } from "@/lib/push";
+import { notifyUsageServicesForBike } from "@/lib/maintenance/notify-usage";
 
 export const dynamic = "force-dynamic";
 
@@ -53,9 +55,21 @@ export async function POST(request: Request) {
     console.error("[strava webhook] failed to sync activity", activity.id);
   }
   if (result.status === "synced") {
-    await sendStravaSyncPush(admin, connection.user_id, [
-      { id: result.bikeId, name: result.bikeName, km: result.distanceKm, hours: result.movingHours },
-    ]);
+    const { bikeId, bikeName, distanceKm, movingHours } = result;
+    const userId = connection.user_id;
+    // Everything that notifies runs after the response. Strava expects a
+    // prompt 200 and retries when it doesn't get one — a retry would re-run
+    // the fetch and the sync, so waiting here on push delivery to Apple or
+    // Google is a way to be handed the same ride twice. The activity itself
+    // is already written by this point, which is the part worth blocking for.
+    after(async () => {
+      await sendStravaSyncPush(admin, userId, [
+        { id: bikeId, name: bikeName, km: distanceKm, hours: movingHours },
+      ]);
+      // The ride just moved this bike's totals, so any km or hours reminder
+      // it pushed into a worse band is news now rather than at 08:00 UTC.
+      await notifyUsageServicesForBike(admin, userId, bikeId);
+    });
   }
 
   return Response.json({ ok: true });

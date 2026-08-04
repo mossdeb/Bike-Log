@@ -129,6 +129,7 @@ const en = {
       stravaSync: "Strava sync",
       stravaSyncSub: "When a ride updates a bike's distance or hours.",
       unsupported: "This browser doesn't support push notifications.",
+      unavailable: "Push notifications aren't available right now. This is on our side, not yours — try again later.",
       iosHint: "On iPhone and iPad, add Bikit to your Home Screen first — Safari only delivers notifications to installed apps.",
       offTitle: "Notifications are off on this device.",
       offBody: "Turn them on to get maintenance alerts and Strava syncs.",

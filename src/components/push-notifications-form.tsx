@@ -18,7 +18,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   return output;
 }
 
-type Support = "checking" | "ok" | "unsupported" | "ios-not-installed";
+type Support = "checking" | "ok" | "unsupported" | "ios-not-installed" | "not-configured";
 
 const emptySubscribe = () => () => {};
 
@@ -57,7 +57,11 @@ export function PushNotificationsForm({
   const support = useSyncExternalStore(
     emptySubscribe,
     useCallback((): Support => {
-      if ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window && !!vapidPublicKey) {
+      // A missing key is our own deploy being misconfigured, not anything the
+      // browser can't do — folding it into "unsupported" told an iPhone owner
+      // with a perfectly capable installed PWA that Safari was at fault.
+      if (!vapidPublicKey) return "not-configured";
+      if ("serviceWorker" in navigator && "PushManager" in window && "Notification" in window) {
         return "ok";
       }
       // Safari only exposes PushManager once the app has been added to the
@@ -78,6 +82,11 @@ export function PushNotificationsForm({
     () => "default" as NotificationPermission
   );
   const blocked = permission === "denied";
+
+  useEffect(() => {
+    if (support !== "not-configured") return;
+    console.warn("[push] NEXT_PUBLIC_VAPID_PUBLIC_KEY is not set — push notifications are unavailable.");
+  }, [support]);
 
   useEffect(() => {
     if (support !== "ok") return;
@@ -129,7 +138,11 @@ export function PushNotificationsForm({
   if (support !== "ok") {
     return (
       <p className="text-sm text-muted-foreground">
-        {support === "ios-not-installed" ? dict.iosHint : dict.unsupported}
+        {support === "ios-not-installed"
+          ? dict.iosHint
+          : support === "not-configured"
+            ? dict.unavailable
+            : dict.unsupported}
       </p>
     );
   }

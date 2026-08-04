@@ -130,6 +130,8 @@ const pt: Dictionary = {
       stravaSync: "Sincronização Strava",
       stravaSyncSub: "Quando uma atividade atualiza os quilómetros ou as horas de uma bicicleta.",
       unsupported: "Este navegador não suporta notificações push.",
+      unavailable:
+        "As notificações push não estão disponíveis de momento. O problema é do nosso lado, não do seu — tente mais tarde.",
       iosHint: "No iPhone e no iPad, adicione primeiro a Bikit ao ecrã principal — o Safari só entrega notificações a apps instaladas.",
       offTitle: "As notificações estão desativadas neste dispositivo.",
       offBody: "Ative-as para receber alertas de manutenção e sincronizações do Strava.",

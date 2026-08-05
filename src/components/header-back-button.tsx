@@ -85,12 +85,12 @@ export function HeaderBackButton({ className }: { className?: string }) {
 }
 
 /** Icon-only edit button shown in the shared header, on mobile only — bike
- * detail and component detail pages both. Desktop keeps each page's own
- * inline edit button instead. */
+ * detail pages only. The component detail page carries its own, beside the
+ * component's name. Desktop keeps each page's inline edit button instead. */
 export function HeaderEditButton({ className }: { className?: string }) {
   const pathname = usePathname();
 
-  if (!DETAIL_PAGE_RE.test(pathname)) return null;
+  if (!BIKE_DETAIL_RE.test(pathname)) return null;
 
   return (
     <Link

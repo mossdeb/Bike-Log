@@ -223,6 +223,16 @@ export default async function ComponentDetailPage({
                   dict.bikes.noDetailsYet}
               </p>
             </div>
+            {/* Sits beside the name rather than in the shared header, so the
+                action reads as belonging to this component. The header's own
+                edit button skips this route because of it. */}
+            <Link
+              href={`/bikes/${bike.id}/components/${component.id}/edit`}
+              aria-label={dict.components.detail.edit}
+              className="flex size-10 shrink-0 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+            >
+              <Pencil className="size-4" />
+            </Link>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-6">

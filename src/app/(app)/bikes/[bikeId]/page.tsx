@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { manualSyncStrava } from "@/lib/actions/strava";
-import { selectActiveInterval, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
+import { selectActiveInterval, calculateComponentUsage, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatHours, kmToUnit } from "@/lib/format";
 import { formatWarranty } from "@/lib/warranty";
@@ -104,7 +104,7 @@ export default async function BikeDetailPage({
         : Promise.resolve({ count: null }),
       supabase
         .from("components")
-        .select("id, name, category, brand, model")
+        .select("id, name, category, brand, model, bike_km_at_install, bike_hours_at_install")
         .eq("bike_id", bikeId)
         .order("created_at", { ascending: true }),
       supabase
@@ -367,6 +367,18 @@ export default async function BikeDetailPage({
               const fractionUsed = statusByComponent.get(component.id)?.fractionUsed ?? null;
               const percent = healthPercent(fractionUsed);
               const activeInterval = activeByComponent.get(component.id)?.interval ?? null;
+              // No reminder means no percentage to badge. Rather than a bare
+              // dash, show how far the component has come since it was fitted
+              // — the one number that's always knowable without an interval.
+              const usageKm =
+                percent == null
+                  ? calculateComponentUsage({
+                      bikeTotalKm: bike.total_km,
+                      bikeTotalHours: bike.total_hours,
+                      bikeKmAtInstall: component.bike_km_at_install,
+                      bikeHoursAtInstall: component.bike_hours_at_install,
+                    }).km
+                  : null;
               // The category now titles the card, so the second line is about
               // the next service only — falling back to brand/model when the
               // component has no reminder configured, so it isn't left blank.
@@ -408,7 +420,11 @@ export default async function BikeDetailPage({
                         </p>
                         <p className="truncate text-[13px] leading-tight text-muted-foreground">{serviceLine}</p>
                       </div>
-                      <HealthPercentBadge percent={percent} className="shrink-0" />
+                      <HealthPercentBadge
+                        percent={percent}
+                        fallback={usageKm != null ? formatDistance(usageKm, distanceUnit, locale) : undefined}
+                        className="shrink-0"
+                      />
                     </div>
                     <ServiceIntervalBar fraction={fractionUsed} className="mt-1.5" />
                   </Link>

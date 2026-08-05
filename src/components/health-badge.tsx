@@ -35,8 +35,21 @@ export function HealthBadge({
   );
 }
 
-/** Component-level badge — percentage only, no text, shown next to a ServiceIntervalBar. */
-export function HealthPercentBadge({ percent, className }: { percent: number | null; className?: string }) {
+/**
+ * Component-level badge — percentage only, no text, shown next to a
+ * ServiceIntervalBar. With no reminder configured there is no percentage to
+ * show; `fallback` lets the caller put something useful in the same slot
+ * (the component's accumulated distance) instead of the placeholder dash.
+ */
+export function HealthPercentBadge({
+  percent,
+  fallback,
+  className,
+}: {
+  percent: number | null;
+  fallback?: string;
+  className?: string;
+}) {
   const level = percent != null ? classifyHealth(percent) : null;
   return (
     <span
@@ -46,7 +59,7 @@ export function HealthPercentBadge({ percent, className }: { percent: number | n
         className
       )}
     >
-      {level ? `${percent}%` : "—"}
+      {level ? `${percent}%` : (fallback ?? "—")}
     </span>
   );
 }

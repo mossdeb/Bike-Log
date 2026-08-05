@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { cn } from "@/lib/utils";
+import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { formatDate, formatDistance, formatHours } from "@/lib/format";
 import type { TimelineEvent } from "@/lib/timeline";
 import { INTERVENTION_TYPE_ICON } from "@/lib/intervention-type";
@@ -120,7 +121,7 @@ export function BikeTimeline({
                 <TimelineDot />
                 <Link
                   href={`/bikes/${bikeId}/components/${event.componentId}/interventions/${event.id}/edit`}
-                  className="flex w-full items-center gap-4 rounded-lg bg-card p-5"
+                  className={cn("flex w-full items-center gap-4 rounded-lg bg-card p-5", CLICKABLE_CARD_HOVER)}
                 >
                   <span
                     className={cn(

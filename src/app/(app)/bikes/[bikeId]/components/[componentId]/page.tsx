@@ -13,6 +13,7 @@ import { healthPercent, classifyHealth } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatHours, kmToUnit } from "@/lib/format";
 import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
+import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
@@ -304,7 +305,7 @@ export default async function ComponentDetailPage({
               />
               <Link
                 href={`/bikes/${bike.id}/components/${component.id}/interventions/${iv.id}/edit`}
-                className="flex flex-wrap items-center gap-4 rounded-lg bg-card p-5 sm:flex-nowrap"
+                className={cn("flex flex-wrap items-center gap-4 rounded-lg bg-card p-5 sm:flex-nowrap", CLICKABLE_CARD_HOVER)}
               >
                 <div className="w-28 shrink-0">
                   <TypeBadge type={iv.type as "service" | "repair" | "replacement"} dict={dict} />

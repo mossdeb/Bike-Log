@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, classifyHealth, healthPercent, type HealthLevel } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatHours } from "@/lib/format";
+import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { BikeIcon } from "@/components/bike-icon";
@@ -210,7 +211,7 @@ export default async function DashboardPage({
               <Link
                 key={bike.id}
                 href={`/bikes/${bike.id}`}
-                className="flex h-full min-h-[250px] flex-col rounded-lg bg-card p-6 transition-colors hover:border-foreground/20 sm:min-h-0 sm:p-5"
+                className={`flex h-full min-h-[250px] flex-col rounded-lg bg-card p-6 sm:min-h-0 sm:p-5 ${CLICKABLE_CARD_HOVER}`}
               >
                 <div className="flex items-start justify-end gap-3 sm:justify-between">
                   <BikeIcon type={bike.type} plain className="hidden sm:block" />
@@ -270,7 +271,7 @@ export default async function DashboardPage({
                   <Link
                     key={component.id}
                     href={`/bikes/${component.bike_id}/components/${component.id}`}
-                    className={`flex items-center gap-3 py-3 transition-colors hover:bg-muted/50 ${
+                    className={`flex items-center gap-3 py-3 ${CLICKABLE_CARD_HOVER} ${
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >
@@ -307,7 +308,7 @@ export default async function DashboardPage({
                   <Link
                     key={iv.id}
                     href={`/bikes/${component?.bike_id}/components/${iv.component_id}`}
-                    className={`flex items-center gap-3 py-3 transition-colors hover:bg-muted/50 ${
+                    className={`flex items-center gap-3 py-3 ${CLICKABLE_CARD_HOVER} ${
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >

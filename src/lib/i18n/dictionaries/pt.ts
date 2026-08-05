@@ -198,6 +198,10 @@ const pt: Dictionary = {
         title: "Política de privacidade",
         subtitle: "A sua privacidade importa",
       },
+      terms: {
+        title: "Termos de serviço",
+        subtitle: "O acordo entre ti e a Bikit",
+      },
       support: {
         title: "Ajuda e suporte",
         subtitle: "Precisa de ajuda? Estamos aqui",

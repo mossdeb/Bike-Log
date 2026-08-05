@@ -198,6 +198,10 @@ const en = {
         title: "Privacy Policy",
         subtitle: "Your privacy matters",
       },
+      terms: {
+        title: "Terms of Service",
+        subtitle: "The agreement between you and Bikit",
+      },
       support: {
         title: "Help & Support",
         subtitle: "Need help? We're here for you",

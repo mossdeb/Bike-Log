@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogOut, ChevronRight } from "lucide-react";
+import { LogOut, ChevronRight, Scale } from "lucide-react";
 import { OnboardingIcon, SecurityIcon, SupportIcon, DocsIcon } from "@/components/settings-about-icons";
 import { createClient } from "@/lib/supabase/server";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
@@ -287,6 +287,13 @@ export default async function SettingsPage({
               icon={<SecurityIcon className="h-6 w-auto" />}
               title={dict.settings.about.privacy.title}
               subtitle={dict.settings.about.privacy.subtitle}
+              href="/privacy"
+            />
+            <AboutRow
+              icon={<Scale className="h-6 w-auto" strokeWidth={2.25} />}
+              title={dict.settings.about.terms.title}
+              subtitle={dict.settings.about.terms.subtitle}
+              href="/terms"
             />
             <AboutRow
               icon={<SupportIcon className="h-6 w-auto" />}

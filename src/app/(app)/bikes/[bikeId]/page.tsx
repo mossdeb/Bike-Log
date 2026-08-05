@@ -395,7 +395,7 @@ export default async function BikeDetailPage({
                             icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]}
                             className="size-[22px]"
                           />
-                          <span className="truncate text-base font-semibold">{component.category}</span>
+                          <span className="truncate text-base font-medium">{component.category}</span>
                         </div>
                         <p className="mt-6 truncate font-display text-[24px] font-semibold leading-tight tracking-tight">
                           {component.name}

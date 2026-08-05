@@ -248,6 +248,7 @@ export default async function ComponentDetailPage({
           <div className="-mx-6 mt-6 space-y-4 border-t border-border px-3 pt-6 sm:px-6">
             {intervals.map(({ interval, status }) => {
               const rowPercent = healthPercent(status.fractionUsed);
+              const isActive = activeResult?.interval.id === interval.id;
               const cadence =
                 interval.intervalType && interval.intervalValue != null
                   ? dict.components.detail.every(
@@ -291,6 +292,16 @@ export default async function ComponentDetailPage({
                     <p className="text-sm text-muted-foreground">
                       {interval.name}
                       {cadence ? ` · ${cadence}` : ""}
+                      {/* Which of the up-to-3 reminders drives the percentage
+                          and colour the component shows everywhere else. The
+                          tag sits on `bg-card` rather than the `bg-muted` it
+                          used before the pills: against a #F4F4F4 pill that
+                          was a three-point difference, invisible either way. */}
+                      {isActive && (
+                        <span className="ml-2 inline-block shrink-0 rounded-[7px] bg-card px-2 py-0.5 align-middle text-[11px] font-semibold text-muted-foreground">
+                          {dict.components.detail.activeIntervalTag}
+                        </span>
+                      )}
                     </p>
                     <div className="mt-0.5 flex items-center justify-between gap-2">
                       {label && (

@@ -4,106 +4,299 @@ const pt: LegalDictionary = {
   updated: "5 de agosto de 2026",
   updatedLabel: "Última atualização",
   backToHome: "Voltar ao início",
-  controllerHeading: "Quem é o responsável",
-  controllerNameLabel: "Responsável",
-  controllerEmailLabel: "Contacto",
-  controllerCountryLabel: "País",
 
   privacy: {
     metaTitle: "Política de Privacidade — Bikit",
-    metaDescription: "O que o Bikit guarda sobre ti, porquê, e o que podes fazer quanto a isso.",
+    metaDescription: "O que o Bikit guarda sobre ti, porque o guarda, e quais são os teus direitos.",
     title: "Política de Privacidade",
     intro: [
-      "O Bikit é uma aplicação de manutenção de bicicletas mantida por uma pessoa, não por uma empresa. Esta política explica o que guarda sobre ti, porque o guarda, e o que podes fazer quanto a isso.",
-      "Aplica-se ao bikit.app e à aplicação Bikit instalada no teu dispositivo.",
+      "O Bikit é uma aplicação independente de manutenção de bicicletas, criada e mantida por um único programador, não por uma empresa. Esta Política de Privacidade explica que informação o Bikit guarda, porque a guarda, e quais são os teus direitos.",
+      "Esta política aplica-se ao bikit.app e à aplicação Bikit instalada no teu dispositivo.",
     ],
+    controller: {
+      heading: "Quem é o responsável",
+      nameLabel: "Responsável pelo tratamento",
+      emailLabel: "Contacto",
+      countryLabel: "País",
+    },
     sections: [
       {
         heading: "O que o Bikit guarda",
-        body: [
-          "Apenas o que a aplicação precisa para funcionar. Tudo o que se segue foi escrito por ti ou devolvido por um serviço que escolheste ligar.",
-        ],
-        bullets: [
-          "Conta — o teu email, o teu nome se o tiveres indicado, e as tuas preferências: idioma, unidade de distância e definições de notificação. A palavra-passe é guardada em hash com sal e o Bikit nunca a vê.",
-          "Entrar com a Google — se a usares, a Google envia o teu nome, o teu email e um identificador estável da conta. A tua palavra-passe da Google nunca é partilhada com o Bikit.",
-          "As tuas bicicletas — nome, marca, modelo, ano, tipo, cor, número de série, tamanho de quadro e de roda, data de compra, garantia, fotografia e notas. Tudo é opcional exceto a própria bicicleta.",
-          "Os teus componentes e manutenções — categoria, marca, modelo, número de série, data de instalação, os lembretes que configuraste, e cada serviço, reparação ou substituição que registas, com data, notas e a quilometragem do momento.",
-          "Totais de utilização — os quilómetros e as horas de cada bicicleta, introduzidos por ti ou sincronizados do Strava.",
-          "Strava, se o ligares — o teu identificador de atleta, os tokens necessários para sincronizar, e por cada volta associada a uma das tuas bicicletas o identificador da atividade, a distância e o tempo em movimento. O Bikit não pede nem guarda percursos, traçados de GPS, frequência cardíaca, potência ou qualquer outro dado da volta.",
-          "Notificações push, se as ativares — o endereço que o teu browser atribui a esse dispositivo, as chaves de encriptação que lhe pertencem, e o user agent do dispositivo.",
-          "Pagamentos, se subscreveres — os identificadores de cliente e de subscrição no Stripe, o teu plano e o estado dele. Os dados do cartão nunca chegam ao Bikit: o pagamento acontece nas páginas do próprio Stripe.",
-          "Histórico de notificações — que alertas de manutenção foram enviados e quando, para o mesmo alerta não te chegar duas vezes.",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit guarda apenas a informação necessária para prestar o serviço. Tudo o que se segue é informação introduzida por ti ou dados devolvidos por um serviço que escolheste ligar.",
+          },
+          {
+            kind: "term",
+            title: "Conta",
+            paragraphs: [
+              "O teu email, o teu nome (caso o tenhas indicado) e as tuas preferências, incluindo idioma, unidade de distância e definições de notificação.",
+              "Se entrares com email e palavra-passe, a autenticação é gerida com segurança pelo Supabase. O Bikit nunca tem acesso à tua palavra-passe.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Entrar com a Google",
+            paragraphs: [
+              "Se escolheres entrar com a Google, a Google fornece o teu nome, o teu email e um identificador estável da conta. A tua palavra-passe da Google nunca é partilhada com o Bikit.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "As tuas bicicletas",
+            paragraphs: [
+              "Informação sobre as tuas bicicletas, incluindo nome, marca, modelo, ano, tipo, cor, número de série, tamanho de quadro e de roda, data de compra, informação de garantia, fotografias e notas.",
+              "A maior parte desta informação é opcional e só é guardada se optares por a fornecer.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Componentes e manutenção",
+            paragraphs: [
+              "Informação sobre os teus componentes, incluindo categoria, marca, modelo, número de série, data de instalação, intervalos de manutenção e lembretes.",
+              "O Bikit guarda também cada manutenção, reparação ou substituição que registas, incluindo a data, as notas e a quilometragem ou utilização da bicicleta nesse momento.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Totais de utilização",
+            paragraphs: [
+              "Os quilómetros e as horas acumulados de cada bicicleta, introduzidos manualmente por ti ou sincronizados a partir do Strava.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Strava (opcional)",
+            paragraphs: ["Se ligares a tua conta Strava, o Bikit guarda:"],
+            items: [
+              "o teu identificador de atleta do Strava;",
+              "os tokens de acesso necessários à sincronização;",
+              "por cada atividade associada a uma das tuas bicicletas: o identificador da atividade, a distância e o tempo em movimento.",
+            ],
+          },
+          {
+            kind: "p",
+            text: "O Bikit não pede nem guarda percursos de GPS, historial de localização, frequência cardíaca, cadência, potência, dados de elevação ou qualquer outra informação da volta.",
+          },
+          {
+            kind: "term",
+            title: "Notificações push (opcional)",
+            paragraphs: [
+              "Se ativares as notificações push, o Bikit guarda o endereço do dispositivo atribuído pelo teu browser, as chaves de encriptação associadas e o user agent do browser, para poder entregar as notificações.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Pagamentos (opcional)",
+            paragraphs: [
+              "Se subscreveres um plano pago, o Bikit guarda o teu identificador de cliente no Stripe, o identificador da subscrição, o plano e o respetivo estado.",
+              "Os dados do teu cartão nunca chegam ao Bikit. Os pagamentos são processados inteiramente pelo Stripe.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Histórico de notificações",
+            paragraphs: [
+              "O Bikit guarda um registo das notificações de manutenção já enviadas, para a mesma notificação não ser entregue várias vezes.",
+            ],
+          },
         ],
       },
       {
-        heading: "Para que serve",
-        body: [
-          "Para prestar o serviço que subscreveste: guardar as tuas bicicletas e o seu historial, calcular quando um componente precisa de serviço, enviar os alertas que pediste, e tratar da tua subscrição se tiveres uma.",
-          "É esta a lista inteira. O Bikit não vende os teus dados, não os partilha para publicidade, não constrói perfis publicitários, e não tem qualquer script de análise ou rastreio de terceiros.",
+        heading: "Como são usados os teus dados",
+        blocks: [
+          {
+            kind: "p",
+            text: "A tua informação é usada apenas para prestar o serviço que subscreveste, nomeadamente:",
+          },
+          {
+            kind: "ul",
+            items: [
+              "gerir a tua conta;",
+              "guardar as tuas bicicletas e o historial de manutenção;",
+              "calcular os planos de manutenção;",
+              "enviar os lembretes de manutenção que pediste;",
+              "sincronizar atividades do Strava (se estiver ligado);",
+              "processar subscrições (quando aplicável);",
+              "manter o serviço seguro e fiável.",
+            ],
+          },
+          { kind: "p", text: "São estas as únicas finalidades para que os teus dados são usados." },
+          {
+            kind: "p",
+            text: "O Bikit não vende a tua informação pessoal, não a partilha para fins publicitários, não constrói perfis publicitários, e não usa ferramentas de análise, rastreadores publicitários ou instrumentos de perfilagem de terceiros.",
+          },
         ],
       },
       {
-        heading: "Fundamentos legais",
-        body: ["Ao abrigo do RGPD, cada utilização dos teus dados assenta num destes fundamentos:"],
-        bullets: [
-          "Execução de um contrato — a tua conta, os teus dados e as funcionalidades centrais de manutenção. Sem isto não há serviço.",
-          "Consentimento — ligar o Strava, ativar as notificações push, e o resumo semanal por email. Podes retirar qualquer um deles a qualquer momento nas Definições, sem afetar os restantes.",
-          "Obrigação legal — conservar registos de faturação durante o prazo exigido pela lei fiscal.",
-          "Interesse legítimo — manter o serviço seguro e prevenir abusos.",
+        heading: "Fundamento legal (RGPD)",
+        blocks: [
+          {
+            kind: "p",
+            text: "Ao abrigo do Regulamento Geral sobre a Proteção de Dados (RGPD), o Bikit trata a tua informação com base nos seguintes fundamentos legais:",
+          },
+          {
+            kind: "term",
+            title: "Execução de um contrato",
+            paragraphs: [
+              "Disponibilizar a tua conta, guardar os teus dados e prestar as funcionalidades centrais de manutenção. Sem este tratamento, o serviço não pode funcionar.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Consentimento",
+            paragraphs: [
+              "Ligar o Strava, ativar as notificações push e subscrever o resumo semanal por email, que é opcional.",
+              "Podes retirar o teu consentimento a qualquer momento nas definições da aplicação, sem afetar o resto do serviço.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Obrigação legal",
+            paragraphs: [
+              "Conservar registos de faturação e contabilidade quando a legislação fiscal aplicável o exigir.",
+            ],
+          },
+          {
+            kind: "term",
+            title: "Interesse legítimo",
+            paragraphs: ["Proteger o serviço, prevenir abusos e manter a segurança."],
+          },
         ],
       },
       {
-        heading: "Quem mais trata os teus dados",
-        body: [
-          "O Bikit assenta em serviços que necessariamente tratam parte dos teus dados por sua conta. Cada um serve um único propósito:",
-        ],
-        bullets: [
-          "Supabase — a base de dados e o sistema de autenticação. É aqui que vivem os teus dados.",
-          "Vercel — alojamento e entrega do site.",
-          "Stripe — pagamento de subscrições, apenas se subscreveres.",
-          "Resend — entrega dos emails que o Bikit te envia.",
-          "Google — autenticação, apenas se a escolheres.",
-          "Strava — sincronização de voltas, apenas se o ligares.",
-          "Serviços de push da Apple, Google e Mozilla — entrega das notificações ao teu dispositivo, apenas se as ativares. Recebem a notificação encriptada e o endereço do dispositivo, nunca a tua conta.",
+        heading: "Prestadores de serviços",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit assenta num pequeno número de prestadores de confiança, que tratam dados apenas para entregar os serviços de que o Bikit depende.",
+          },
+          {
+            kind: "ul",
+            items: [
+              "Supabase — autenticação e alojamento da base de dados.",
+              "Vercel — alojamento do site e da aplicação.",
+              "Stripe — processamento de subscrições e pagamentos.",
+              "Resend — envio de emails.",
+              "Google — entrar com a Google (apenas se o escolheres).",
+              "Strava — sincronização de atividades (apenas se o ligares).",
+              "Serviços de push da Apple, Google e Mozilla — entrega das notificações push (apenas se estiverem ativas). Estes prestadores recebem apenas o conteúdo encriptado da notificação e o endereço do dispositivo necessário à entrega.",
+            ],
+          },
         ],
       },
       {
-        heading: "Onde ficam os teus dados",
-        body: [
-          "A base de dados está alojada na Irlanda e os teus dados permanecem na União Europeia.",
-          "Alguns dos serviços acima têm sede fora da UE e podem tratar dados aí. Quando isso acontece, é ao abrigo das garantias que esses fornecedores publicam, como as cláusulas contratuais-tipo da Comissão Europeia.",
+        heading: "Onde ficam guardados os teus dados",
+        blocks: [
+          {
+            kind: "p",
+            text: "A base de dados principal está alojada na União Europeia (Irlanda).",
+          },
+          {
+            kind: "p",
+            text: "Alguns prestadores podem tratar informação limitada fora da União Europeia. Quando isso acontece, fazem-no ao abrigo de garantias adequadas, como as Cláusulas Contratuais-Tipo da Comissão Europeia ou outros mecanismos legais de transferência reconhecidos.",
+          },
         ],
       },
       {
-        heading: "Durante quanto tempo",
-        body: [
-          "Enquanto a tua conta existir. Apagas uma bicicleta, um componente ou um serviço na aplicação e ele desaparece da base de dados; apagas a conta e vai tudo o que lhe está ligado.",
-          "Os registos de faturação à guarda do Stripe são conservados pelo prazo que a lei fiscal exigir, independentemente da tua conta Bikit.",
+        heading: "Durante quanto tempo são conservados",
+        blocks: [
+          { kind: "p", text: "A tua informação é conservada enquanto a tua conta existir." },
+          {
+            kind: "p",
+            text: "Se apagares uma bicicleta, um componente ou um registo de manutenção, este é removido da base de dados ativa.",
+          },
+          {
+            kind: "p",
+            text: "Se apagares a tua conta, os teus dados pessoais são removidos definitivamente, exceto quando determinados registos tiverem de ser conservados para cumprir obrigações legais.",
+          },
+          {
+            kind: "p",
+            text: "As cópias de segurança encriptadas podem conter temporariamente informação já apagada, até serem automaticamente substituídas.",
+          },
+          {
+            kind: "p",
+            text: "O Stripe pode conservar registos de faturação de forma autónoma, durante o período exigido pela legislação fiscal aplicável.",
+          },
         ],
       },
       {
         heading: "Os teus direitos",
-        body: [
-          "Podes pedir uma cópia dos teus dados, corrigi-los, apagá-los, pedir que sejam enviados para outro lado, opor-te a determinada utilização, ou retirar um consentimento que deste. A maior parte disto fazes tu na aplicação; para o resto, escreve para o endereço acima e terás resposta em 30 dias.",
-          "Se achares que os teus dados foram mal tratados, podes reclamar junto da Comissão Nacional de Proteção de Dados (CNPD, em cnpd.pt) ou da autoridade equivalente do país onde vives.",
+        blocks: [
+          { kind: "p", text: "Ao abrigo do RGPD, tens o direito de:" },
+          {
+            kind: "ul",
+            items: [
+              "aceder aos teus dados pessoais;",
+              "corrigir informação inexata;",
+              "pedir o apagamento dos teus dados;",
+              "receber uma cópia portátil dos teus dados;",
+              "opor-te a determinadas operações de tratamento;",
+              "retirar o consentimento a qualquer momento, quando o tratamento se basear em consentimento.",
+            ],
+          },
+          {
+            kind: "p",
+            text: "Muitas destas ações podem ser feitas diretamente na aplicação. Para as restantes, escreve para o endereço de email indicado acima e terás resposta no prazo de 30 dias.",
+          },
+          {
+            kind: "p",
+            text: "Se considerares que os teus dados pessoais foram tratados de forma ilícita, podes apresentar reclamação à Comissão Nacional de Proteção de Dados (CNPD) ou à autoridade de controlo do país onde resides.",
+          },
+        ],
+      },
+      {
+        heading: "Segurança",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit usa medidas de segurança correntes na indústria para proteger os teus dados, incluindo ligações HTTPS encriptadas, autenticação segura e acesso restrito aos sistemas de produção.",
+          },
+          {
+            kind: "p",
+            text: "Nenhum serviço em linha pode garantir segurança absoluta, mas estão implementadas medidas técnicas e organizativas razoáveis para proteger a tua informação.",
+          },
         ],
       },
       {
         heading: "Cookies",
-        body: [
-          "O Bikit usa dois cookies e nenhum deles serve para rastrear: o cookie de sessão que te mantém com sessão iniciada, e um que se lembra do idioma que escolheste na página inicial. A preferência de tema claro ou escuro fica no armazenamento do próprio browser e nunca é enviada para lado nenhum. Não há cookies de publicidade nem de análise.",
+        blocks: [
+          { kind: "p", text: "O Bikit usa apenas cookies essenciais. São eles:" },
+          {
+            kind: "ul",
+            items: [
+              "um cookie de sessão que te mantém com sessão iniciada;",
+              "um cookie de preferência de idioma para o site.",
+            ],
+          },
+          {
+            kind: "p",
+            text: "A tua preferência de tema claro ou escuro fica guardada localmente no teu browser e nunca é transmitida ao Bikit.",
+          },
+          {
+            kind: "p",
+            text: "O Bikit não usa cookies de publicidade, cookies de análise nem tecnologias de rastreio de terceiros.",
+          },
         ],
       },
       {
-        heading: "Menores",
-        body: [
-          "O Bikit não se destina a menores de 16 anos, e não devem ser criadas contas em nome deles.",
+        heading: "Privacidade de menores",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit não se destina a menores de 16 anos, e não devem ser criadas contas em nome deles.",
+          },
         ],
       },
       {
-        heading: "Alterações a esta política",
-        body: [
-          "Se esta política mudar, a data no topo muda com ela. Quando a alteração te afetar de forma relevante, serás avisado por email antes de produzir efeitos.",
+        heading: "Alterações a esta Política de Privacidade",
+        blocks: [
+          { kind: "p", text: "Esta Política de Privacidade pode ser atualizada periodicamente." },
+          {
+            kind: "p",
+            text: "Quando houver alterações, a data de Última atualização no topo desta página é atualizada. Se alguma alteração afetar de forma relevante os teus direitos ou a forma como a tua informação é tratada, o Bikit avisa-te através da aplicação ou por email, conforme for adequado.",
+          },
         ],
       },
     ],
@@ -111,85 +304,254 @@ const pt: LegalDictionary = {
 
   terms: {
     metaTitle: "Termos de Serviço — Bikit",
-    metaDescription: "O acordo entre ti e o Bikit.",
+    metaDescription: "O acordo entre ti e quem mantém o Bikit.",
     title: "Termos de Serviço",
     intro: [
-      "Estes termos são o acordo entre ti e a pessoa que mantém o Bikit. Usar a aplicação significa aceitá-los.",
+      "Estes Termos de Serviço constituem o acordo entre ti e quem mantém o Bikit. Ao criares uma conta ou ao usares o Bikit, aceitas estes Termos.",
+      "Estes Termos aplicam-se ao bikit.app e à aplicação Bikit.",
     ],
+    controller: {
+      heading: "Quem é o responsável",
+      nameLabel: "Responsável",
+      emailLabel: "Contacto",
+      countryLabel: "País",
+    },
     sections: [
       {
         heading: "O que é o Bikit",
-        body: [
-          "O Bikit é uma ferramenta para registares as tuas bicicletas, os seus componentes e a sua manutenção, e para te lembrar quando um serviço está a chegar. É uma ferramenta de registo e de lembretes, e nada além disso.",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit é uma ferramenta para registares as tuas bicicletas, os seus componentes e a sua manutenção, e para te lembrar quando um serviço está a chegar.",
+          },
+          {
+            kind: "p",
+            text: "Destina-se exclusivamente a servir de registo e de lembrete de manutenção.",
+          },
         ],
       },
       {
         heading: "O Bikit não inspeciona a tua bicicleta",
-        body: [
-          "Todos os alertas que o Bikit mostra são aritmética sobre números que forneceste: um intervalo que escolheste, medido contra distância ou tempo que tu ou o Strava reportaram. Não tem forma nenhuma de saber o estado real de uma peça.",
-          "Um componente pode falhar muito antes de o intervalo acabar, e um componente com o intervalo ultrapassado pode estar perfeitamente bem. Não trates uma barra verde cheia como uma verificação de segurança. Se a peça é relevante para a tua segurança — travões, direção, quadro, garfo — manda-a inspecionar por quem sabe.",
+        blocks: [
+          {
+            kind: "p",
+            text: "Todos os lembretes de manutenção que o Bikit mostra assentam inteiramente na informação de que a aplicação dispõe: os intervalos de manutenção que configuraste e a quilometragem ou utilização reportada por ti ou sincronizada a partir do Strava.",
+          },
+          {
+            kind: "p",
+            text: "O Bikit não tem forma de determinar o estado real de qualquer bicicleta ou componente.",
+          },
+          {
+            kind: "p",
+            text: "Um componente pode precisar de manutenção antes do intervalo previsto, e um componente que já ultrapassou o intervalo pode continuar em bom estado. Um estado verde ou uma barra de saúde cheia nunca devem ser interpretados como uma inspeção de segurança ou uma avaliação profissional.",
+          },
+          {
+            kind: "p",
+            text: "Continuas a ser o único responsável por inspecionar, manter e usar a tua bicicleta em segurança. Se um componente afeta a tua segurança, como travões, direção, quadro ou suspensão, deve ser inspecionado por um mecânico qualificado.",
+          },
         ],
       },
       {
         heading: "A tua conta",
-        body: [
-          "Precisas de ter pelo menos 16 anos para teres conta. Guarda as tuas credenciais para ti: o que for feito através da tua conta é tratado como tendo sido feito por ti. Se achares que alguém entrou nela, diz de imediato.",
+        blocks: [
+          { kind: "p", text: "Tens de ter pelo menos 16 anos para criares uma conta Bikit." },
+          {
+            kind: "p",
+            text: "És responsável por manter a confidencialidade das tuas credenciais de acesso e por toda a atividade realizada através da tua conta.",
+          },
+          {
+            kind: "p",
+            text: "Se achares que a tua conta foi acedida sem a tua autorização, contacta o Bikit de imediato.",
+          },
         ],
       },
       {
-        heading: "Planos e pagamento",
-        body: [
-          "O Bikit tem um plano gratuito e dois planos pagos: Pessoal a 2,99 € por mês e Pro a 7,99 € por mês. O preço é sempre mostrado antes de confirmares.",
-          "Os planos pagos renovam todos os meses até cancelares. Cancelar impede a renovação seguinte e ficas com as funcionalidades pagas até ao fim do período que já pagaste. Os pagamentos são tratados pelo Stripe; os dados do cartão nunca chegam ao Bikit.",
-          "Como consumidor na UE tens 14 dias para mudares de ideias sobre uma subscrição. Pede dentro desse prazo e o dinheiro é devolvido.",
+        heading: "Planos e pagamentos",
+        blocks: [
+          { kind: "p", text: "O Bikit tem um plano gratuito e subscrições pagas opcionais." },
+          {
+            kind: "p",
+            text: "Os preços em vigor das subscrições são apresentados antes de concluíres a compra.",
+          },
+          { kind: "p", text: "As subscrições renovam automaticamente todos os meses até serem canceladas." },
+          {
+            kind: "p",
+            text: "Se cancelares uma subscrição, esta mantém-se ativa até ao fim do período de faturação em curso e não renova depois disso.",
+          },
+          {
+            kind: "p",
+            text: "Os pagamentos são processados com segurança pelo Stripe. Os dados do teu cartão nunca são recebidos nem guardados pelo Bikit.",
+          },
+          {
+            kind: "p",
+            text: "Se fores consumidor na União Europeia, aplicam-se os direitos legais de cancelamento ou reembolso previstos na legislação de defesa do consumidor aplicável.",
+          },
         ],
       },
       {
-        heading: "O que introduzes continua teu",
-        body: [
-          "As bicicletas, componentes, serviços e notas que registas pertencem-te. O Bikit guarda-os para tos mostrar de volta e não reivindica quaisquer direitos sobre eles. Podes apagá-los quando quiseres, ou pedir uma cópia.",
+        heading: "O teu conteúdo",
+        blocks: [
+          {
+            kind: "p",
+            text: "As bicicletas, componentes, registos de manutenção, notas e restante informação que acrescentas continuam a ser teus.",
+          },
+          {
+            kind: "p",
+            text: "O Bikit guarda esta informação exclusivamente para prestar o serviço e não reivindica qualquer propriedade sobre o teu conteúdo.",
+          },
+          {
+            kind: "p",
+            text: "Podes editar ou apagar a tua informação a qualquer momento, e podes pedir uma cópia dos teus dados nos termos descritos na Política de Privacidade.",
+          },
+          {
+            kind: "p",
+            text: "És responsável por garantir que a informação que carregas é exata e que tens o direito de a carregar.",
+          },
         ],
       },
       {
-        heading: "O que não podes fazer",
-        body: ["Há coisas que ficam de fora:"],
-        bullets: [
-          "Tentar aceder a contas ou dados de outras pessoas.",
-          "Sobrecarregar, sondar ou perturbar o serviço.",
-          "Revender o Bikit ou fazê-lo passar por teu.",
-          "Usá-lo para algo ilícito.",
+        heading: "Utilização aceitável",
+        blocks: [
+          { kind: "p", text: "Comprometes-te a não:" },
+          {
+            kind: "ul",
+            items: [
+              "aceder à conta ou aos dados de outro utilizador sem autorização;",
+              "interferir com o serviço, sobrecarregá-lo ou perturbá-lo;",
+              "tentar fazer engenharia inversa ou comprometer a aplicação;",
+              "usar ferramentas automatizadas para abusar do serviço ou interferir com ele;",
+              "revender, copiar ou apresentar o Bikit como produto teu;",
+              "usar o Bikit para qualquer atividade ilícita.",
+            ],
+          },
         ],
       },
       {
-        heading: "Strava",
-        body: [
-          "Ligar o Strava é opcional e rege-se também pelos termos do próprio Strava. O Bikit lê as atividades de que precisa para manter a tua quilometragem atualizada, e mais nada. Podes desligar quando quiseres nas Definições; os dados já registados no Bikit ficam onde estão.",
+        heading: "Integração com o Strava",
+        blocks: [
+          {
+            kind: "p",
+            text: "Ligar o Strava é inteiramente opcional e está também sujeito aos Termos de Serviço do próprio Strava.",
+          },
+          {
+            kind: "p",
+            text: "Quando ligado, o Bikit acede apenas à informação necessária para sincronizar a utilização das tuas bicicletas e o historial de manutenção.",
+          },
+          {
+            kind: "p",
+            text: "Podes desligar a tua conta Strava a qualquer momento nas definições da aplicação. Desligar o Strava não remove automaticamente a informação que já tenha sido sincronizada para o Bikit.",
+          },
         ],
       },
       {
-        heading: "Disponibilidade e responsabilidade",
-        body: [
-          "O Bikit é um projeto pessoal mantido por uma pessoa. É cuidado com atenção, mas não vem com promessa de disponibilidade, nem tempo de resposta garantido, nem garantia de estar isento de falhas. Funcionalidades podem mudar ou ser retiradas.",
-          "Nada aqui limita a responsabilidade por morte ou danos pessoais causados por negligência, nem por dolo — a lei não permite excluí-las. Fora isso, e na medida em que a lei o permita, a responsabilidade fica limitada ao valor que pagaste nos doze meses anteriores ao problema.",
+        heading: "Disponibilidade",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit é um projeto independente mantido por um único programador.",
+          },
+          {
+            kind: "p",
+            text: "O serviço é prestado no estado em que se encontra e conforme a disponibilidade existente.",
+          },
+          {
+            kind: "p",
+            text: "Embora seja feito todo o esforço razoável para manter o Bikit disponível e fiável, não é possível garantir disponibilidade ininterrupta, funcionamento sem erros nem tempos de resposta determinados.",
+          },
+          {
+            kind: "p",
+            text: "As funcionalidades podem ser alteradas, substituídas ou removidas ao longo do tempo.",
+          },
         ],
       },
       {
-        heading: "Terminar",
-        body: [
-          "Podes apagar a tua conta quando quiseres. Uma conta pode ser suspensa ou encerrada se estes termos forem violados de forma grave ou repetida; sempre que for razoável, serás avisado primeiro e terás oportunidade de corrigir.",
+        heading: "Limitação de responsabilidade",
+        blocks: [
+          {
+            kind: "p",
+            text: "Nada nestes Termos exclui ou limita a responsabilidade nos casos em que a lei não o permite, incluindo a responsabilidade por dolo ou por morte ou danos pessoais causados por negligência.",
+          },
+          {
+            kind: "p",
+            text: "Na medida máxima permitida por lei, a responsabilidade total do Bikit decorrente da tua utilização do serviço fica limitada ao valor que pagaste pelo Bikit nos doze meses imediatamente anteriores ao facto que dá origem à reclamação.",
+          },
         ],
       },
       {
-        heading: "Alterações a estes termos",
-        body: [
-          "Estes termos podem mudar. A data no topo muda com eles, e alterações relevantes serão anunciadas por email antes de produzirem efeitos. Continuar a usar o Bikit depois disso significa aceitar a versão nova.",
+        heading: "Propriedade intelectual",
+        blocks: [
+          {
+            kind: "p",
+            text: "O Bikit, incluindo o seu software, design, marca, logótipos e conteúdos do site, está protegido pelas leis de propriedade intelectual.",
+          },
+          {
+            kind: "p",
+            text: "Estes Termos não te conferem a propriedade do Bikit nem de qualquer dos seus direitos de propriedade intelectual.",
+          },
         ],
       },
       {
-        heading: "Lei aplicável e litígios",
-        body: [
-          "Aplica-se a lei portuguesa. Isto não te retira a proteção que a lei do consumo do país onde vives te dá.",
-          "Se algo correr mal, escreve primeiro — quase tudo se resolve assim. Enquanto consumidor podes também recorrer à plataforma de resolução de litígios em linha da Comissão Europeia ou à entidade de resolução alternativa de litígios da tua área.",
+        heading: "Suspensão e cessação",
+        blocks: [
+          { kind: "p", text: "Podes apagar a tua conta a qualquer momento." },
+          {
+            kind: "p",
+            text: "O Bikit pode suspender ou encerrar contas que violem estes Termos de forma grave ou repetida.",
+          },
+          {
+            kind: "p",
+            text: "Sempre que for razoavelmente possível, serás informado antes de ser tomada uma medida definitiva e ser-te-á dada oportunidade de resolver a situação.",
+          },
+        ],
+      },
+      {
+        heading: "Alterações a estes Termos",
+        blocks: [
+          { kind: "p", text: "Estes Termos podem ser atualizados periodicamente." },
+          {
+            kind: "p",
+            text: "Sempre que houver alterações, a data de Última atualização no topo desta página é atualizada.",
+          },
+          {
+            kind: "p",
+            text: "Se as alterações afetarem de forma relevante os teus direitos, o Bikit dará aviso prévio razoável antes de produzirem efeitos.",
+          },
+          {
+            kind: "p",
+            text: "Continuar a usar o Bikit depois de os Termos atualizados entrarem em vigor constitui aceitação da versão revista.",
+          },
+        ],
+      },
+      {
+        heading: "Lei aplicável",
+        blocks: [
+          { kind: "p", text: "Estes Termos regem-se pela lei portuguesa." },
+          {
+            kind: "p",
+            text: "Se fores consumidor, continuas a beneficiar dos direitos imperativos de defesa do consumidor previstos na lei do país onde resides.",
+          },
+        ],
+      },
+      {
+        heading: "Litígios",
+        blocks: [
+          {
+            kind: "p",
+            text: "Se tiveres dúvidas ou preocupações, contacta primeiro o Bikit. A maioria das questões resolve-se de forma rápida e informal.",
+          },
+          {
+            kind: "p",
+            text: "Se um litígio não puder ser resolvido, podes recorrer a qualquer entidade de resolução alternativa de litígios disponível ao abrigo da legislação de defesa do consumidor aplicável no teu país.",
+          },
+        ],
+      },
+      {
+        heading: "Acordo integral",
+        blocks: [
+          {
+            kind: "p",
+            text: "Estes Termos de Serviço, em conjunto com a Política de Privacidade, constituem o acordo integral entre ti e o Bikit quanto à tua utilização do serviço.",
+          },
         ],
       },
     ],

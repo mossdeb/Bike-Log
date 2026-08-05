@@ -19,7 +19,7 @@ export function ServiceIntervalBar({ fraction, className }: { fraction: number |
   const width = percent === 0 ? 100 : percent;
 
   return (
-    <div className={cn("h-1 w-full overflow-hidden rounded-full bg-muted sm:h-1.5", className)}>
+    <div className={cn("h-[3px] w-full overflow-hidden rounded-full bg-muted", className)}>
       <div className={cn("h-full rounded-full", FILL_STYLES[level])} style={{ width: `${width}%` }} />
     </div>
   );

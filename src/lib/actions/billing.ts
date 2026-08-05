@@ -35,6 +35,10 @@ export async function createCheckoutSession(formData: FormData) {
     customer_email: existingSub?.stripe_customer_id ? undefined : (user.email as string),
     client_reference_id: user.sub as string,
     line_items: [{ price: PLAN_PRICE_IDS[plan], quantity: 1 }],
+    // Without this the promotion-code box does not exist in Checkout at all,
+    // and a voucher can only be applied by attaching the coupon to the
+    // customer by hand in the dashboard.
+    allow_promotion_codes: true,
     success_url: `${origin}/settings?checkout=success`,
     cancel_url: `${origin}/settings?checkout=canceled`,
   });

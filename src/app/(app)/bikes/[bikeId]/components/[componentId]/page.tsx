@@ -164,7 +164,7 @@ export default async function ComponentDetailPage({
           tree order alone doesn't guarantee the cover. */}
       <Link
         href={`/bikes/${bike.id}`}
-        className="mx-6 -mb-5 flex items-center gap-2 rounded-[20px] bg-[#F7F7F7] px-5 pt-3 pb-8 dark:bg-muted sm:hidden"
+        className="mx-6 -mb-[23px] flex items-center gap-2 rounded-[20px] bg-[#F7F7F7] px-5 pt-2 pb-8 dark:bg-muted sm:hidden"
       >
         <BikeIcon type={bike.type} plain className="size-7" />
         <span className="truncate text-[15px] font-bold">{bike.name}</span>

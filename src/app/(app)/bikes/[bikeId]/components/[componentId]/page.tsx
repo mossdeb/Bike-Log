@@ -242,7 +242,10 @@ export default async function ComponentDetailPage({
         </div>
 
         {intervals.length > 0 ? (
-          <div className="-mx-6 mt-6 space-y-4 border-t border-border px-6 pt-6">
+          // Pulled out to the card's edges so the rule above spans it whole,
+          // then padded back in — half the card's own 24px on mobile, so the
+          // pills sit wider than the text above them.
+          <div className="-mx-6 mt-6 space-y-4 border-t border-border px-3 pt-6 sm:px-6">
             {intervals.map(({ interval, status }) => {
               const rowPercent = healthPercent(status.fractionUsed);
               const cadence =
@@ -277,7 +280,10 @@ export default async function ComponentDetailPage({
               const [before, after] = label?.split(amount!) ?? [];
 
               return (
-                <div key={interval.id} className="flex items-center gap-4 rounded-[100px] bg-muted p-3">
+                <div
+                  key={interval.id}
+                  className="flex items-center gap-4 rounded-[100px] bg-[#F4F4F4] p-3 dark:bg-muted"
+                >
                   <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-card">
                     <MaintenanceIcon className="size-5 text-foreground" />
                   </span>
@@ -296,9 +302,9 @@ export default async function ComponentDetailPage({
                       )}
                       <HealthPercentBadge percent={rowPercent} className="ml-auto shrink-0" />
                     </div>
-                    {/* The pill is `bg-muted`, which is also the bar's own track
-                        colour — without this the empty half of the track
-                        disappears and the bar reads as being much shorter. */}
+                    {/* The pill is near enough the bar's own `bg-muted` track
+                        that the empty half disappeared into it, and the bar
+                        read as being much shorter than it was. */}
                     <ServiceIntervalBar fraction={status.fractionUsed} className="mt-2 bg-border" />
                   </div>
                 </div>

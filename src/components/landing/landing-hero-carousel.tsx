@@ -126,7 +126,13 @@ export function LandingHeroCarousel({ dict }: { dict: HeroDictionary }) {
               priority={i === 0}
               fetchPriority={i === 0 ? "high" : "low"}
               sizes="(min-width: 1280px) 50vw, 100vw"
-              className={`object-cover ease-out xl:origin-bottom-left xl:translate-y-20 xl:scale-[1.02] xl:object-cover xl:object-left ${
+              // The photos are whole photographs with a radial fade, not cutouts:
+              // their alpha still reads 18-150 at the frame border and then drops
+              // to 0, and that step is what draws a rectangle over the flat card.
+              // Once the photo is smaller than its box those borders fall inside
+              // the card, so the mask carries the fade the rest of the way down.
+              // The bottom is left alone — it runs past the card and is clipped.
+              className={`object-cover ease-out xl:origin-bottom-left xl:translate-y-20 xl:scale-[1.02] xl:object-cover xl:object-left xl:[mask-composite:intersect] xl:[mask-image:linear-gradient(to_right,transparent,black_14%,black_86%,transparent),linear-gradient(to_bottom,transparent,black_14%,black)] ${
                 moving
                   ? // `translate`, not `transform`: Tailwind v4 sets the individual property.
                     "transition-[translate,opacity] duration-700 motion-reduce:transition-none"

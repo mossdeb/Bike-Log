@@ -8,6 +8,7 @@ import { bikeHealthLevel, healthPercent } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatHours, kmToUnit } from "@/lib/format";
 import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
+import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
@@ -347,66 +348,70 @@ export default async function BikeDetailPage({
           <div className="hidden sm:block">{addComponentButton}</div>
         </div>
 
-        <TabsContent value="components" className="rounded-xl bg-muted/40 pb-4 sm:bg-transparent sm:pb-0">
+        <TabsContent value="components">
         {!components || components.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
             <p className="text-sm text-muted-foreground">{dict.bikes.detail.noComponentsYet}</p>
           </div>
         ) : (
-          <div className="rounded-lg bg-card">
-            {components.map((component, i) => {
+          <div className="space-y-5">
+            {components.map((component) => {
               const fractionUsed = statusByComponent.get(component.id)?.fractionUsed ?? null;
               const percent = healthPercent(fractionUsed);
               const activeInterval = activeByComponent.get(component.id)?.interval ?? null;
+              // The category now titles the card, so the second line is about
+              // the next service only — falling back to brand/model when the
+              // component has no reminder configured, so it isn't left blank.
+              const serviceLine = activeInterval
+                ? [
+                    activeInterval.name,
+                    dict.bikes.detail.every(
+                      activeInterval.intervalType === "km" && activeInterval.intervalValue != null
+                        ? Math.round(kmToUnit(activeInterval.intervalValue, distanceUnit) * 10) / 10
+                        : activeInterval.intervalValue!,
+                      activeInterval.intervalType!,
+                      distanceUnit
+                    ),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")
+                : [component.brand, component.model].filter(Boolean).join(" ");
               return (
                 <div
                   key={component.id}
-                  className={`px-5 py-6 transition-colors hover:bg-muted/50 sm:py-4 ${
-                    i > 0 ? "border-t border-border" : ""
-                  }`}
+                  className={cn(
+                    "flex items-center gap-4 rounded-[20px] bg-card px-5 py-4 sm:gap-5 sm:px-6",
+                    CLICKABLE_CARD_HOVER
+                  )}
                 >
-                  <div className="flex items-center gap-4">
-                    <Link
-                      href={`/bikes/${bike.id}/components/${component.id}`}
-                      className="flex min-w-0 flex-1 items-start gap-4"
-                    >
-                      <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+                  <Link href={`/bikes/${bike.id}/components/${component.id}`} className="min-w-0 flex-1">
+                    <div className="flex items-start gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold">{component.name}</p>
-                        <p className="mt-0.5 text-sm text-muted-foreground sm:text-xs">
-                          {[
-                            activeInterval?.name ?? component.category,
-                            activeInterval
-                              ? dict.bikes.detail.every(
-                                  activeInterval.intervalType === "km" && activeInterval.intervalValue != null
-                                    ? Math.round(kmToUnit(activeInterval.intervalValue, distanceUnit) * 10) / 10
-                                    : activeInterval.intervalValue!,
-                                  activeInterval.intervalType!,
-                                  distanceUnit
-                                )
-                              : null,
-                            [component.brand, component.model].filter(Boolean).join(" "),
-                          ]
-                            .filter(Boolean)
-                            .join(" · ")}
+                        <div className="flex items-center gap-2">
+                          <ComponentIcon
+                            size="flat"
+                            icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]}
+                            className="size-[22px]"
+                          />
+                          <span className="truncate text-base font-semibold">{component.category}</span>
+                        </div>
+                        <p className="mt-6 truncate font-display text-[26px] font-bold leading-tight tracking-tight">
+                          {component.name}
                         </p>
-                        <ServiceIntervalBar
-                          fraction={fractionUsed}
-                          className="mt-2 hidden sm:block sm:max-w-[220px]"
-                        />
+                        <p className="truncate text-[13px] leading-tight text-muted-foreground">{serviceLine}</p>
                       </div>
-                    </Link>
-                    <HealthPercentBadge percent={percent} className="shrink-0" />
-                    <Link
-                      href={`/bikes/${bike.id}/components/${component.id}/interventions/new`}
-                      title={dict.bikes.detail.logIntervention}
-                      aria-label={dict.bikes.detail.logInterventionFor(component.name ?? "")}
-                      className="hidden size-10 shrink-0 items-center justify-center rounded-md border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:flex"
-                    >
-                      <Plus className="size-4" />
-                    </Link>
-                  </div>
-                  <ServiceIntervalBar fraction={fractionUsed} className="mt-3 sm:hidden" />
+                      <HealthPercentBadge percent={percent} className="shrink-0" />
+                    </div>
+                    <ServiceIntervalBar fraction={fractionUsed} className="mt-1.5" />
+                  </Link>
+                  <Link
+                    href={`/bikes/${bike.id}/components/${component.id}/interventions/new`}
+                    title={dict.bikes.detail.logIntervention}
+                    aria-label={dict.bikes.detail.logInterventionFor(component.name ?? "")}
+                    className="hidden size-12 shrink-0 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:flex"
+                  >
+                    <Plus className="size-4" />
+                  </Link>
                 </div>
               );
             })}

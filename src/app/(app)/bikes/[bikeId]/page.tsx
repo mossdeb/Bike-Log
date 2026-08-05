@@ -296,8 +296,12 @@ export default async function BikeDetailPage({
 
       {/* No radius while the card is full bleed — the corners had nothing to
           sit against. Desktop gets its margins back, and the radius with them. */}
-      <div className="-mx-5 mb-6 bg-card px-5 pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:px-6 sm:pt-6">
-        <div className="flex flex-wrap items-end justify-between gap-6 sm:items-center">
+      <div className="-mx-5 mb-6 bg-card px-[30px] pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:px-6 sm:pt-6">
+        {/* 12px between the name and the health badge on mobile, not 24: with
+            30px of card padding the longest status ("Serviço Necessário")
+            needs every pixel to stay on the name's line. Desktop, where the
+            details grid and the edit button share this row, keeps its 24. */}
+        <div className="flex flex-wrap items-end justify-between gap-3 sm:items-center sm:gap-6">
           <div className="flex items-end gap-4 sm:items-center">
             <BikeIcon type={bike.type} size="lg" plain />
             <div>

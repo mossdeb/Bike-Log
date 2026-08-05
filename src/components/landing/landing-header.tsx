@@ -6,15 +6,20 @@ import type { LandingLocale } from "@/components/landing/i18n";
 export function LandingHeader({
   nav,
   locale,
+  // The nav is a set of anchors into the landing page. On any other page that
+  // reuses this header (the legal pages) they have nothing to scroll to, so the
+  // caller prefixes them with "/" to send the visitor home first.
+  hrefBase = "",
 }: {
   nav: LandingDictionary["nav"];
   locale: LandingLocale;
+  hrefBase?: string;
 }) {
   const NAV_LINKS = [
-    { label: nav.features, href: "#funcionalidades" },
-    { label: nav.howItWorks, href: "#como-funciona" },
-    { label: nav.pricing, href: "#precos" },
-    { label: nav.faq, href: "#faq" },
+    { label: nav.features, href: `${hrefBase}#funcionalidades` },
+    { label: nav.howItWorks, href: `${hrefBase}#como-funciona` },
+    { label: nav.pricing, href: `${hrefBase}#precos` },
+    { label: nav.faq, href: `${hrefBase}#faq` },
   ];
 
   return (
@@ -23,7 +28,7 @@ export function LandingHeader({
     // card is inset with rounded corners and the header goes back to white.
     <header className="bg-[#B8B3AF] xl:bg-white">
       <div className="mx-auto flex max-w-[1160px] items-center px-5 py-4 sm:px-8">
-        <a href="#top" className="flex items-center gap-2.5">
+        <a href={`${hrefBase}#top`} className="flex items-center gap-2.5">
           <img src="/landing/icons/logo.svg" alt="" className="h-[34px] w-[34px]" />
           <span className="font-[family-name:var(--font-landing-heading)] text-base font-bold text-[#101014]">
             Bikit

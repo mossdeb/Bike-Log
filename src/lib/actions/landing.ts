@@ -11,5 +11,7 @@ export async function setLandingLocale(formData: FormData) {
     maxAge: 60 * 60 * 24 * 365,
     path: "/",
   });
-  revalidatePath("/");
+  // "layout" so the switch also reaches /privacy and /terms, which read the same
+  // cookie — a plain revalidatePath("/") only refreshes the landing page itself.
+  revalidatePath("/", "layout");
 }

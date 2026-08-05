@@ -1,7 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/login", "/signup", "/auth", "/forgot-password"];
+// /privacy and /terms have to answer to signed-out visitors and to crawlers:
+// Google reads them when verifying the OAuth consent screen's branding, and a
+// policy only reachable behind a login is no policy at all.
+const PUBLIC_ROUTES = ["/login", "/signup", "/auth", "/forgot-password", "/privacy", "/terms"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

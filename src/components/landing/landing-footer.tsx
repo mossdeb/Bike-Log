@@ -1,7 +1,15 @@
 import Link from "next/link";
 import type { LandingDictionary } from "@/components/landing/i18n/en";
 
-export function LandingFooter({ dict }: { dict: LandingDictionary["footer"] }) {
+export function LandingFooter({
+  dict,
+  // Same reason as the header: the product links are anchors into the landing
+  // page, so a page that is not the landing page prefixes them with "/".
+  hrefBase = "",
+}: {
+  dict: LandingDictionary["footer"];
+  hrefBase?: string;
+}) {
   return (
     <footer className="bg-white px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto max-w-[1160px]">
@@ -16,11 +24,16 @@ export function LandingFooter({ dict }: { dict: LandingDictionary["footer"] }) {
             <p className="text-sm leading-relaxed text-[#8A8D93]">{dict.tagline}</p>
           </div>
 
-          <div className="flex gap-14 sm:gap-16">
+          {/* Wraps because the third column does not fit beside the other two at 375px. */}
+          <div className="flex flex-wrap gap-10 sm:gap-16">
             <div className="flex flex-col gap-2.5">
               <p className="text-xs font-bold uppercase tracking-wide text-[#8A8D93]">{dict.productHeading}</p>
               {dict.productLinks.map((link) => (
-                <a key={link.label} href={link.href} className="text-sm text-[#101014] hover:text-[#35363C]">
+                <a
+                  key={link.label}
+                  href={`${hrefBase}${link.href}`}
+                  className="text-sm text-[#101014] hover:text-[#35363C]"
+                >
                   {link.label}
                 </a>
               ))}
@@ -32,6 +45,15 @@ export function LandingFooter({ dict }: { dict: LandingDictionary["footer"] }) {
               </Link>
               <Link href="/signup" className="text-sm text-[#101014] hover:text-[#35363C]">
                 {dict.accountSignup}
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <p className="text-xs font-bold uppercase tracking-wide text-[#8A8D93]">{dict.legalHeading}</p>
+              <Link href="/privacy" className="text-sm text-[#101014] hover:text-[#35363C]">
+                {dict.legalPrivacy}
+              </Link>
+              <Link href="/terms" className="text-sm text-[#101014] hover:text-[#35363C]">
+                {dict.legalTerms}
               </Link>
             </div>
           </div>

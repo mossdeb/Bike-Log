@@ -1,7 +1,7 @@
 import type Stripe from "stripe";
 import { getStripeClient } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { PRICE_TO_PLAN } from "@/lib/plans";
+import { resolvePlanFromSubscription } from "@/lib/stripe-plan";
 
 export const dynamic = "force-dynamic";
 
@@ -35,9 +35,20 @@ export async function POST(request: Request) {
       if (!userId || !session.subscription || !session.customer) break;
 
       const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-      const priceId = subscription.items.data[0]?.price.id;
-      const plan = PRICE_TO_PLAN[priceId ?? ""] ?? "free";
+      const plan = resolvePlanFromSubscription(subscription);
       const periodEnd = subscription.items.data[0]?.current_period_end;
+
+      // The price came from our own PLAN_PRICE_IDS when the session was
+      // created, so an unknown one here means the env vars are misconfigured.
+      // Recording "free" would hand a paying customer nothing; leaving the row
+      // out at least keeps the record from being wrong, and the log names the
+      // price so it can be traced.
+      if (!plan) {
+        console.error(
+          `[stripe] checkout completed with an unrecognised price: ${subscription.items.data[0]?.price.id} (subscription ${subscription.id}, user ${userId}) — plan not recorded`
+        );
+        break;
+      }
 
       await admin.from("subscriptions").upsert({
         user_id: userId,
@@ -53,14 +64,22 @@ export async function POST(request: Request) {
 
     case "customer.subscription.updated": {
       const subscription = event.data.object as Stripe.Subscription;
-      const priceId = subscription.items.data[0]?.price.id;
-      const plan = PRICE_TO_PLAN[priceId ?? ""] ?? "free";
+      const plan = resolvePlanFromSubscription(subscription);
       const periodEnd = subscription.items.data[0]?.current_period_end;
+
+      // This is the path that used to downgrade people. An unrecognised price
+      // says nothing about what the subscriber is entitled to, so the plan is
+      // left exactly as it is and only the billing state is updated.
+      if (!plan) {
+        console.error(
+          `[stripe] subscription updated with an unrecognised price: ${subscription.items.data[0]?.price.id} (subscription ${subscription.id}) — plan left unchanged`
+        );
+      }
 
       await admin
         .from("subscriptions")
         .update({
-          plan,
+          ...(plan ? { plan } : {}),
           status: statusFromStripe(subscription.status),
           current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
           cancel_at_period_end: subscription.cancel_at_period_end,

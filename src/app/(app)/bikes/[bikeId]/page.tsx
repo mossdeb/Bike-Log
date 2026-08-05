@@ -294,7 +294,9 @@ export default async function BikeDetailPage({
         <span className="text-foreground">{bike.name}</span>
       </div>
 
-      <div className="-mx-5 mb-6 rounded-b-lg bg-card px-5 pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:px-6 sm:pt-6">
+      {/* No radius while the card is full bleed — the corners had nothing to
+          sit against. Desktop gets its margins back, and the radius with them. */}
+      <div className="-mx-5 mb-6 bg-card px-5 pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:px-6 sm:pt-6">
         <div className="flex flex-wrap items-end justify-between gap-6 sm:items-center">
           <div className="flex items-end gap-4 sm:items-center">
             <BikeIcon type={bike.type} size="lg" plain />

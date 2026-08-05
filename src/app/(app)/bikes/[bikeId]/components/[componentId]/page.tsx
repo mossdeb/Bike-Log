@@ -242,9 +242,8 @@ export default async function ComponentDetailPage({
         </div>
 
         {intervals.length > 0 ? (
-          <div className="mt-6">
-            {intervals.map(({ interval, status }, i) => {
-              const isActive = activeResult?.interval.id === interval.id;
+          <div className="-mx-6 mt-6 space-y-4 border-t border-border px-6 pt-6">
+            {intervals.map(({ interval, status }) => {
               const rowPercent = healthPercent(status.fractionUsed);
               const cadence =
                 interval.intervalType && interval.intervalValue != null
@@ -256,46 +255,52 @@ export default async function ComponentDetailPage({
                       distanceUnit
                     )
                   : null;
-              const remaining =
+              // The amount is kept apart from the sentence it goes into so it
+              // can carry the weight on its own: the dictionary builds the
+              // label by interpolating exactly this string, so splitting on it
+              // gives back the words either side of it, in either language.
+              const amount =
                 status.amountRemaining != null
-                  ? status.amountRemaining <= 0
-                    ? dict.components.detail.overdueLabel(
-                        interval.intervalType === "km"
-                          ? formatDistance(Math.abs(status.amountRemaining), distanceUnit, locale)
-                          : formatHours(Math.abs(status.amountRemaining), locale)
-                      )
-                    : dict.components.detail.remainingLabel(
-                        interval.intervalType === "km"
-                          ? formatDistance(status.amountRemaining, distanceUnit, locale)
-                          : formatHours(status.amountRemaining, locale)
-                      )
+                  ? interval.intervalType === "km"
+                    ? formatDistance(Math.abs(status.amountRemaining), distanceUnit, locale)
+                    : formatHours(Math.abs(status.amountRemaining), locale)
                   : status.daysRemaining != null
-                    ? status.daysRemaining <= 0
-                      ? dict.components.detail.overdueLabel(`${Math.abs(status.daysRemaining)}d`)
-                      : dict.components.detail.remainingLabel(`${status.daysRemaining}d`)
+                    ? `${Math.abs(status.daysRemaining)}d`
                     : null;
+              const isOverdue = (status.amountRemaining ?? status.daysRemaining ?? 1) <= 0;
+              const label =
+                amount == null
+                  ? null
+                  : isOverdue
+                    ? dict.components.detail.overdueLabel(amount)
+                    : dict.components.detail.remainingLabel(amount);
+              const [before, after] = label?.split(amount!) ?? [];
 
               return (
-                <div key={interval.id} className={cn("py-5", i > 0 && "border-t border-border")}>
-                  <div className="flex items-center gap-4">
-                    <MaintenanceIcon className="size-8 shrink-0 text-foreground" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold">
-                        {interval.name}
-                        {cadence ? ` — ${cadence}` : ""}
-                        {isActive && (
-                          <span className="ml-2 inline-block shrink-0 rounded-[7px] bg-muted px-2 py-0.5 align-middle text-[11px] font-semibold text-muted-foreground">
-                            {dict.components.detail.activeIntervalTag}
-                          </span>
-                        )}
-                      </p>
-                      <div className="mt-0.5 flex items-center justify-between gap-2">
-                        {remaining && <p className="text-sm text-muted-foreground">{remaining}</p>}
-                        <HealthPercentBadge percent={rowPercent} className="ml-auto shrink-0" />
-                      </div>
+                <div key={interval.id} className="flex items-center gap-4 rounded-[100px] bg-muted p-3">
+                  <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-card">
+                    <MaintenanceIcon className="size-5 text-foreground" />
+                  </span>
+                  <div className="min-w-0 flex-1 pr-3">
+                    <p className="text-sm text-muted-foreground">
+                      {interval.name}
+                      {cadence ? ` · ${cadence}` : ""}
+                    </p>
+                    <div className="mt-0.5 flex items-center justify-between gap-2">
+                      {label && (
+                        <p className="min-w-0 truncate text-base">
+                          {before}
+                          <span className="font-semibold">{amount}</span>
+                          {after}
+                        </p>
+                      )}
+                      <HealthPercentBadge percent={rowPercent} className="ml-auto shrink-0" />
                     </div>
+                    {/* The pill is `bg-muted`, which is also the bar's own track
+                        colour — without this the empty half of the track
+                        disappears and the bar reads as being much shorter. */}
+                    <ServiceIntervalBar fraction={status.fractionUsed} className="mt-2 bg-border" />
                   </div>
-                  <ServiceIntervalBar fraction={status.fractionUsed} className="mt-1 w-full" />
                 </div>
               );
             })}

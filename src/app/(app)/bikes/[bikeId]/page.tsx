@@ -331,16 +331,18 @@ export default async function BikeDetailPage({
           <TabsList variant="line" className="h-auto gap-12 bg-transparent p-0">
             <TabsTrigger
               value="components"
-              className="h-auto flex-none px-0 py-1 text-base font-display font-bold data-active:bg-transparent"
+              className="h-auto flex-none px-0 pt-1 pb-0 text-base font-display font-bold data-active:bg-transparent"
             >
               {dict.bikes.detail.componentsTitle}
               {components && components.length > 0 && (
-                <span className="ml-0.5 font-normal text-muted-foreground">({components.length})</span>
+                // The trigger is an inline-flex with gap-1.5, so the count already sits
+                // 6px off the title before any margin — pulled back to a plain space.
+                <span className="-ml-0.5 font-normal text-muted-foreground">({components.length})</span>
               )}
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
-              className="h-auto flex-none px-0 py-1 text-base font-display font-bold data-active:bg-transparent"
+              className="h-auto flex-none px-0 pt-1 pb-0 text-base font-display font-bold data-active:bg-transparent"
             >
               {dict.bikes.detail.timelineTab}
             </TabsTrigger>

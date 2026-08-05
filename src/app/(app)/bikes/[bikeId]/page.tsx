@@ -397,7 +397,7 @@ export default async function BikeDetailPage({
                           />
                           <span className="truncate text-base font-semibold">{component.category}</span>
                         </div>
-                        <p className="mt-6 truncate font-display text-[26px] font-bold leading-tight tracking-tight">
+                        <p className="mt-6 truncate font-display text-[26px] font-semibold leading-tight tracking-tight">
                           {component.name}
                         </p>
                         <p className="truncate text-[13px] leading-tight text-muted-foreground">{serviceLine}</p>

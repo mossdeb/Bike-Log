@@ -282,7 +282,7 @@ export default async function ComponentDetailPage({
               return (
                 <div
                   key={interval.id}
-                  className="flex items-center gap-4 rounded-[100px] bg-[#F4F4F4] p-3 dark:bg-muted"
+                  className="flex items-center gap-4 rounded-[22px] bg-[#F4F4F4] p-3 dark:bg-muted"
                 >
                   <span className="flex size-[42px] shrink-0 items-center justify-center rounded-full bg-card">
                     <MaintenanceIcon className="size-5 text-foreground" />

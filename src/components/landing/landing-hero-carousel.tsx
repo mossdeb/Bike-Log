@@ -126,7 +126,7 @@ export function LandingHeroCarousel({ dict }: { dict: HeroDictionary }) {
               priority={i === 0}
               fetchPriority={i === 0 ? "high" : "low"}
               sizes="(min-width: 1280px) 50vw, 100vw"
-              className={`object-cover ease-out xl:origin-bottom-left xl:translate-y-20 xl:scale-[1.2] xl:object-cover xl:object-left ${
+              className={`object-cover ease-out xl:origin-bottom-left xl:translate-y-20 xl:scale-[1.02] xl:object-cover xl:object-left ${
                 moving
                   ? // `translate`, not `transform`: Tailwind v4 sets the individual property.
                     "transition-[translate,opacity] duration-700 motion-reduce:transition-none"

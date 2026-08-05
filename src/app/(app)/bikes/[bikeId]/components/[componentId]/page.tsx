@@ -14,6 +14,7 @@ import { formatDate, formatDistance, formatHours, kmToUnit } from "@/lib/format"
 import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
+import { BikeIcon } from "@/components/bike-icon";
 import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
@@ -59,7 +60,7 @@ export default async function ComponentDetailPage({
   const [{ data: userData }, { data: bike }, { data: component }, { data: interventions }, { data: rawIntervals }] =
     await Promise.all([
       supabase.auth.getClaims(),
-      supabase.from("bikes").select("id, name, total_km, total_hours").eq("id", bikeId).single(),
+      supabase.from("bikes").select("id, name, type, total_km, total_hours").eq("id", bikeId).single(),
       supabase.from("components").select("*").eq("id", componentId).eq("bike_id", bikeId).single(),
       supabase
         .from("interventions")
@@ -155,7 +156,21 @@ export default async function ComponentDetailPage({
         <span className="text-foreground">{component.name}</span>
       </div>
 
-      <div className="mb-6 rounded-lg bg-card px-6 pt-6 pb-6">
+      {/* Mobile only: a tab peeking out from behind the component card, tying
+          the part back to the bike it's fitted to. Desktop already says it in
+          the breadcrumb, so it would be a second copy of the same fact. The
+          card below is `relative` so it paints over the tab's hidden half —
+          block backgrounds and inline text are painted in separate phases, so
+          tree order alone doesn't guarantee the cover. */}
+      <Link
+        href={`/bikes/${bike.id}`}
+        className="mx-6 -mb-5 flex items-center gap-2 rounded-[20px] bg-[#F7F7F7] px-5 pt-3 pb-8 dark:bg-muted sm:hidden"
+      >
+        <BikeIcon type={bike.type} plain className="size-7" />
+        <span className="truncate text-[15px] font-bold">{bike.name}</span>
+      </Link>
+
+      <div className="relative mb-6 rounded-lg bg-card px-6 pt-6 pb-6">
         {/* Desktop: icon + name/badge, full details grid inline, edit far right */}
         <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6">
           <div className="flex items-center gap-4">

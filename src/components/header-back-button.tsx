@@ -20,9 +20,11 @@ export function useIsBikeDetailPage() {
   return BIKE_DETAIL_RE.test(pathname);
 }
 
-/** Create/edit form routes that show a back chevron on mobile only — desktop
- * already shows a full breadcrumb inside the page for these. */
-const FORM_BACK_ROUTES: { re: RegExp; backHref: (m: RegExpMatchArray) => string }[] = [
+/** Routes that show a back chevron on mobile only — desktop already shows a
+ * full breadcrumb inside the page for these. Mostly the create/edit forms,
+ * plus the legal documents reached from Settings. */
+const MOBILE_BACK_ROUTES: { re: RegExp; backHref: (m: RegExpMatchArray) => string }[] = [
+  { re: /^\/legal\/(privacy|terms)$/, backHref: () => "/settings" },
   { re: /^\/bikes\/new$/, backHref: () => "/bikes" },
   { re: /^\/bikes\/([^/]+)\/edit$/, backHref: (m) => `/bikes/${m[1]}` },
   { re: /^\/bikes\/([^/]+)\/components\/new$/, backHref: (m) => `/bikes/${m[1]}` },
@@ -64,7 +66,7 @@ export function HeaderBackButton({ className }: { className?: string }) {
     );
   }
 
-  for (const route of FORM_BACK_ROUTES) {
+  for (const route of MOBILE_BACK_ROUTES) {
     const match = pathname.match(route.re);
     if (!match) continue;
     return (

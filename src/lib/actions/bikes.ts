@@ -178,7 +178,10 @@ export async function updateBike(bikeId: string, formData: FormData) {
     redirect(`/bikes/${bikeId}/edit?error=${encodeURIComponent(message)}`);
   }
 
-  if (!existingBike?.strava_gear_id && !willBeLinked) {
+  // Rebase whenever this form wrote the totals — the same condition that put
+  // them in updateData. Also asking whether the bike *was* linked would skip
+  // the unlink case, where the totals are written but the baselines aren't.
+  if (!willBeLinked) {
     const deltaKm = (parsed.data.total_km ?? 0) - (existingBike?.total_km ?? 0);
     const deltaHours = (parsed.data.total_hours ?? 0) - (existingBike?.total_hours ?? 0);
     if (deltaKm !== 0 || deltaHours !== 0) {

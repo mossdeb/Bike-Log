@@ -213,7 +213,7 @@ const en = {
             kind: "ul",
             items: [
               "Supabase — authentication and database hosting.",
-              "Vercel — website and application hosting.",
+              "Vercel — website and application hosting, and cookieless audience measurement on the public pages.",
               "Stripe — subscription and payment processing.",
               "Resend — sending emails.",
               "Google — Sign in with Google (only if you choose it).",
@@ -313,7 +313,11 @@ const en = {
           },
           {
             kind: "p",
-            text: "Bikit does not use advertising cookies, analytics cookies or third-party tracking technologies.",
+            text: "Bikit does not use advertising cookies or analytics cookies, and does not follow you across other websites.",
+          },
+          {
+            kind: "p",
+            text: "On the public pages — the home page, these documents and the sign-in and sign-up screens — Vercel, which hosts Bikit, carries out cookieless audience measurement. It records the page visited, where the visit came from and the type of device, in aggregate, without storing anything on your device and without identifying you. Once you are signed in there is no measurement at all: what you do with your bikes and components is not observed.",
           },
         ],
       },

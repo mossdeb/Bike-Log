@@ -176,7 +176,7 @@ const pt: LegalDictionary = {
             kind: "ul",
             items: [
               "Supabase — autenticação e alojamento da base de dados.",
-              "Vercel — alojamento do site e da aplicação.",
+              "Vercel — alojamento do site e da aplicação, e medição de audiência sem cookies nas páginas públicas.",
               "Stripe — processamento de subscrições e pagamentos.",
               "Resend — envio de emails.",
               "Google — entrar com a Google (apenas se o escolheres).",
@@ -276,7 +276,11 @@ const pt: LegalDictionary = {
           },
           {
             kind: "p",
-            text: "O Bikit não usa cookies de publicidade, cookies de análise nem tecnologias de rastreio de terceiros.",
+            text: "O Bikit não usa cookies de publicidade nem cookies de análise, e não te segue por outros sites.",
+          },
+          {
+            kind: "p",
+            text: "Nas páginas públicas — a página inicial, estes documentos e os ecrãs de entrada e de registo — é feita uma medição de audiência sem cookies, pela Vercel, que aloja o Bikit. Regista de forma agregada a página visitada, a origem da visita e o tipo de dispositivo, sem guardar nada no teu dispositivo e sem te identificar. Depois de entrares na aplicação não há medição nenhuma: o que fazes com as tuas bicicletas e componentes não é observado.",
           },
         ],
       },

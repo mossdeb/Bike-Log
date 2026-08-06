@@ -335,6 +335,18 @@ const pt: Dictionary = {
     },
   },
   components: {
+    categories: {
+      "Front Suspension (Fork)": "Suspensão da frente (Garfo)",
+      "Rear Suspension": "Suspensão traseira",
+      Transmission: "Transmissão",
+      Brakes: "Travões",
+      "Brake Pads": "Pastilhas de travão",
+      Wheels: "Rodas",
+      Tire: "Pneu",
+      Cockpit: "Cockpit",
+      Frame: "Quadro",
+      Other: "Outro",
+    },
     detail: {
       interval: "Intervalo de serviço",
       serial: "Nº de série",

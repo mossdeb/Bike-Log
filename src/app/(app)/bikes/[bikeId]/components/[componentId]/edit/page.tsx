@@ -16,6 +16,7 @@ import { ComponentOptionalFields } from "@/components/component-optional-fields"
 import { InstallDateField } from "@/components/install-date-field";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { categoryLabel } from "@/lib/component-category";
 import { kmToUnit } from "@/lib/format";
 import type { IntervalType } from "@/lib/validations/component.schema";
 
@@ -101,7 +102,7 @@ export default async function EditComponentPage({
             >
               {COMPONENT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {categoryLabel(dict, c)}
                 </option>
               ))}
             </NativeSelect>

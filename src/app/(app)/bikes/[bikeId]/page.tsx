@@ -25,6 +25,7 @@ import { buildBikeTimeline, type TimelineIntervention } from "@/lib/timeline";
 import type { InterventionType } from "@/lib/intervention-type";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { categoryLabel } from "@/lib/component-category";
 import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS } from "@/lib/plans";
@@ -413,7 +414,7 @@ export default async function BikeDetailPage({
                             icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]}
                             className="size-[22px]"
                           />
-                          <span className="truncate text-base font-medium">{component.category}</span>
+                          <span className="truncate text-base font-medium">{categoryLabel(dict, component.category)}</span>
                         </div>
                         <p className="mt-6 truncate font-display text-[22px] font-semibold leading-tight tracking-tight">
                           {component.name}

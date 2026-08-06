@@ -16,6 +16,7 @@ import { ComponentInstallFields } from "@/components/component-install-fields";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { NewComponentWizard } from "@/components/new-component-wizard";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { categoryLabel } from "@/lib/component-category";
 import { kmToUnit } from "@/lib/format";
 
 export default async function NewComponentPage({
@@ -55,7 +56,7 @@ export default async function NewComponentPage({
         >
           {COMPONENT_CATEGORIES.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {categoryLabel(dict, c)}
             </option>
           ))}
         </NativeSelect>

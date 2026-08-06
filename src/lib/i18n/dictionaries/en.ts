@@ -335,6 +335,22 @@ const en = {
     },
   },
   components: {
+    // Categories are stored in English — components.category holds the exact
+    // string below, and COMPONENT_CATEGORY_ICON is keyed off it. Only the
+    // display is translated, so nothing has to be migrated and a row written
+    // before a category was renamed still resolves to its own raw value.
+    categories: {
+      "Front Suspension (Fork)": "Front Suspension (Fork)",
+      "Rear Suspension": "Rear Suspension",
+      Transmission: "Transmission",
+      Brakes: "Brakes",
+      "Brake Pads": "Brake Pads",
+      Wheels: "Wheels",
+      Tire: "Tire",
+      Cockpit: "Cockpit",
+      Frame: "Frame",
+      Other: "Other",
+    },
     detail: {
       interval: "Service interval",
       serial: "Serial",

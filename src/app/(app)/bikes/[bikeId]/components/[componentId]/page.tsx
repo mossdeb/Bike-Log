@@ -24,6 +24,7 @@ import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { categoryLabel } from "@/lib/component-category";
 
 function DetailField({
   label,
@@ -183,7 +184,7 @@ export default async function ComponentDetailPage({
           <div className="flex flex-1 flex-wrap gap-x-4 gap-y-5 sm:gap-x-6">
             <DetailField label={dict.brandField.brand} value={component.brand ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.form.model} value={component.model ?? "—"} className={fieldBasis} />
-            <DetailField label={dict.components.form.category} value={component.category ?? "—"} className={fieldBasis} />
+            <DetailField label={dict.components.form.category} value={categoryLabel(dict, component.category) ?? "—"} className={fieldBasis} />
             <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono className={fieldBasis} />
             <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono className={fieldBasis} />
             {component.serial_number && (
@@ -219,7 +220,7 @@ export default async function ComponentDetailPage({
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
               <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {[bike.name, component.category, component.brand, component.model].filter(Boolean).join(" · ") ||
+                {[bike.name, categoryLabel(dict, component.category), component.brand, component.model].filter(Boolean).join(" · ") ||
                   dict.bikes.noDetailsYet}
               </p>
             </div>

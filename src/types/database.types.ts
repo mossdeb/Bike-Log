@@ -189,6 +189,8 @@ export type Database = {
           category: string | null
           created_at: string
           id: string
+          initial_hours: number | null
+          initial_km: number | null
           install_date: string | null
           interval_type: string | null
           interval_value: number | null
@@ -211,6 +213,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           id?: string
+          initial_hours?: number | null
+          initial_km?: number | null
           install_date?: string | null
           interval_type?: string | null
           interval_value?: number | null
@@ -233,6 +237,8 @@ export type Database = {
           category?: string | null
           created_at?: string
           id?: string
+          initial_hours?: number | null
+          initial_km?: number | null
           install_date?: string | null
           interval_type?: string | null
           interval_value?: number | null

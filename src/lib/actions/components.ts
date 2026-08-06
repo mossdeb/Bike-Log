@@ -110,9 +110,10 @@ export async function createComponent(bikeId: string, formData: FormData) {
   }
 
   // The user can give a new component a head start (e.g. a used part) via
-  // initial_km/initial_hours — defaults to 0 for a brand-new part. From
-  // then on usage is derived from the bike's totals, so this is folded
-  // into the install-time baseline rather than stored directly.
+  // initial_km/initial_hours — defaults to 0 for a brand-new part. From then on
+  // usage is derived from the bike's totals, so this drives the install-time
+  // baseline. It's also stored as-is: the baseline alone can't give it back,
+  // because the bike's total at that moment isn't kept anywhere.
   const initialUsage = componentInitialUsageSchema.safeParse({
     initial_km: formData.get("initial_km"),
     initial_hours: formData.get("initial_hours"),
@@ -132,6 +133,8 @@ export async function createComponent(bikeId: string, formData: FormData) {
       user_id: userId,
       bike_km_at_install: (bike?.total_km ?? 0) - initialKm,
       bike_hours_at_install: (bike?.total_hours ?? 0) - initialHours,
+      initial_km: initialKm,
+      initial_hours: initialHours,
     })
     .select("id")
     .single();

@@ -105,7 +105,7 @@ export default async function BikeDetailPage({
         : Promise.resolve({ count: null }),
       supabase
         .from("components")
-        .select("id, name, category, brand, model, bike_km_at_install, bike_hours_at_install")
+        .select("id, name, category, brand, model, bike_km_at_install, bike_hours_at_install, install_date, initial_km, initial_hours")
         .eq("bike_id", bikeId)
         .order("created_at", { ascending: true }),
       supabase
@@ -154,7 +154,7 @@ export default async function BikeDetailPage({
   const componentIds = (components ?? [])
     .map((c) => c.id)
     .filter((id): id is string => id != null);
-  const componentNameById = new Map((components ?? []).map((c) => [c.id, c.name]));
+  const componentById = new Map((components ?? []).map((c) => [c.id, c]));
   const { data: bikeInterventions } =
     componentIds.length > 0
       ? await supabase
@@ -168,7 +168,8 @@ export default async function BikeDetailPage({
   const timelineInterventions: TimelineIntervention[] = (bikeInterventions ?? []).map((iv) => ({
     id: iv.id,
     componentId: iv.component_id,
-    componentName: componentNameById.get(iv.component_id) ?? "",
+    componentName: componentById.get(iv.component_id)?.name ?? "",
+    componentCategory: componentById.get(iv.component_id)?.category ?? null,
     type: iv.type as InterventionType,
     date: iv.date,
     description: iv.description,
@@ -185,6 +186,16 @@ export default async function BikeDetailPage({
       created_at: bike.created_at,
     },
     interventions: timelineInterventions,
+    components: (components ?? [])
+      .filter((c) => c.install_date != null)
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        category: c.category,
+        installDate: c.install_date as string,
+        initialKm: c.initial_km,
+        initialHours: c.initial_hours,
+      })),
   });
 
   const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit, locale) : null;

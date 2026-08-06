@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { Fragment } from "react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { formatDate, formatDistance, formatHours } from "@/lib/format";
 import type { TimelineEvent } from "@/lib/timeline";
 import { INTERVENTION_TYPE_ICON } from "@/lib/intervention-type";
 import { INTERVENTION_TYPE_STYLES } from "@/components/type-badge";
+import { ComponentIcon } from "@/components/component-icon";
+import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
+import type { ComponentCategory } from "@/lib/constants";
 import { ManufacturedIcon, PurchasedIcon, WarrantyIcon } from "@/components/timeline-icons";
 import { LogoIcon } from "@/components/logo";
 import { BikeIcon } from "@/components/bike-icon";
@@ -31,6 +35,95 @@ function MilestonePill({
       <p className="text-sm font-semibold">{label}</p>
       <span className="ml-1 text-xs text-muted-foreground">{date}</span>
     </div>
+  );
+}
+
+/**
+ * A figure and its unit, split apart so the number can carry the weight.
+ *
+ * Both formatters emit "<value> <unit>" and the value itself can hold spaces
+ * (a Portuguese "3 302"), so the split is on the last space, not the first.
+ */
+function Measure({ text }: { text: string }) {
+  const at = text.lastIndexOf(" ");
+  if (at === -1) return <p className="text-[15px] leading-tight font-semibold">{text}</p>;
+  return (
+    <p className="text-[15px] leading-tight whitespace-nowrap">
+      <span className="font-semibold">{text.slice(0, at)}</span>{" "}
+      <span className="text-muted-foreground">{text.slice(at + 1)}</span>
+    </p>
+  );
+}
+
+/**
+ * The card shape shared by everything that happened to a specific component —
+ * an intervention or the moment it was fitted.
+ *
+ * The category icon says which part at a glance; the small badge over it says
+ * what happened to it, in the same colour the type badge uses elsewhere. The
+ * figures sit in their own column on the right rather than running into the
+ * subtitle, which is what lets them line up down the timeline.
+ */
+function ComponentEventCard({
+  href,
+  category,
+  componentName,
+  badge,
+  badgeStyle,
+  date,
+  title,
+  measures,
+}: {
+  href: string;
+  /** Raw stored value — what COMPONENT_CATEGORY_ICON is keyed off. Only the
+   * icon carries it; spelling it out beside the date would say twice what the
+   * glyph already says, and the part's own name is what tells them apart. */
+  category: string | null;
+  componentName: string | null;
+  badge: React.ReactNode;
+  badgeStyle: string;
+  date: string;
+  title: string;
+  measures: string[];
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn("flex w-full items-center gap-4 rounded-lg bg-card p-5", CLICKABLE_CARD_HOVER)}
+    >
+      <span className="relative shrink-0">
+        <ComponentIcon
+          size="flat"
+          icon={COMPONENT_CATEGORY_ICON[category as ComponentCategory]}
+          className="size-11"
+        />
+        {/* Ringed in the card's own colour so the badge reads as sitting on
+            top of the icon rather than merging into its outline. */}
+        <span
+          className={cn(
+            "absolute -right-1 -bottom-1 flex size-[22px] items-center justify-center rounded-full ring-2 ring-card",
+            badgeStyle
+          )}
+        >
+          {badge}
+        </span>
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-[13px] leading-tight text-muted-foreground">
+          {[formatDate(date), componentName].filter(Boolean).join(" · ")}
+        </p>
+        <p className="mt-1 truncate text-[16px] leading-tight font-semibold">{title}</p>
+      </div>
+
+      {measures.length > 0 && (
+        <div className="flex shrink-0 flex-col items-end gap-0.5">
+          {measures.map((m) => (
+            <Measure key={m} text={m} />
+          ))}
+        </div>
+      )}
+    </Link>
   );
 }
 
@@ -109,40 +202,43 @@ export function BikeTimeline({
 
           if (event.kind === "intervention") {
             const Icon = INTERVENTION_TYPE_ICON[event.type];
-            const stats = [
-              event.componentName,
-              event.kms != null ? formatDistance(event.kms, distanceUnit, locale) : null,
-              event.hoursUsed != null ? formatHours(event.hoursUsed, locale) : null,
-            ]
-              .filter(Boolean)
-              .join(" · ");
             content = (
               <div className="flex w-full flex-col items-center gap-3">
                 <TimelineDot />
-                <Link
+                <ComponentEventCard
                   href={`/bikes/${bikeId}/components/${event.componentId}/interventions/${event.id}/edit`}
-                  className={cn("flex w-full items-center gap-4 rounded-lg bg-card p-5", CLICKABLE_CARD_HOVER)}
-                >
-                  <span
-                    className={cn(
-                      "flex size-8 shrink-0 items-center justify-center rounded-[12px]",
-                      INTERVENTION_TYPE_STYLES[event.type]
-                    )}
-                  >
-                    <Icon className="size-4" />
-                  </span>
-                  <div className="grid min-w-0 flex-1 grid-cols-[auto_1fr] items-center gap-x-6 gap-y-0">
-                    <span className="row-span-2 self-center text-[15px] leading-tight text-muted-foreground">
-                      {formatDate(event.date)}
-                    </span>
-                    <p className="min-w-0 truncate text-[16px] leading-tight font-semibold">
-                      {event.description || dict.components.detail.noDescription}
-                    </p>
-                    {stats && (
-                      <p className="min-w-0 truncate text-[15px] leading-tight text-muted-foreground">{stats}</p>
-                    )}
-                  </div>
-                </Link>
+                  category={event.componentCategory}
+                  componentName={event.componentName}
+                  badge={<Icon className="size-3" />}
+                  badgeStyle={INTERVENTION_TYPE_STYLES[event.type]}
+                  date={event.date}
+                  title={event.description || dict.components.detail.noDescription}
+                  measures={[
+                    event.kms != null ? formatDistance(event.kms, distanceUnit, locale) : null,
+                    event.hoursUsed != null ? formatHours(event.hoursUsed, locale) : null,
+                  ].filter((m): m is string => m != null)}
+                />
+              </div>
+            );
+          } else if (event.kind === "componentInstalled") {
+            content = (
+              <div className="flex w-full flex-col items-center gap-3">
+                <TimelineDot />
+                <ComponentEventCard
+                  href={`/bikes/${bikeId}/components/${event.id}`}
+                  category={event.category}
+                  componentName={event.name}
+                  badge={<Check className="size-3" strokeWidth={3} />}
+                  badgeStyle={INTERVENTION_TYPE_STYLES.service}
+                  date={event.installDate}
+                  title={dict.bikes.detail.componentInstalled}
+                  // Null on components created before the figure was recorded —
+                  // the column is simply left out rather than claiming a zero.
+                  measures={[
+                    event.initialKm != null ? formatDistance(event.initialKm, distanceUnit, locale) : null,
+                    event.initialHours != null ? formatHours(event.initialHours, locale) : null,
+                  ].filter((m): m is string => m != null)}
+                />
               </div>
             );
           } else if (event.kind === "warrantyExpired") {
@@ -195,7 +291,12 @@ export function BikeTimeline({
             );
           }
 
-          const key = event.kind === "intervention" ? event.id : event.kind;
+          const key =
+            event.kind === "intervention"
+              ? event.id
+              : event.kind === "componentInstalled"
+                ? `install-${event.id}`
+                : event.kind;
           return (
             <Fragment key={key}>
               {event.yearLabel && <YearLabel year={event.yearLabel} />}

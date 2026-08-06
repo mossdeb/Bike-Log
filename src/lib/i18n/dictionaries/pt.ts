@@ -269,6 +269,7 @@ const pt: Dictionary = {
       purchased: "Comprada",
       addedToBikit: "Adicionada à Bikit",
       warrantyExpired: "Garantia expirada",
+      componentInstalled: "Instalado",
     },
     form: {
       addTitle: "Adicionar uma bicicleta",

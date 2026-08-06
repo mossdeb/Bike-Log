@@ -6,6 +6,7 @@ export type TimelineIntervention = {
   id: string;
   componentId: string;
   componentName: string;
+  componentCategory: string | null;
   type: InterventionType;
   date: string;
   description: string | null;
@@ -13,8 +14,18 @@ export type TimelineIntervention = {
   hoursUsed: number | null;
 };
 
+export type TimelineComponentInstall = {
+  id: string;
+  name: string;
+  category: string | null;
+  installDate: string;
+  initialKm: number | null;
+  initialHours: number | null;
+};
+
 export type TimelineEvent =
   | ({ kind: "intervention"; sortDate: string } & TimelineIntervention)
+  | ({ kind: "componentInstalled"; sortDate: string } & TimelineComponentInstall)
   | { kind: "manufactured"; sortDate: string; year: number; brand: string | null }
   | { kind: "purchased"; sortDate: string; date: string }
   | { kind: "added"; sortDate: string; date: string }
@@ -33,12 +44,27 @@ export function buildBikeTimeline(input: {
     created_at: string;
   };
   interventions: TimelineIntervention[];
+  components?: TimelineComponentInstall[];
 }): TimelineEvent[] {
   const events: TimelineEvent[] = input.interventions.map((iv) => ({
     kind: "intervention" as const,
     sortDate: iv.date,
     ...iv,
   }));
+
+  // A part fitted at the same time as the bike doesn't get its own entry: it
+  // would stack a card per original component on top of "Purchased", each one
+  // repeating the same date to say nothing the bike's own entry doesn't.
+  //
+  // The test is the install date alone. Both ways of answering "it came with
+  // the bike" land here — one writes the bike's purchase date, the other
+  // leaves the date empty — and an undated component is one whose fitting date
+  // simply isn't known, which is no basis for putting it on a timeline.
+  for (const component of input.components ?? []) {
+    if (!component.installDate) continue;
+    if (component.installDate === input.bike.purchase_date) continue;
+    events.push({ kind: "componentInstalled", sortDate: component.installDate, ...component });
+  }
 
   if (input.bike.purchase_date) {
     events.push({ kind: "purchased", sortDate: input.bike.purchase_date, date: input.bike.purchase_date });

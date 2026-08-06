@@ -269,6 +269,7 @@ const en = {
       purchased: "Purchased",
       addedToBikit: "Added to Bikit",
       warrantyExpired: "Warranty Expired",
+      componentInstalled: "Installed",
     },
     form: {
       addTitle: "Add a bike",

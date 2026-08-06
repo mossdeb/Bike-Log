@@ -479,7 +479,15 @@ export default async function BikeDetailPage({
                   ]
                     .filter(Boolean)
                     .join(" · ")
-                : [component.brand, component.model].filter(Boolean).join(" ");
+                : // Falling back to brand and model says nothing when the name
+                  // is already brand and model — which is exactly what it is
+                  // whenever the custom name was left blank, since that's what
+                  // deriveComponentName builds it from. Two identical lines
+                  // read as a duplicated card.
+                  (() => {
+                    const brandModel = [component.brand, component.model].filter(Boolean).join(" ");
+                    return brandModel === component.name ? null : brandModel;
+                  })();
               return (
                 <div
                   key={component.id}
@@ -502,7 +510,9 @@ export default async function BikeDetailPage({
                         <p className="mt-6 truncate font-display text-[22px] font-semibold leading-tight tracking-tight">
                           {component.name}
                         </p>
-                        <p className="truncate text-[13px] leading-tight text-muted-foreground">{serviceLine}</p>
+                        {serviceLine && (
+                          <p className="truncate text-[13px] leading-tight text-muted-foreground">{serviceLine}</p>
+                        )}
                       </div>
                       <HealthPercentBadge
                         percent={percent}

@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBikeIndexManufacturers } from "@/lib/bikeindex";
 import { createClient } from "@/lib/supabase/server";
-import { updateComponent, deleteComponent, archiveComponent } from "@/lib/actions/components";
+import { updateComponent, deleteComponent } from "@/lib/actions/components";
 import { COMPONENT_CATEGORIES, COMPONENT_NAME_SUGGESTIONS } from "@/lib/constants";
 import { BrandField } from "@/components/brand-field";
 import { IntervalFieldGroup, type IntervalSlotDefault } from "@/components/interval-field";
 import { FormError } from "@/components/form-error";
-import { ConfirmActionButton, DeleteConfirmButton } from "@/components/delete-confirm-button";
+import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
@@ -177,38 +177,14 @@ export default async function EditComponentPage({
         </div>
       </form>
 
-      {/* Its own card, above the danger zone and outside it. Archiving is
-          reversible and deleting is not; sitting them in the same red box would
-          teach that they are the same kind of decision, and make people hesitate
-          over the one they should be reaching for. Hidden once archived — the
-          way back is on the component's own page. */}
-      {!component.retired_at && (
-        <div className="mt-6 rounded-lg border border-border bg-card p-6">
-          <p className="text-sm font-semibold">{dict.components.form.archiveTitle}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {dict.components.form.archiveDesc(component.name)}
-          </p>
-          <div className="mt-4">
-            <ConfirmActionButton
-              action={archiveComponent.bind(null, bike.id, component.id)}
-              title={dict.bikes.detail.archiveConfirmTitle}
-              description={dict.bikes.detail.archiveConfirmDesc(component.name)}
-              confirmLabel={dict.bikes.detail.archiveConfirm}
-              cancelLabel={dict.components.form.cancel}
-              variant="outline"
-              triggerContent={dict.bikes.detail.archiveConfirm}
-            />
-          </div>
-        </div>
-      )}
-
       <div className="mt-6 rounded-lg border border-destructive/30 bg-card p-6">
         <p className="text-sm font-semibold">{dict.components.form.deleteTitle}</p>
         <p className="mt-1 text-sm text-muted-foreground">{dict.components.form.deleteDesc(component.name)}</p>
-        {/* Offered here because this is where someone lands when they want a
-            part gone. A button on a page they rarely open is found by accident;
-            the alternative named at the moment of the decision is found every
-            time. */}
+        {/* Archiving itself lives on the component's own page now, but it is
+            still named here — this is where someone lands when they want a part
+            gone, and an alternative offered at the moment of the decision is
+            found every time. The line says where to go, since the button that
+            used to sit above this card is no longer here. */}
         {!component.retired_at && (
           <p className="mt-2 text-sm text-muted-foreground">{dict.components.form.deleteOrArchive}</p>
         )}

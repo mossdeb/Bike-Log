@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Ban, Pencil, Inbox, MoreVertical, RotateCcw } from "lucide-react";
+import { Ban, Inbox } from "lucide-react";
 import { archiveComponent, restoreComponent } from "@/lib/actions/components";
-import { ConfirmActionButton } from "@/components/delete-confirm-button";
+import { ComponentActionsMenu } from "@/components/component-actions-menu";
 import { FormError } from "@/components/form-error";
 import { ToolIcon } from "@/components/tool-icon";
 import { createClient } from "@/lib/supabase/server";
@@ -18,7 +18,7 @@ import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { BikeIcon } from "@/components/bike-icon";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { MaintenanceIcon } from "@/components/interval-icons";
@@ -130,19 +130,6 @@ export default async function ComponentDetailPage({
   const distanceDetail = usage.km != null ? formatDistance(usage.km, distanceUnit, locale) : null;
   const hoursDetail = usage.hours != null ? formatHours(usage.hours, locale) : null;
 
-  const editButton = (
-    <Button
-      render={<Link href={`/bikes/${bike.id}/components/${component.id}/edit`} />}
-      nativeButton={false}
-      variant="outline"
-      size="sm"
-      className="bg-transparent"
-    >
-      <Pencil className="size-3.5" />
-      {dict.components.detail.edit}
-    </Button>
-  );
-
   const logMaintenanceButton = (
     <Button
       render={<Link href={`/bikes/${bike.id}/components/${component.id}/interventions/new`} />}
@@ -170,37 +157,36 @@ export default async function ComponentDetailPage({
     <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
   );
 
-  // The same circle as the edit control beside it, so the pair reads as one set
-  // of controls for this part. It opens the confirmation directly rather than a
-  // menu: there is exactly one thing behind it.
-  const archiveControl = isArchived ? (
-    <ConfirmActionButton
-      action={restoreComponent.bind(null, bike.id, component.id)}
-      title={dict.bikes.detail.restoreConfirmTitle}
-      description={dict.bikes.detail.restoreConfirmDesc(component.name)}
-      confirmLabel={dict.bikes.detail.restoreConfirm}
-      cancelLabel={dict.components.form.cancel}
-      variant="inverted"
-      triggerAriaLabel={dict.bikes.detail.restoreAction}
-      triggerClassName={cn(buttonVariants({ variant: "inverted", size: "sm" }), "text-sm")}
-      triggerContent={
-        <>
-          <RotateCcw className="size-3.5" />
-          {dict.bikes.detail.restoreAction}
-        </>
+  // One control for both actions, in both states. The pencil it replaces was a
+  // verb promising the edit form, which is the wrong thing for a menu to hang
+  // off; and archiving used to sit up here while restoring sat at the foot of
+  // the card, so the same action moved depending on the part's state.
+  const actionsMenu = (
+    <ComponentActionsMenu
+      editHref={`/bikes/${bike.id}/components/${component.id}/edit`}
+      editLabel={dict.components.detail.edit}
+      menuLabel={dict.components.detail.actionsMenu}
+      isArchived={isArchived}
+      lifecycleLabel={
+        isArchived ? dict.bikes.detail.restoreAction : dict.bikes.detail.archiveAction
       }
-    />
-  ) : (
-    <ConfirmActionButton
-      action={archiveComponent.bind(null, bike.id, component.id)}
-      title={dict.bikes.detail.archiveConfirmTitle}
-      description={dict.bikes.detail.archiveConfirmDesc(component.name)}
-      confirmLabel={dict.bikes.detail.archiveConfirm}
+      lifecycleAction={
+        isArchived
+          ? restoreComponent.bind(null, bike.id, component.id)
+          : archiveComponent.bind(null, bike.id, component.id)
+      }
+      confirmTitle={
+        isArchived ? dict.bikes.detail.restoreConfirmTitle : dict.bikes.detail.archiveConfirmTitle
+      }
+      confirmDescription={
+        isArchived
+          ? dict.bikes.detail.restoreConfirmDesc(component.name)
+          : dict.bikes.detail.archiveConfirmDesc(component.name)
+      }
+      confirmLabel={
+        isArchived ? dict.bikes.detail.restoreConfirm : dict.bikes.detail.archiveConfirm
+      }
       cancelLabel={dict.components.form.cancel}
-      variant="inverted"
-      triggerAriaLabel={dict.bikes.detail.archiveAction}
-      triggerClassName="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-      triggerContent={<MoreVertical className="size-5" />}
     />
   );
 
@@ -280,10 +266,7 @@ export default async function ComponentDetailPage({
             )}
           </div>
           {archivedPill}
-          <div className="flex shrink-0 items-center gap-1">
-            {editButton}
-            {archiveControl}
-          </div>
+          {actionsMenu}
         </div>
 
         {/* Mobile: icon + name/subtitle, then compact stat rows */}
@@ -298,16 +281,9 @@ export default async function ComponentDetailPage({
               </p>
             </div>
             {/* Sits beside the name rather than in the shared header, so the
-                action reads as belonging to this component. The header's own
+                actions read as belonging to this component. The header's own
                 edit button skips this route because of it. */}
-            <Link
-              href={`/bikes/${bike.id}/components/${component.id}/edit`}
-              aria-label={dict.components.detail.edit}
-              className="flex size-10 shrink-0 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-            >
-              <Pencil className="size-4" />
-            </Link>
-            {!isArchived && archiveControl}
+            {actionsMenu}
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-6">
@@ -315,10 +291,6 @@ export default async function ComponentDetailPage({
             <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
             {archivedPill && <div className="ml-auto">{archivedPill}</div>}
           </div>
-          {/* Restoring is a full-width control on a phone rather than another
-              circle: it is the one thing left to do with an archived part, and
-              it should read as such instead of hiding behind a glyph. */}
-          {isArchived && <div className="mt-6 flex justify-center">{archiveControl}</div>}
         </div>
 
         {/* An archived part has no next service and nothing left to log, so the

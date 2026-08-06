@@ -277,12 +277,12 @@ const pt: Dictionary = {
       archiveAction: "Arquivar componente",
       archiveConfirmTitle: "Arquivar este componente?",
       archiveConfirmDesc: (name: string) =>
-        `${name} sai da bicicleta. O histórico e os números ficam guardados, deixa de contar para a saúde da bicicleta e para o teu plano, e não voltas a receber lembretes dele. Podes repô-lo quando quiseres.`,
+        `${name} sai da bicicleta. O histórico fica guardado e podes repô-lo quando quiseres.`,
       archiveConfirm: "Arquivar",
       restoreAction: "Repor na bicicleta",
       restoreConfirmTitle: "Repor este componente?",
       restoreConfirmDesc: (name: string) =>
-        `${name} volta ao serviço e recomeça a contar a partir dos números que tinha. Os quilómetros que a bicicleta fez sem ele não lhe são somados.`,
+        `${name} volta à bicicleta e retoma nos números que tinha.`,
       restoreConfirm: "Repor",
       timelineLocked: "A linha do tempo não está disponível no plano Grátis",
       timelinePreview: {
@@ -385,6 +385,7 @@ const pt: Dictionary = {
       logIntervention: "Registar manutenção",
       noInterventionsYet: "Ainda não há manutenções registadas para este componente.",
       noDescription: "Sem descrição",
+      actionsMenu: "Ações do componente",
       activeIntervalTag: "Ativo",
       noIntervalsYet: "Sem lembretes de manutenção configurados para este componente.",
       remainingLabel: (formatted: string): string => `Faltam ${formatted}`,
@@ -441,13 +442,11 @@ const pt: Dictionary = {
       cancel: "Cancelar",
       saveNew: "Guardar componente",
       saveEdit: "Guardar alterações",
-      archiveTitle: "Arquivar este componente",
-      archiveDesc: (name: string) =>
-        `Tira ${name} da bicicleta e guarda tudo o que ele lá fez. Podes repô-lo quando quiseres.`,
       deleteTitle: "Eliminar este componente",
       deleteDesc: (name: string) =>
         `Elimina permanentemente ${name} e o respetivo histórico de manutenção. Esta ação não pode ser desfeita.`,
-      deleteOrArchive: "Se a peça só se gastou, arquiva-a — assim o histórico fica guardado.",
+      deleteOrArchive:
+        "Se a peça só se gastou, arquiva-a a partir da página do componente — assim o histórico fica guardado.",
       deleteConfirmTitle: "Eliminar este componente?",
       deleteConfirmDesc: (name: string) =>
         `Isto elimina permanentemente "${name}" e o respetivo histórico de manutenção.`,

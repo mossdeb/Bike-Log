@@ -270,6 +270,15 @@ const en = {
       addedToBikit: "Added to Bikit",
       warrantyExpired: "Warranty Expired",
       componentInstalled: "Installed",
+      timelineLocked: "Timeline is not available on the Free plan",
+      timelinePreview: {
+        demo: "Demo",
+        brand: "Bikit Components",
+        brakePadsName: "Rear brake pads",
+        brakePadsWork: "Rear Brake Pads Replaced",
+        forkName: "Fox 38",
+        forkWork: "Fork Lower Leg Service",
+      },
     },
     form: {
       addTitle: "Add a bike",

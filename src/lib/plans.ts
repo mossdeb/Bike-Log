@@ -7,6 +7,17 @@ export const PLAN_LIMITS: Record<Plan, { maxBikes: number | null; maxComponents:
   pro: { maxBikes: null, maxComponents: null },
 };
 
+/**
+ * What a plan can do, as opposed to how much of it. Kept apart from
+ * PLAN_LIMITS because a limit is a number the UI counts against and a feature
+ * is a door that is either open or shut.
+ */
+export const PLAN_FEATURES: Record<Plan, { timeline: boolean }> = {
+  free: { timeline: false },
+  personal: { timeline: true },
+  pro: { timeline: true },
+};
+
 // Stripe test-mode price IDs (Bikit Personal / Bikit Pro, sandbox account).
 export const PLAN_PRICE_IDS: Record<PaidPlan, string> = {
   personal: process.env.STRIPE_PRICE_PERSONAL ?? "",

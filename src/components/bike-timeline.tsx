@@ -178,6 +178,7 @@ export function BikeTimeline({
   distanceUnit,
   bikeId,
   bikeType,
+  headLabel,
 }: {
   events: TimelineEvent[];
   dict: Dictionary;
@@ -185,6 +186,9 @@ export function BikeTimeline({
   distanceUnit: "km" | "mi";
   bikeId: string;
   bikeType?: string | null;
+  /** The pill at the top of the line. Defaults to "Today"; the plan-gated
+   * preview says "Demo" instead, which is what marks it as not their data. */
+  headLabel?: string;
 }) {
   return (
     <div className="relative mx-auto max-w-xl">
@@ -193,7 +197,7 @@ export function BikeTimeline({
         <div className="flex flex-col items-center gap-3">
           <TimelineDot large />
           <span className="rounded-[12px] bg-card px-5 py-2 text-sm font-semibold">
-            {dict.bikes.detail.today}
+            {headLabel ?? dict.bikes.detail.today}
           </span>
         </div>
 

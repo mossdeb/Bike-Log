@@ -28,7 +28,8 @@ import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { categoryLabel } from "@/lib/component-category";
 import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
 import { getUserSubscription } from "@/lib/subscription";
-import { PLAN_LIMITS } from "@/lib/plans";
+import { PLAN_LIMITS, PLAN_FEATURES } from "@/lib/plans";
+import { previewTimelineEvents } from "@/lib/timeline-preview";
 
 function DetailField({
   label,
@@ -116,6 +117,10 @@ export default async function BikeDetailPage({
         .eq("bike_id", bikeId),
     ]);
 
+  // Nothing about the timeline is fetched for a plan that can't see it — the
+  // preview is the same for everyone, so their own history never leaves the
+  // database in the first place.
+  const canSeeTimeline = PLAN_FEATURES[subscription.plan].timeline;
   const maxComponents = PLAN_LIMITS[subscription.plan].maxComponents;
   const atComponentLimit = maxComponents !== null && (totalComponentCount ?? 0) >= maxComponents;
 
@@ -156,7 +161,7 @@ export default async function BikeDetailPage({
     .filter((id): id is string => id != null);
   const componentById = new Map((components ?? []).map((c) => [c.id, c]));
   const { data: bikeInterventions } =
-    componentIds.length > 0
+    canSeeTimeline && componentIds.length > 0
       ? await supabase
           .from("interventions")
           .select("id, component_id, type, date, description, kms, hours_used")
@@ -177,26 +182,28 @@ export default async function BikeDetailPage({
     hoursUsed: iv.hours_used,
   }));
 
-  const timelineEvents = buildBikeTimeline({
-    bike: {
-      brand: bike.brand,
-      year: bike.year,
-      purchase_date: bike.purchase_date,
-      warranty: bike.warranty,
-      created_at: bike.created_at,
-    },
-    interventions: timelineInterventions,
-    components: (components ?? [])
-      .filter((c) => c.install_date != null)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        category: c.category,
-        installDate: c.install_date as string,
-        initialKm: c.initial_km,
-        initialHours: c.initial_hours,
-      })),
-  });
+  const timelineEvents = canSeeTimeline
+    ? buildBikeTimeline({
+        bike: {
+          brand: bike.brand,
+          year: bike.year,
+          purchase_date: bike.purchase_date,
+          warranty: bike.warranty,
+          created_at: bike.created_at,
+        },
+        interventions: timelineInterventions,
+        components: (components ?? [])
+          .filter((c) => c.install_date != null)
+          .map((c) => ({
+            id: c.id,
+            name: c.name,
+            category: c.category,
+            installDate: c.install_date as string,
+            initialKm: c.initial_km,
+            initialHours: c.initial_hours,
+          })),
+      })
+    : previewTimelineEvents(dict);
 
   const distanceDetail = bike.total_km != null ? formatDistance(bike.total_km, distanceUnit, locale) : null;
   const hoursDetail = bike.total_hours != null ? formatHours(bike.total_hours, locale) : null;
@@ -470,14 +477,48 @@ export default async function BikeDetailPage({
         </TabsContent>
 
         <TabsContent value="timeline">
-          <BikeTimeline
-            events={timelineEvents}
-            dict={dict}
-            locale={locale}
-            distanceUnit={distanceUnit}
-            bikeId={bike.id}
-            bikeType={bike.type}
-          />
+          {!canSeeTimeline && (
+            <div className="mb-6 overflow-hidden rounded-lg bg-card">
+              <p className="px-5 pt-5 pb-4 text-center text-sm font-semibold">
+                {dict.bikes.detail.timelineLocked}
+              </p>
+              <UpgradeToPersonalCard
+                heading={dict.bikes.upgradeHeading}
+                feature1={dict.bikes.upgradeFeature1}
+                feature2={dict.bikes.upgradeFeature2}
+                price={dict.bikes.upgradePrice}
+                priceUnit={dict.bikes.upgradePriceUnit}
+                cta={dict.bikes.upgradeCta}
+                compact
+              />
+            </div>
+          )}
+          {/* `inert`, not just `pointer-events-none`: the cards are links, and
+              a sample that can still be tabbed into would offer routes to
+              components that don't exist. It also keeps the mock-up out of the
+              accessibility tree, where it has nothing to say. */}
+          <div inert={!canSeeTimeline || undefined} className={cn(
+              !canSeeTimeline &&
+                // A fixed hex needs its dark counterpart on the same string, or it
+                // stays light in dark mode. `background` rather than `muted`: in
+                // light the well sits below the cards, and muted is above them.
+                "mx-auto w-[60%] rounded-lg border border-border bg-[#E8E8E8] p-4 dark:bg-background"
+            )}>
+            {/* `zoom`, not `scale`: a transform would shrink the drawing and
+                leave its full-size box behind, so the well would end in twice
+                the empty space it needs. Zoom reflows. */}
+            <div className={cn(!canSeeTimeline && "[zoom:0.5]")}>
+              <BikeTimeline
+                events={timelineEvents}
+                dict={dict}
+                locale={locale}
+                distanceUnit={distanceUnit}
+                bikeId={bike.id}
+                bikeType={bike.type}
+                headLabel={canSeeTimeline ? undefined : dict.bikes.detail.timelinePreview.demo}
+              />
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

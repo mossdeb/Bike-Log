@@ -270,6 +270,15 @@ const pt: Dictionary = {
       addedToBikit: "Adicionada à Bikit",
       warrantyExpired: "Garantia expirada",
       componentInstalled: "Instalado",
+      timelineLocked: "A linha do tempo não está disponível no plano Grátis",
+      timelinePreview: {
+        demo: "Demo",
+        brand: "Bikit Components",
+        brakePadsName: "Pastilhas de trás",
+        brakePadsWork: "Substituição",
+        forkName: "Fox 38",
+        forkWork: "Serviço à suspensão",
+      },
     },
     form: {
       addTitle: "Adicionar uma bicicleta",

@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { ComponentOptionalFields } from "@/components/component-optional-fields";
-import { InstallDateField } from "@/components/install-date-field";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { categoryLabel } from "@/lib/component-category";
@@ -143,16 +142,13 @@ export default async function EditComponentPage({
             addAnotherLabel={dict.components.form.addAnotherReminder}
           />
 
-          <InstallDateField
-            label={dict.components.form.installDate}
-            todayLabel={dict.components.form.installDateToday}
-            bikeLabel={dict.components.form.installDateBike}
-            customLabel={dict.components.form.installDateCustom}
-            notSetLabel={dict.components.form.installDateNotSet}
-            bikePurchaseDate={bike.purchase_date}
-            defaultValue={component.install_date}
-            allowNotSet
-          />
+          {/* The install date is set when the part is added and isn't offered
+              here. It still has to be submitted: the action parses the whole
+              form, and a missing field reads as an empty one — optionalText
+              turns that into null, so leaving it out would quietly wipe the
+              stored date on every save, taking the months-based reminders and
+              the part's timeline entry with it. */}
+          <input type="hidden" name="install_date" value={component.install_date ?? ""} />
 
           <ComponentOptionalFields
             labels={componentOptionalFieldLabels(dict)}

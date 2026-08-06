@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,12 +13,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
-import type { PaidPlan } from "@/lib/plans";
+import type { BillingInterval, PaidPlan } from "@/lib/plans";
 
 export function SwitchPlanButton({
   action,
   plan,
+  interval,
   triggerLabel,
+  triggerClassName,
   title,
   description,
   confirmLabel,
@@ -26,7 +28,11 @@ export function SwitchPlanButton({
 }: {
   action: (formData: FormData) => Promise<void>;
   plan: PaidPlan;
-  triggerLabel: string;
+  /** Omitted, the server keeps whichever period the subscription already bills
+   * on; named, it moves to that one along with the plan. */
+  interval?: BillingInterval;
+  triggerLabel: ReactNode;
+  triggerClassName?: string;
   title: string;
   description: string;
   confirmLabel: string;
@@ -38,6 +44,7 @@ export function SwitchPlanButton({
   function handleConfirm() {
     const formData = new FormData();
     formData.set("plan", plan);
+    if (interval) formData.set("interval", interval);
     startTransition(async () => {
       await action(formData);
       setOpen(false);
@@ -46,7 +53,9 @@ export function SwitchPlanButton({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger className={buttonVariants({ variant: "outline" })}>{triggerLabel}</AlertDialogTrigger>
+      <AlertDialogTrigger className={triggerClassName ?? buttonVariants({ variant: "outline" })}>
+        {triggerLabel}
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

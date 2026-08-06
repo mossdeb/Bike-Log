@@ -98,13 +98,26 @@ const pt: Dictionary = {
       cancelsOn: (date: string): string => `O seu plano termina a ${date}. Mantém o acesso até lá.`,
       pastDue: "Há um problema com o seu último pagamento. Atualize o método de pagamento para manter o seu plano.",
       manageBilling: "Gerir faturação",
-      upgradeToPersonal: "Mudar para Pessoal — €2,99/mês",
-      upgradeToPro: "Mudar para Pro — €5,99/mês",
-      switchToPersonal: "Mudar para Pessoal — €2,99/mês",
-      switchToPro: "Mudar para Pro — €5,99/mês",
+      upgradeToPersonal: "Mudar para Pessoal",
+      upgradeToPro: "Mudar para Pro",
+      switchToPersonal: "Mudar para Pessoal",
+      switchToPro: "Mudar para Pro",
       intervalMonthly: "Mensal",
       intervalYearly: "Anual",
       intervalSaving: "Poupa 16%",
+      // O preço saiu das etiquetas dos botões quando o intervalo passou a ser
+      // uma escolha: mantê-lo lá dava uma etiqueta por plano por intervalo, e
+      // este projeto já tem mais sítios a escrever o preço do que devia.
+      planPrice: {
+        personal: {
+          month: { amount: "€2,99", unit: "/mês" },
+          year: { amount: "€29,99", unit: "/ano" },
+        },
+        pro: {
+          month: { amount: "€5,99", unit: "/mês" },
+          year: { amount: "€59,99", unit: "/ano" },
+        },
+      },
       switchConfirmTitle: (planName: string): string => `Mudar para ${planName}?`,
       switchConfirmDescription:
         "Será cobrado ou creditado um valor proporcional de imediato, e a próxima fatura refletirá o novo preço.",

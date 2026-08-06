@@ -97,13 +97,26 @@ const en = {
       cancelsOn: (date: string): string => `Your plan ends on ${date}. You'll keep access until then.`,
       pastDue: "There's a problem with your last payment. Update your payment method to keep your plan.",
       manageBilling: "Manage billing",
-      upgradeToPersonal: "Upgrade to Personal — €2.99/mo",
-      upgradeToPro: "Upgrade to Pro — €5.99/mo",
-      switchToPersonal: "Switch to Personal — €2.99/mo",
-      switchToPro: "Switch to Pro — €5.99/mo",
+      upgradeToPersonal: "Upgrade to Personal",
+      upgradeToPro: "Upgrade to Pro",
+      switchToPersonal: "Switch to Personal",
+      switchToPro: "Switch to Pro",
       intervalMonthly: "Monthly",
       intervalYearly: "Yearly",
       intervalSaving: "Save 16%",
+      // The price left the button labels when the interval became a choice:
+      // baking it in would have meant one label per plan per interval, and
+      // this project already has more places writing the price than it wants.
+      planPrice: {
+        personal: {
+          month: { amount: "€2.99", unit: "/mo" },
+          year: { amount: "€29.99", unit: "/yr" },
+        },
+        pro: {
+          month: { amount: "€5.99", unit: "/mo" },
+          year: { amount: "€59.99", unit: "/yr" },
+        },
+      },
       switchConfirmTitle: (planName: string): string => `Switch to ${planName}?`,
       switchConfirmDescription:
         "You'll be charged or credited a prorated amount right away, and your next invoice will reflect the new price.",

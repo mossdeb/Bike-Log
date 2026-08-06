@@ -25,7 +25,7 @@ import { buildBikeTimeline, type TimelineIntervention } from "@/lib/timeline";
 import type { InterventionType } from "@/lib/intervention-type";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
-import { categoryLabel } from "@/lib/component-category";
+import { categoryLabel, compareByCategory } from "@/lib/component-category";
 import { UpgradeToPersonalCard } from "@/components/upgrade-to-personal-card";
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS, PLAN_FEATURES } from "@/lib/plans";
@@ -91,7 +91,7 @@ export default async function BikeDetailPage({
   // Subscription, this bike's component/interval rows, and the user's total
   // component count (for the plan-limit check) are all independent of each
   // other — fired together instead of two sequential round trips.
-  const [subscription, { count: totalComponentCount }, { data: components }, { data: intervalRows }] =
+  const [subscription, { count: totalComponentCount }, { data: componentRows }, { data: intervalRows }] =
     await Promise.all([
       userId
         ? getUserSubscription(userId)
@@ -116,6 +116,12 @@ export default async function BikeDetailPage({
         )
         .eq("bike_id", bikeId),
     ]);
+
+  // Cards are grouped by category rather than left in the order the parts were
+  // added, which said nothing to a reader and scattered the two tyres and the
+  // two wheels down the page. The query still orders by created_at and the sort
+  // is stable, so that stays as the tie-break inside each category.
+  const components = componentRows ? [...componentRows].sort(compareByCategory) : null;
 
   // Nothing about the timeline is fetched for a plan that can't see it — the
   // preview is the same for everyone, so their own history never leaves the

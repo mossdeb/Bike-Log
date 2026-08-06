@@ -181,10 +181,11 @@ export type Database = {
       }
       components: {
         Row: {
-          active: boolean
           bike_hours_at_install: number | null
+          bike_hours_at_retire: number | null
           bike_id: string
           bike_km_at_install: number | null
+          bike_km_at_retire: number | null
           brand: string | null
           category: string | null
           created_at: string
@@ -198,6 +199,7 @@ export type Database = {
           name: string
           notes: string | null
           purchase_date: string | null
+          retired_at: string | null
           serial_number: string | null
           updated_at: string
           user_id: string
@@ -205,10 +207,11 @@ export type Database = {
           year: number | null
         }
         Insert: {
-          active?: boolean
           bike_hours_at_install?: number | null
+          bike_hours_at_retire?: number | null
           bike_id: string
           bike_km_at_install?: number | null
+          bike_km_at_retire?: number | null
           brand?: string | null
           category?: string | null
           created_at?: string
@@ -222,6 +225,7 @@ export type Database = {
           name: string
           notes?: string | null
           purchase_date?: string | null
+          retired_at?: string | null
           serial_number?: string | null
           updated_at?: string
           user_id: string
@@ -229,10 +233,11 @@ export type Database = {
           year?: number | null
         }
         Update: {
-          active?: boolean
           bike_hours_at_install?: number | null
+          bike_hours_at_retire?: number | null
           bike_id?: string
           bike_km_at_install?: number | null
+          bike_km_at_retire?: number | null
           brand?: string | null
           category?: string | null
           created_at?: string
@@ -246,6 +251,7 @@ export type Database = {
           name?: string
           notes?: string | null
           purchase_date?: string | null
+          retired_at?: string | null
           serial_number?: string | null
           updated_at?: string
           user_id?: string
@@ -545,7 +551,6 @@ export type Database = {
     Views: {
       component_interval_status: {
         Row: {
-          active: boolean | null
           bike_hours_at_install: number | null
           bike_id: string | null
           bike_km_at_install: number | null
@@ -560,6 +565,7 @@ export type Database = {
           last_service_hours: number | null
           last_service_km: number | null
           name: string | null
+          retired_at: string | null
           slot: number | null
           user_id: string | null
         }
@@ -589,14 +595,17 @@ export type Database = {
       }
       components_status: {
         Row: {
-          active: boolean | null
           bike_hours_at_install: number | null
+          bike_hours_at_retire: number | null
           bike_id: string | null
           bike_km_at_install: number | null
+          bike_km_at_retire: number | null
           brand: string | null
           category: string | null
           created_at: string | null
           id: string | null
+          initial_hours: number | null
+          initial_km: number | null
           install_date: string | null
           interval_type: string | null
           interval_value: number | null
@@ -607,6 +616,7 @@ export type Database = {
           name: string | null
           notes: string | null
           purchase_date: string | null
+          retired_at: string | null
           serial_number: string | null
           updated_at: string | null
           user_id: string | null

@@ -56,7 +56,7 @@ export async function notifyUsageServicesForBike(
       .select("id, name")
       .eq("user_id", userId)
       .eq("bike_id", bikeId)
-      .eq("active", true);
+      .is("retired_at", null);
     if (!components?.length) return;
 
     const componentIds = components.map((c) => c.id);

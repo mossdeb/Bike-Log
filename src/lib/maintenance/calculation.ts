@@ -186,3 +186,32 @@ export function calculateComponentUsage(input: {
       : null;
   return { km, hours };
 }
+
+/**
+ * Moves a component's baseline forward by the distance the bike covered while
+ * the component was archived.
+ *
+ * Usage is measured against the bike's odometer, so a part put back on without
+ * this correction would be handed every kilometre ridden in its absence. Adding
+ * the gap to the baseline cancels it exactly, and the part resumes on the
+ * reading it left. It is the same move rebaseComponentBaselines makes when a
+ * bike's totals are edited, for the same reason.
+ *
+ * Anything unknown leaves the baseline where it is: a guess here surfaces as a
+ * wrong figure on a real part, which is worse than no correction.
+ *
+ * A negative gap is ignored on purpose. A bike's totals can be corrected
+ * downwards, and following that would drag the baseline back and credit the
+ * part with usage it never had.
+ */
+export function rebaseBaselineOverAbsence(
+  baseline: number | null | undefined,
+  bikeTotalAtArchive: number | null | undefined,
+  bikeTotalNow: number | null | undefined
+): number | null {
+  if (baseline == null || bikeTotalAtArchive == null || bikeTotalNow == null) {
+    return baseline ?? null;
+  }
+  const riddenWithout = bikeTotalNow - bikeTotalAtArchive;
+  return riddenWithout > 0 ? baseline + riddenWithout : baseline;
+}

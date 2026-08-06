@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import {
   componentSchema,
@@ -12,6 +13,7 @@ import {
 import { getUserSubscription } from "@/lib/subscription";
 import { PLAN_LIMITS } from "@/lib/plans";
 import { unitToKm } from "@/lib/format";
+import { rebaseBaselineOverAbsence } from "@/lib/maintenance/calculation";
 
 const MAX_INTERVAL_SLOTS = 3;
 
@@ -98,10 +100,15 @@ export async function createComponent(bikeId: string, formData: FormData) {
   const { plan } = await getUserSubscription(userId);
   const maxComponents = PLAN_LIMITS[plan].maxComponents;
   if (maxComponents !== null) {
+    // Archived parts don't count. The limit is about what someone is keeping
+    // track of, not about how much history they've accumulated — and counting
+    // the archive would push people back to deleting, which is the habit
+    // archiving exists to replace.
     const { count } = await supabase
       .from("components")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .is("retired_at", null);
     if ((count ?? 0) >= maxComponents) {
       redirect(
         `/bikes/${bikeId}/components/new?error=${encodeURIComponent(`Your ${plan} plan is limited to ${maxComponents} components. Upgrade in Settings to add more.`)}`
@@ -222,3 +229,131 @@ export async function deleteComponent(bikeId: string, componentId: string) {
   revalidatePath(`/bikes/${bikeId}`);
   redirect(`/bikes/${bikeId}`);
 }
+
+/**
+ * Takes a part off the bike without destroying what it did there.
+ *
+ * The bike's totals are recorded as they stand. Usage in this app is always
+ * derived — bike total minus the part's baseline — so an archived part left
+ * alone would go on collecting kilometres it never turned a wheel for. These
+ * two numbers freeze the figures the archive shows, and are also how a restore
+ * later knows how far the bike travelled without it.
+ *
+ * Outstanding notification claims are dropped: nothing should be pending for a
+ * part that isn't fitted, and a restored one has to be able to warn again.
+ */
+export async function archiveComponent(bikeId: string, componentId: string) {
+  const supabase = await createClient();
+
+  const { data: bike } = await supabase
+    .from("bikes")
+    .select("total_km, total_hours")
+    .eq("id", bikeId)
+    .single();
+
+  const { error } = await supabase
+    .from("components")
+    .update({
+      retired_at: format(new Date(), "yyyy-MM-dd"),
+      bike_km_at_retire: bike?.total_km ?? null,
+      bike_hours_at_retire: bike?.total_hours ?? null,
+    })
+    .eq("id", componentId);
+  if (error) {
+    redirect(
+      `/bikes/${bikeId}/components/${componentId}?error=${encodeURIComponent(error.message)}`
+    );
+  }
+
+  const { data: intervals } = await supabase
+    .from("component_service_intervals")
+    .select("id")
+    .eq("component_id", componentId);
+  const intervalIds = (intervals ?? []).map((interval) => interval.id);
+  if (intervalIds.length > 0) {
+    await supabase
+      .from("component_interval_notifications")
+      .delete()
+      .in("service_interval_id", intervalIds);
+  }
+
+  revalidatePath(`/bikes/${bikeId}`);
+  revalidatePath(`/bikes/${bikeId}/components/${componentId}`);
+  redirect(`/bikes/${bikeId}/components/${componentId}`);
+}
+
+/**
+ * Puts an archived part back on the bike, resuming on the reading it left.
+ *
+ * The bike kept riding while the part was off it, and the baseline is measured
+ * against the bike's odometer — so restoring without touching it would hand the
+ * part every kilometre ridden in its absence. Pushing the baseline forward by
+ * exactly that distance keeps the part's own figure where it was. It is the
+ * same correction rebaseComponentBaselines makes when a bike's totals are
+ * edited, for the same reason.
+ */
+export async function restoreComponent(bikeId: string, componentId: string) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getClaims();
+  const userId = userData?.claims?.sub as string | undefined;
+
+  // Restoring puts a part back in service, so it meets the plan limit on the
+  // same terms as adding one. Archived parts don't count; this one is about to
+  // stop being archived.
+  if (userId) {
+    const { plan } = await getUserSubscription(userId);
+    const maxComponents = PLAN_LIMITS[plan].maxComponents;
+    if (maxComponents !== null) {
+      const { count } = await supabase
+        .from("components")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .is("retired_at", null);
+      if ((count ?? 0) >= maxComponents) {
+        redirect(
+          `/bikes/${bikeId}/components/${componentId}?error=${encodeURIComponent(
+            `Your ${plan} plan is limited to ${maxComponents} components in use. Archive another one or upgrade in Settings to restore this.`
+          )}`
+        );
+      }
+    }
+  }
+
+  const [{ data: bike }, { data: component }] = await Promise.all([
+    supabase.from("bikes").select("total_km, total_hours").eq("id", bikeId).single(),
+    supabase
+      .from("components")
+      .select("bike_km_at_install, bike_hours_at_install, bike_km_at_retire, bike_hours_at_retire")
+      .eq("id", componentId)
+      .single(),
+  ]);
+
+  const { error } = await supabase
+    .from("components")
+    .update({
+      retired_at: null,
+      bike_km_at_retire: null,
+      bike_hours_at_retire: null,
+      bike_km_at_install: rebaseBaselineOverAbsence(
+        component?.bike_km_at_install,
+        component?.bike_km_at_retire,
+        bike?.total_km
+      ),
+      bike_hours_at_install: rebaseBaselineOverAbsence(
+        component?.bike_hours_at_install,
+        component?.bike_hours_at_retire,
+        bike?.total_hours
+      ),
+    })
+    .eq("id", componentId);
+  if (error) {
+    redirect(
+      `/bikes/${bikeId}/components/${componentId}?error=${encodeURIComponent(error.message)}`
+    );
+  }
+
+  revalidatePath(`/bikes/${bikeId}`);
+  revalidatePath(`/bikes/${bikeId}/components/${componentId}`);
+  redirect(`/bikes/${bikeId}/components/${componentId}`);
+}
+

@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         .from("components")
         .select("id, name, bike_id, created_at")
         .eq("user_id", user.id)
-        .eq("active", true);
+        .is("retired_at", null);
 
       const { data: intervalRows } = await admin
         .from("component_interval_status")

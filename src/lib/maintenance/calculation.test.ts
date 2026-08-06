@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculateComponentStatus, type ComponentStatusInput } from "./calculation";
+import {
+  calculateComponentStatus,
+  rebaseBaselineOverAbsence,
+  type ComponentStatusInput,
+} from "./calculation";
 
 const TODAY = new Date("2026-07-22T00:00:00");
 
@@ -231,5 +235,35 @@ describe("calculateComponentStatus — hours", () => {
     });
     expect(result.amountRemaining).toBe(40);
     expect(result.status).toBe("ok");
+  });
+});
+
+describe("rebaseBaselineOverAbsence", () => {
+  it("adds back exactly what the bike rode without the part", () => {
+    // Fitted at 3000, archived with the bike on 3300 (so it had done 300).
+    // The bike reaches 3500 while it sits out. Put back, it must still read
+    // 300 — which means the baseline has to move to 3200.
+    expect(rebaseBaselineOverAbsence(3000, 3300, 3500)).toBe(3200);
+    expect(3500 - 3200).toBe(300);
+  });
+
+  it("leaves the baseline alone when the bike didn't move", () => {
+    expect(rebaseBaselineOverAbsence(3000, 3300, 3300)).toBe(3000);
+  });
+
+  it("ignores a bike total corrected downwards", () => {
+    // Following it would drag the baseline back and credit the part with
+    // usage it never had.
+    expect(rebaseBaselineOverAbsence(3000, 3300, 3100)).toBe(3000);
+  });
+
+  it("leaves the baseline alone when anything is unknown", () => {
+    expect(rebaseBaselineOverAbsence(3000, null, 3500)).toBe(3000);
+    expect(rebaseBaselineOverAbsence(3000, 3300, null)).toBe(3000);
+    expect(rebaseBaselineOverAbsence(null, 3300, 3500)).toBe(null);
+  });
+
+  it("handles the negative baseline a rounded-down initial usage can leave", () => {
+    expect(rebaseBaselineOverAbsence(-0.02, 329.6, 429.6)).toBeCloseTo(99.98, 5);
   });
 });

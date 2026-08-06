@@ -12,6 +12,7 @@ import { StravaConnectRow } from "@/components/strava-connect-row";
 import { FormError } from "@/components/form-error";
 import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -222,7 +223,7 @@ export default async function EditBikePage({
         </div>
 
         <div className="mt-auto flex flex-col gap-3 pt-6 sm:mt-6 sm:pt-0">
-          <Button type="submit" className="w-full">{dict.bikes.form.saveEdit}</Button>
+          <SubmitButton className="w-full">{dict.bikes.form.saveEdit}</SubmitButton>
           <Button
             render={<Link href={`/bikes/${bike.id}`} />}
             nativeButton={false}

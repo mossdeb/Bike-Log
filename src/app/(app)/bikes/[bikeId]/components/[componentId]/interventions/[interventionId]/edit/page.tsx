@@ -5,6 +5,7 @@ import { updateIntervention, deleteIntervention } from "@/lib/actions/interventi
 import { FormError } from "@/components/form-error";
 import { DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -158,7 +159,7 @@ export default async function EditInterventionPage({
         </div>
 
         <div className="mt-auto flex flex-col gap-3 pt-6 sm:mt-6 sm:pt-0">
-          <Button type="submit" className="w-full">{dict.interventions.form.saveEdit}</Button>
+          <SubmitButton className="w-full">{dict.interventions.form.saveEdit}</SubmitButton>
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}
             nativeButton={false}

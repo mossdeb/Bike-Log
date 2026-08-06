@@ -3,6 +3,7 @@
 import { Fragment, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { cn } from "@/lib/utils";
 
 /** Splits the "add component" form into a 3-step wizard on mobile only —
@@ -88,9 +89,9 @@ export function NewComponentWizard({
       </div>
 
       <div className="mt-6 hidden flex-col gap-3 sm:flex">
-        <Button type="submit" className="w-full">
+        <SubmitButton className="w-full">
           {saveLabel}
-        </Button>
+        </SubmitButton>
         <Button
           render={<Link href={cancelHref} />}
           nativeButton={false}
@@ -114,9 +115,9 @@ export function NewComponentWizard({
             {nextLabel}
           </Button>
         ) : (
-          <Button key="save" type="submit" className="w-full">
+          <SubmitButton key="save" className="w-full">
             {saveLabel}
-          </Button>
+          </SubmitButton>
         )}
         {step === 1 ? (
           <Button

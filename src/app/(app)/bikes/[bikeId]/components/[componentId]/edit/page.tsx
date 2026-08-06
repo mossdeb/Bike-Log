@@ -9,6 +9,7 @@ import { IntervalFieldGroup, type IntervalSlotDefault } from "@/components/inter
 import { FormError } from "@/components/form-error";
 import { ConfirmActionButton, DeleteConfirmButton } from "@/components/delete-confirm-button";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -163,7 +164,7 @@ export default async function EditComponentPage({
         </div>
 
         <div className="mt-auto flex flex-col gap-3 pt-6 sm:mt-6 sm:pt-0">
-          <Button type="submit" className="w-full">{dict.components.form.saveEdit}</Button>
+          <SubmitButton className="w-full">{dict.components.form.saveEdit}</SubmitButton>
           <Button
             render={<Link href={`/bikes/${bike.id}/components/${component.id}`} />}
             nativeButton={false}

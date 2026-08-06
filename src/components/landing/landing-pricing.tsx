@@ -1,7 +1,16 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import type { LandingDictionary } from "@/components/landing/i18n/en";
 
+// The whole section is a client component rather than just the switch: the
+// dictionary is plain strings and arrays, so it serialises whole, and keeping
+// the cards here means the price and the control that changes it stay in one
+// file instead of being wired together through props.
 export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] }) {
+  const [yearly, setYearly] = useState(false);
+
   return (
     <section id="precos" className="bg-white px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto flex max-w-[1160px] flex-col items-center gap-12">
@@ -16,7 +25,31 @@ export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] })
           <p className="text-base leading-relaxed text-[#35363C] sm:text-[16.3px]">{dict.subtitle}</p>
         </div>
 
-        <div className="grid w-full grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="-mt-4 inline-flex items-center gap-1 rounded-full border border-[#101014]/[0.09] bg-white p-1">
+          {([false, true] as const).map((isYearly) => (
+            <button
+              key={String(isYearly)}
+              type="button"
+              onClick={() => setYearly(isYearly)}
+              aria-pressed={yearly === isYearly}
+              // py-3 rather than the visually sufficient py-2.5: 20px of line box
+              // plus 24px of padding is the 44px touch target the locale
+              // switcher already holds itself to.
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-3 text-sm font-bold transition-colors ${
+                yearly === isYearly ? "bg-[#101014] text-white" : "text-[#35363C] hover:text-[#101014]"
+              }`}
+            >
+              {isYearly ? dict.yearly : dict.monthly}
+              {isYearly && (
+                <span className="rounded-full bg-[#43F3AF] px-2 py-0.5 text-[11px] font-bold text-[#101014]">
+                  {dict.yearlySaving}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="-mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-3">
           {dict.plans.map((plan) => (
             <div
               key={plan.name}
@@ -40,9 +73,16 @@ export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] })
                 <span
                   className={`font-[family-name:var(--font-landing-heading)] text-4xl font-extrabold ${plan.highlighted ? "text-white" : "text-[#101014]"}`}
                 >
-                  {plan.price}
+                  {yearly ? plan.priceYearly : plan.price}
                 </span>
-                <span className={`text-sm ${plan.highlighted ? "text-white/50" : "text-[#8A8D93]"}`}>{plan.period}</span>
+                {yearly && plan.priceYearlyFull && (
+                  <span className={`text-sm line-through ${plan.highlighted ? "text-white/40" : "text-[#8A8D93]"}`}>
+                    {plan.priceYearlyFull}
+                  </span>
+                )}
+                <span className={`text-sm ${plan.highlighted ? "text-white/50" : "text-[#8A8D93]"}`}>
+                  {yearly ? plan.periodYearly : plan.period}
+                </span>
               </div>
 
               {/* No tick: it introduces the list rather than being an item in

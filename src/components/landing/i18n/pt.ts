@@ -112,12 +112,19 @@ const pt: LandingDictionary = {
     badge: "Preços",
     title: "Escolhe o plano para o teu parque de bicicletas",
     subtitle: "Começa grátis. Sobe de plano quando tiveres mais que uma bicicleta para cuidar.",
+    monthly: "Mensal",
+    yearly: "Anual",
+    yearlySaving: "Poupa 16%",
     plans: [
       {
         name: "Grátis",
         description: "Para experimentar sem compromisso.",
         price: "€0",
         period: "para sempre",
+        priceYearly: "€0",
+        periodYearly: "para sempre",
+        // Nothing to strike through on a plan that costs nothing.
+        priceYearlyFull: "",
         featuresLead: "",
         features: ["1 bicicleta", "Até 2 componentes", "Histórico de intervenções limitado", "Alertas de manutenção"],
         cta: "Começar grátis",
@@ -128,6 +135,10 @@ const pt: LandingDictionary = {
         description: "Para quem tem mais que uma bicicleta.",
         price: "€2,99",
         period: "/ mês",
+        priceYearly: "€29,99",
+        periodYearly: "/ ano",
+        // 12 × the monthly price, struck through next to the yearly one.
+        priceYearlyFull: "€35,88",
         featuresLead: "",
         features: [
           "Até 3 bicicletas",
@@ -143,8 +154,11 @@ const pt: LandingDictionary = {
       {
         name: "Pro",
         description: "Para coleções sem limites e mais controlo.",
-        price: "€7,99",
+        price: "€5,99",
         period: "/ mês",
+        priceYearly: "€59,99",
+        periodYearly: "/ ano",
+        priceYearlyFull: "€71,88",
         // O Pro repetia quatro linhas do Pessoal. Dizê-lo numa só encurta o
         // card e deixa à vista o que é mesmo exclusivo deste plano.
         featuresLead: "Os mesmos benefícios do Pessoal, mais:",

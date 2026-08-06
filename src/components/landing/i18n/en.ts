@@ -110,12 +110,19 @@ const en = {
     badge: "Pricing",
     title: "Choose the plan for your bike fleet",
     subtitle: "Start free. Upgrade when you have more than one bike to look after.",
+    monthly: "Monthly",
+    yearly: "Yearly",
+    yearlySaving: "Save 16%",
     plans: [
       {
         name: "Free",
         description: "To try it out, no strings attached.",
         price: "€0",
         period: "forever",
+        priceYearly: "€0",
+        periodYearly: "forever",
+        // Nothing to strike through on a plan that costs nothing.
+        priceYearlyFull: "",
         featuresLead: "",
         features: ["1 bike", "Up to 2 components", "Limited intervention history", "Maintenance alerts"],
         cta: "Get started free",
@@ -126,6 +133,10 @@ const en = {
         description: "For those with more than one bike.",
         price: "€2.99",
         period: "/ month",
+        priceYearly: "€29.99",
+        periodYearly: "/ year",
+        // 12 × the monthly price, struck through next to the yearly one.
+        priceYearlyFull: "€35.88",
         featuresLead: "",
         features: [
           "Up to 3 bikes",
@@ -141,8 +152,11 @@ const en = {
       {
         name: "Pro",
         description: "For unlimited collections and more control.",
-        price: "€7.99",
+        price: "€5.99",
         period: "/ month",
+        priceYearly: "€59.99",
+        periodYearly: "/ year",
+        priceYearlyFull: "€71.88",
         // Pro repeated four of Personal's lines. Saying it in one shortens the
         // card and leaves only what this plan actually adds.
         featuresLead: "Everything in Personal, plus:",

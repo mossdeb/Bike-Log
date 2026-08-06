@@ -6,7 +6,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient } from "@/lib/stripe";
-import { PLAN_PRICE_IDS, type PaidPlan } from "@/lib/plans";
+import { PLAN_PRICE_IDS, type BillingInterval, type PaidPlan } from "@/lib/plans";
+
+/** Anything that is not an explicit "year" bills monthly, so a form that never
+ * heard of intervals keeps behaving exactly as it did. */
+function readInterval(formData: FormData): BillingInterval {
+  return formData.get("interval") === "year" ? "year" : "month";
+}
 
 export async function createCheckoutSession(formData: FormData) {
   const supabase = await createClient();
@@ -17,6 +23,12 @@ export async function createCheckoutSession(formData: FormData) {
   const plan = formData.get("plan") as PaidPlan;
   if (plan !== "personal" && plan !== "pro") {
     redirect("/settings?error=Unknown plan");
+  }
+
+  const interval = readInterval(formData);
+  const priceId = PLAN_PRICE_IDS[plan][interval];
+  if (!priceId) {
+    redirect("/settings?error=That billing period is not available yet");
   }
 
   const origin = (await headers()).get("origin");
@@ -34,7 +46,7 @@ export async function createCheckoutSession(formData: FormData) {
     customer: existingSub?.stripe_customer_id ?? undefined,
     customer_email: existingSub?.stripe_customer_id ? undefined : (user.email as string),
     client_reference_id: user.sub as string,
-    line_items: [{ price: PLAN_PRICE_IDS[plan], quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     // Without this the promotion-code box does not exist in Checkout at all,
     // and a voucher can only be applied by attaching the coupon to the
     // customer by hand in the dashboard.
@@ -111,7 +123,12 @@ export async function reactivateSubscription() {
 /** Switches between the two paid plans directly (Stripe prorates
  * automatically), without going through the Customer Portal — the
  * portal's own "update subscription" option isn't enabled by default and
- * isn't configurable through the API. */
+ * isn't configurable through the API.
+ *
+ * The billing interval carries over from the subscription being replaced
+ * unless the form names one: someone paying yearly who moves to the other plan
+ * means to keep paying yearly, and reading the interval off the current price
+ * gets that right without storing it anywhere. */
 export async function switchPlan(formData: FormData) {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
@@ -136,11 +153,22 @@ export async function switchPlan(formData: FormData) {
 
   const stripe = getStripeClient();
   const subscription = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
-  const itemId = subscription.items.data[0]?.id;
-  if (!itemId) redirect("/settings?error=Could not find your subscription item");
+  const item = subscription.items.data[0];
+  if (!item) redirect("/settings?error=Could not find your subscription item");
+
+  const interval: BillingInterval = formData.has("interval")
+    ? readInterval(formData)
+    : item.price.recurring?.interval === "year"
+      ? "year"
+      : "month";
+
+  const priceId = PLAN_PRICE_IDS[plan][interval];
+  if (!priceId) {
+    redirect("/settings?error=That billing period is not available yet");
+  }
 
   await stripe.subscriptions.update(sub.stripe_subscription_id, {
-    items: [{ id: itemId, price: PLAN_PRICE_IDS[plan] }],
+    items: [{ id: item.id, price: priceId }],
     proration_behavior: "create_prorations",
   });
 

@@ -18,16 +18,34 @@ export const PLAN_FEATURES: Record<Plan, { timeline: boolean }> = {
   pro: { timeline: true },
 };
 
+/** How often a paid plan bills. Both intervals are prices on the same Stripe
+ * product, which is what keeps plan resolution working — see PLAN_PRODUCT_IDS. */
+export type BillingInterval = "month" | "year";
+
+export const BILLING_INTERVALS: BillingInterval[] = ["month", "year"];
+
 // Stripe test-mode price IDs (Bikit Personal / Bikit Pro, sandbox account).
-export const PLAN_PRICE_IDS: Record<PaidPlan, string> = {
-  personal: process.env.STRIPE_PRICE_PERSONAL ?? "",
-  pro: process.env.STRIPE_PRICE_PRO ?? "",
+export const PLAN_PRICE_IDS: Record<PaidPlan, Record<BillingInterval, string>> = {
+  personal: {
+    month: process.env.STRIPE_PRICE_PERSONAL ?? "",
+    year: process.env.STRIPE_PRICE_PERSONAL_YEARLY ?? "",
+  },
+  pro: {
+    month: process.env.STRIPE_PRICE_PRO ?? "",
+    year: process.env.STRIPE_PRICE_PRO_YEARLY ?? "",
+  },
 };
 
-export const PRICE_TO_PLAN: Record<string, PaidPlan> = {
-  [PLAN_PRICE_IDS.personal]: "personal",
-  [PLAN_PRICE_IDS.pro]: "pro",
-};
+/** Empty IDs are dropped rather than mapped: an unset env var would otherwise
+ * put a "" key in here, and any price whose ID failed to read would resolve to
+ * whichever plan happened to own that blank. */
+export const PRICE_TO_PLAN: Record<string, PaidPlan> = Object.fromEntries(
+  (Object.entries(PLAN_PRICE_IDS) as [PaidPlan, Record<BillingInterval, string>][]).flatMap(([plan, prices]) =>
+    Object.values(prices)
+      .filter(Boolean)
+      .map((priceId) => [priceId, plan]),
+  ),
+);
 
 /**
  * Products, unlike prices, survive a price change: Stripe prices are immutable,

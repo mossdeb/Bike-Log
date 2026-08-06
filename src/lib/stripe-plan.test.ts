@@ -2,7 +2,9 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import type Stripe from "stripe";
 
 const PERSONAL_PRICE = "price_personal_current";
+const PERSONAL_PRICE_YEARLY = "price_personal_current_yearly";
 const PRO_PRICE = "price_pro_current";
+const PRO_PRICE_YEARLY = "price_pro_current_yearly";
 const PERSONAL_PRODUCT = "prod_personal";
 const PRO_PRODUCT = "prod_pro";
 
@@ -21,7 +23,9 @@ async function loadResolver() {
 describe("resolvePlanFromSubscription", () => {
   beforeEach(() => {
     vi.stubEnv("STRIPE_PRICE_PERSONAL", PERSONAL_PRICE);
+    vi.stubEnv("STRIPE_PRICE_PERSONAL_YEARLY", PERSONAL_PRICE_YEARLY);
     vi.stubEnv("STRIPE_PRICE_PRO", PRO_PRICE);
+    vi.stubEnv("STRIPE_PRICE_PRO_YEARLY", PRO_PRICE_YEARLY);
     vi.stubEnv("STRIPE_PRODUCT_PERSONAL", PERSONAL_PRODUCT);
     vi.stubEnv("STRIPE_PRODUCT_PRO", PRO_PRODUCT);
   });
@@ -33,6 +37,26 @@ describe("resolvePlanFromSubscription", () => {
   it("resolves a current price straight from the env vars", async () => {
     const resolve = await loadResolver();
     expect(resolve(subscriptionWith({ id: PRO_PRICE, product: PRO_PRODUCT }))).toBe("pro");
+  });
+
+  // Both intervals are prices on the same product, so the yearly one has to
+  // resolve to the same plan as the monthly one and not fall through to the
+  // product lookup by accident.
+  it("resolves the yearly price of a plan", async () => {
+    const resolve = await loadResolver();
+    expect(resolve(subscriptionWith({ id: PERSONAL_PRICE_YEARLY, product: PERSONAL_PRODUCT }))).toBe("personal");
+    expect(resolve(subscriptionWith({ id: PRO_PRICE_YEARLY, product: PRO_PRODUCT }))).toBe("pro");
+  });
+
+  // An unset yearly env var used to leave a "" key in the price map, which
+  // would then claim any price whose ID came through empty.
+  it("does not match an empty price ID against an unset interval env var", async () => {
+    vi.stubEnv("STRIPE_PRICE_PERSONAL_YEARLY", "");
+    vi.stubEnv("STRIPE_PRICE_PRO_YEARLY", "");
+    vi.stubEnv("STRIPE_PRODUCT_PERSONAL", "");
+    vi.stubEnv("STRIPE_PRODUCT_PRO", "");
+    const resolve = await loadResolver();
+    expect(resolve(subscriptionWith({ id: "", product: "prod_unknown" }))).toBeNull();
   });
 
   // The regression this module exists for: a subscriber left on last year's

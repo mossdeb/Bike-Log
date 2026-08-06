@@ -349,6 +349,7 @@ const pt: Dictionary = {
       "Front Suspension (Fork)": "Suspensão da frente (Garfo)",
       "Rear Suspension": "Suspensão traseira",
       Transmission: "Transmissão",
+      Electric: "Elétrico",
       Brakes: "Travões",
       "Brake Pads": "Pastilhas de travão",
       Wheels: "Rodas",

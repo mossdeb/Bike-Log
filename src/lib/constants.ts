@@ -20,6 +20,7 @@ export const COMPONENT_CATEGORIES = [
   "Front Suspension (Fork)",
   "Rear Suspension",
   "Transmission",
+  "Electric",
   "Brakes",
   "Brake Pads",
   "Wheels",

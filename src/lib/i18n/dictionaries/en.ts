@@ -353,6 +353,7 @@ const en = {
       "Front Suspension (Fork)": "Front Suspension (Fork)",
       "Rear Suspension": "Rear Suspension",
       Transmission: "Transmission",
+      Electric: "Electric",
       Brakes: "Brakes",
       "Brake Pads": "Brake Pads",
       Wheels: "Wheels",

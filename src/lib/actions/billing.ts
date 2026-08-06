@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient } from "@/lib/stripe";
+import { createCheckoutSessionUrl } from "@/lib/checkout";
 import { PLAN_PRICE_IDS, type BillingInterval, type PaidPlan } from "@/lib/plans";
 
 /** Anything that is not an explicit "year" bills monthly, so a form that never
@@ -25,38 +26,16 @@ export async function createCheckoutSession(formData: FormData) {
     redirect("/settings?error=Unknown plan");
   }
 
-  const interval = readInterval(formData);
-  const priceId = PLAN_PRICE_IDS[plan][interval];
-  if (!priceId) {
-    redirect("/settings?error=That billing period is not available yet");
-  }
-
-  const origin = (await headers()).get("origin");
-
-  const admin = createAdminClient();
-  const { data: existingSub } = await admin
-    .from("subscriptions")
-    .select("stripe_customer_id")
-    .eq("user_id", user.sub as string)
-    .maybeSingle();
-
-  const stripe = getStripeClient();
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    customer: existingSub?.stripe_customer_id ?? undefined,
-    customer_email: existingSub?.stripe_customer_id ? undefined : (user.email as string),
-    client_reference_id: user.sub as string,
-    line_items: [{ price: priceId, quantity: 1 }],
-    // Without this the promotion-code box does not exist in Checkout at all,
-    // and a voucher can only be applied by attaching the coupon to the
-    // customer by hand in the dashboard.
-    allow_promotion_codes: true,
-    success_url: `${origin}/settings?checkout=success`,
-    cancel_url: `${origin}/settings?checkout=canceled`,
+  const url = await createCheckoutSessionUrl({
+    userId: user.sub as string,
+    email: user.email as string | undefined,
+    plan,
+    interval: readInterval(formData),
+    origin: (await headers()).get("origin"),
   });
 
-  if (!session.url) redirect("/settings?error=Could not start checkout");
-  redirect(session.url);
+  if (!url) redirect("/settings?error=Could not start checkout");
+  redirect(url);
 }
 
 export async function createPortalSession() {

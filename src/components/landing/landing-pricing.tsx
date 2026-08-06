@@ -113,7 +113,13 @@ export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] })
               </ul>
 
               <Link
-                href="/signup"
+                // The paid CTAs go through /start so the plan and the period
+                // picked here survive signing up; Free has nothing to carry.
+                href={
+                  plan.checkoutPlan
+                    ? `/start?plan=${plan.checkoutPlan}&interval=${yearly ? "year" : "month"}`
+                    : "/signup"
+                }
                 className={`mt-8 inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-bold transition-opacity hover:opacity-90 ${
                   plan.highlighted ? "bg-[#43F3AF] text-[#101014]" : "border border-[#101014]/[0.09] bg-white text-[#101014]"
                 }`}

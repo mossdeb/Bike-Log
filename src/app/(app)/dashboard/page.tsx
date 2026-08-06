@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Bike, Cog, ClipboardList, Inbox, AlertTriangle, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { CHECKOUT_INTENT_COOKIE } from "@/lib/checkout-intent";
 import { selectActiveInterval, type NamedIntervalStatusInput } from "@/lib/maintenance/calculation";
 import { bikeHealthLevel, classifyHealth, healthPercent, type HealthLevel } from "@/lib/maintenance/health";
 import { formatDate, formatDistance, formatHours } from "@/lib/format";
@@ -28,6 +31,16 @@ export default async function DashboardPage({
   searchParams: Promise<{ onboarding?: string }>;
 }) {
   const { onboarding } = await searchParams;
+
+  // Every way into the app lands here, which makes this the one place that has
+  // to notice a plan picked before the account existed. Checked before any
+  // query so a request that is about to redirect doesn't pay for a dashboard
+  // nobody sees; /checkout/resume is the one that validates it and, either
+  // way, clears the cookie.
+  if ((await cookies()).has(CHECKOUT_INTENT_COOKIE)) {
+    redirect("/checkout/resume");
+  }
+
   const supabase = await createClient();
 
   const { data: userData } = await supabase.auth.getClaims();

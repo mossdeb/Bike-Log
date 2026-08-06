@@ -4,7 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 // /privacy and /terms have to answer to signed-out visitors and to crawlers:
 // Google reads them when verifying the OAuth consent screen's branding, and a
 // policy only reachable behind a login is no policy at all.
-const PUBLIC_ROUTES = ["/login", "/signup", "/auth", "/forgot-password", "/privacy", "/terms"];
+// "/start" carries the landing page's plan choice into signup, so it has to be
+// reachable without a session — the proxy runs before routing, and a protected
+// route and a nonexistent one produce the same 307 to /login.
+const PUBLIC_ROUTES = ["/login", "/signup", "/auth", "/forgot-password", "/privacy", "/terms", "/start"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

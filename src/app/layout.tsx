@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { anekLatin } from "@/lib/fonts";
@@ -35,6 +36,7 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <ServiceWorkerRegister />
+        <Analytics />
       </body>
     </html>
   );

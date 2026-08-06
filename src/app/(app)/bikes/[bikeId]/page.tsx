@@ -387,7 +387,10 @@ export default async function BikeDetailPage({
             <p className="text-sm text-muted-foreground">{dict.bikes.detail.noComponentsYet}</p>
           </div>
         ) : (
-          <div className="space-y-5">
+          // Same column rule as the bike list: one card per row on a phone, two
+          // from sm, three from lg. The gap stays at the 20px this page was
+          // measured to rather than the list's 16px.
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {components.map((component) => {
               const fractionUsed = statusByComponent.get(component.id)?.fractionUsed ?? null;
               const percent = healthPercent(fractionUsed);
@@ -457,7 +460,11 @@ export default async function BikeDetailPage({
                     href={`/bikes/${bike.id}/components/${component.id}/interventions/new`}
                     title={dict.bikes.detail.logIntervention}
                     aria-label={dict.bikes.detail.logInterventionFor(component.name ?? "")}
-                    className="hidden size-12 shrink-0 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground sm:flex"
+                    // xl, not sm: the button plus its gap is 68px, a quarter of
+                    // a card in the three-column layout, and it was cutting the
+                    // component's own name to fit. It comes back only where the
+                    // card is wide enough to carry it.
+                    className="hidden size-12 shrink-0 items-center justify-center rounded-full border border-input text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground xl:flex"
                   >
                     <Plus className="size-4" />
                   </Link>

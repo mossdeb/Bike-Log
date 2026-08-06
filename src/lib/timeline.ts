@@ -23,9 +23,20 @@ export type TimelineComponentInstall = {
   initialHours: number | null;
 };
 
+export type TimelineComponentArchived = {
+  id: string;
+  name: string;
+  category: string | null;
+  retiredAt: string;
+  /** Usage the part finished on, frozen at the moment it came off the bike. */
+  km: number | null;
+  hours: number | null;
+};
+
 export type TimelineEvent =
   | ({ kind: "intervention"; sortDate: string } & TimelineIntervention)
   | ({ kind: "componentInstalled"; sortDate: string } & TimelineComponentInstall)
+  | ({ kind: "componentArchived"; sortDate: string } & TimelineComponentArchived)
   | { kind: "manufactured"; sortDate: string; year: number; brand: string | null }
   | { kind: "purchased"; sortDate: string; date: string }
   | { kind: "added"; sortDate: string; date: string }
@@ -45,6 +56,7 @@ export function buildBikeTimeline(input: {
   };
   interventions: TimelineIntervention[];
   components?: TimelineComponentInstall[];
+  archived?: TimelineComponentArchived[];
 }): TimelineEvent[] {
   const events: TimelineEvent[] = input.interventions.map((iv) => ({
     kind: "intervention" as const,
@@ -64,6 +76,13 @@ export function buildBikeTimeline(input: {
     if (!component.installDate) continue;
     if (component.installDate === input.bike.purchase_date) continue;
     events.push({ kind: "componentInstalled", sortDate: component.installDate, ...component });
+  }
+
+  // Archiving always has a date — it is stamped at the moment it happens, not
+  // asked for — so there is no install-date style exclusion to make here. A
+  // part that came off the bike is a closing bracket on the install above it.
+  for (const component of input.archived ?? []) {
+    events.push({ kind: "componentArchived", sortDate: component.retiredAt, ...component });
   }
 
   if (input.bike.purchase_date) {

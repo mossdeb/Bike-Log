@@ -102,26 +102,45 @@ export default async function BikeDetailPage({
             cancelAtPeriodEnd: false,
           }),
       userId
-        ? supabase.from("components").select("id", { count: "exact", head: true }).eq("user_id", userId)
+        ? supabase
+            .from("components")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", userId)
+            .is("retired_at", null)
         : Promise.resolve({ count: null }),
       supabase
         .from("components")
-        .select("id, name, category, brand, model, bike_km_at_install, bike_hours_at_install, install_date, initial_km, initial_hours")
+        .select(
+          "id, name, category, brand, model, bike_km_at_install, bike_hours_at_install, install_date, initial_km, initial_hours, retired_at, bike_km_at_retire, bike_hours_at_retire"
+        )
         .eq("bike_id", bikeId)
         .order("created_at", { ascending: true }),
+      // Only fitted parts have a service interval worth reading. An archived
+      // one keeps its rows, so that restoring it brings its reminders back.
       supabase
         .from("component_interval_status")
         .select(
           "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
         )
-        .eq("bike_id", bikeId),
+        .eq("bike_id", bikeId)
+        .is("retired_at", null),
     ]);
 
   // Cards are grouped by category rather than left in the order the parts were
   // added, which said nothing to a reader and scattered the two tyres and the
   // two wheels down the page. The query still orders by created_at and the sort
   // is stable, so that stays as the tie-break inside each category.
-  const components = componentRows ? [...componentRows].sort(compareByCategory) : null;
+  const allComponents = componentRows ? [...componentRows].sort(compareByCategory) : null;
+
+  // Archived parts leave the list, the count, and — through statusByComponent
+  // below — the bike's health. A dead tyre sitting at 0% would otherwise hold
+  // the whole bike at "Service Due" for as long as the row existed.
+  const components = allComponents ? allComponents.filter((c) => !c.retired_at) : null;
+  // The archive reads as a log, so it runs newest first rather than by
+  // category: what you want there is what came off last.
+  const archivedComponents = (allComponents ?? [])
+    .filter((c) => c.retired_at)
+    .sort((a, b) => (a.retired_at! < b.retired_at! ? 1 : a.retired_at! > b.retired_at! ? -1 : 0));
 
   // Nothing about the timeline is fetched for a plan that can't see it — the
   // preview is the same for everyone, so their own history never leaves the
@@ -162,10 +181,12 @@ export default async function BikeDetailPage({
     [...statusByComponent.values()].map((s) => healthPercent(s?.fractionUsed ?? null))
   );
 
-  const componentIds = (components ?? [])
+  // The timeline runs off every part the bike has ever carried, archived ones
+  // included — their history is the reason the archive exists at all.
+  const componentIds = (allComponents ?? [])
     .map((c) => c.id)
     .filter((id): id is string => id != null);
-  const componentById = new Map((components ?? []).map((c) => [c.id, c]));
+  const componentById = new Map((allComponents ?? []).map((c) => [c.id, c]));
   const { data: bikeInterventions } =
     canSeeTimeline && componentIds.length > 0
       ? await supabase
@@ -198,7 +219,10 @@ export default async function BikeDetailPage({
           created_at: bike.created_at,
         },
         interventions: timelineInterventions,
-        components: (components ?? [])
+        // Every part the bike has carried, not just the ones still on it: an
+        // install whose archive card sits above it is the pair that makes the
+        // timeline worth reading.
+        components: (allComponents ?? [])
           .filter((c) => c.install_date != null)
           .map((c) => ({
             id: c.id,
@@ -208,6 +232,23 @@ export default async function BikeDetailPage({
             initialKm: c.initial_km,
             initialHours: c.initial_hours,
           })),
+        archived: archivedComponents.map((c) => ({
+          id: c.id,
+          name: c.name,
+          category: c.category,
+          retiredAt: c.retired_at as string,
+          // What it finished on: the bike's total when it came off, less the
+          // baseline it started from. Null for either end leaves the line out
+          // rather than printing a number built on a guess.
+          km:
+            c.bike_km_at_retire != null && c.bike_km_at_install != null
+              ? c.bike_km_at_retire - c.bike_km_at_install
+              : null,
+          hours:
+            c.bike_hours_at_retire != null && c.bike_hours_at_install != null
+              ? c.bike_hours_at_retire - c.bike_hours_at_install
+              : null,
+        })),
       })
     : previewTimelineEvents(dict);
 

@@ -61,15 +61,21 @@ export default async function DashboardPage({
         .select("id, name, type, brand, model, year, total_km, total_hours, strava_gear_id")
         .order("usage_updated_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: true }),
+      // Archived parts are off the bike, so they carry no upcoming service and
+      // no health. Filtered in both queries rather than only in the component
+      // list: an archived part's intervals would otherwise still be fetched,
+      // just to be matched against a component that isn't there.
       supabase
         .from("components")
         .select("id, bike_id, name")
+        .is("retired_at", null)
         .order("created_at", { ascending: true }),
       supabase
         .from("component_interval_status")
         .select(
           "id, component_id, name, interval_type, interval_value, install_date, component_created_at, last_intervention_date, bike_km_at_install, bike_hours_at_install, last_service_km, last_service_hours"
-        ),
+        )
+        .is("retired_at", null),
       supabase
         .from("interventions")
         .select("id, type, date, kms, hours_used, component_id")

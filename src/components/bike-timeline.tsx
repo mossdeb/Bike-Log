@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { Fragment } from "react";
-import { Check } from "lucide-react";
+import { Ban, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { formatDate, formatDistance, formatHours } from "@/lib/format";
 import type { TimelineEvent } from "@/lib/timeline";
 import { INTERVENTION_TYPE_ICON } from "@/lib/intervention-type";
 import { INTERVENTION_TYPE_STYLES } from "@/components/type-badge";
-import { ComponentIcon } from "@/components/component-icon";
-import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
-import type { ComponentCategory } from "@/lib/constants";
+import { BadgedCategoryIcon, Measure } from "@/components/component-event-visuals";
 import { ManufacturedIcon, PurchasedIcon, WarrantyIcon } from "@/components/timeline-icons";
 import { LogoIcon } from "@/components/logo";
 import { BikeIcon } from "@/components/bike-icon";
@@ -35,23 +33,6 @@ function MilestonePill({
       <p className="text-sm font-semibold">{label}</p>
       <span className="ml-1 text-xs text-muted-foreground">{date}</span>
     </div>
-  );
-}
-
-/**
- * A figure and its unit, split apart so the number can carry the weight.
- *
- * Both formatters emit "<value> <unit>" and the value itself can hold spaces
- * (a Portuguese "3 302"), so the split is on the last space, not the first.
- */
-function Measure({ text }: { text: string }) {
-  const at = text.lastIndexOf(" ");
-  if (at === -1) return <p className="text-[15px] leading-tight font-semibold">{text}</p>;
-  return (
-    <p className="text-[15px] leading-tight whitespace-nowrap">
-      <span className="font-semibold">{text.slice(0, at)}</span>{" "}
-      <span className="text-muted-foreground">{text.slice(at + 1)}</span>
-    </p>
   );
 }
 
@@ -111,60 +92,35 @@ function ComponentEventCard({
   );
 }
 
-/** The part's category glyph with a small badge over it saying what happened
- * to it. Shared by both card shapes so the mark reads the same either way. */
-function BadgedCategoryIcon({
-  category,
-  badge,
-  badgeStyle,
-}: {
-  category: string | null;
-  badge: React.ReactNode;
-  badgeStyle: string;
-}) {
-  return (
-    <span className="relative shrink-0">
-      <ComponentIcon
-        size="flat"
-        icon={COMPONENT_CATEGORY_ICON[category as ComponentCategory]}
-        className="size-11"
-      />
-      {/* Ringed in the card's own colour so the badge reads as sitting on top
-          of the icon rather than merging into its outline. */}
-      <span
-        className={cn(
-          "absolute -right-1 -bottom-1 flex size-[22px] items-center justify-center rounded-full ring-2 ring-card",
-          badgeStyle
-        )}
-      >
-        {badge}
-      </span>
-    </span>
-  );
-}
-
 /**
- * An install, told as a stacked card rather than the row an intervention gets.
+ * A moment in a part's life — fitted, or taken off — told as a stacked card
+ * rather than the row an intervention gets.
  *
- * The shape is the difference: fitting a part is a milestone in its life, not
- * work done to it, and it reads as one alongside "Added to Bikit" and
- * "Purchased" — which is a stronger signal than tinting the same row would be,
- * and costs no contrast.
+ * The shape is the difference: these are milestones, not work done, and they
+ * read as such alongside "Added to Bikit" and "Purchased" — a stronger signal
+ * than tinting the same row would be, and it costs no contrast.
+ *
+ * One card for both ends of the life on purpose. They are the same kind of
+ * event and belong in the same shape; only the badge and the word change.
  */
-function ComponentInstallCard({
+function ComponentMilestoneCard({
   href,
   category,
   componentName,
   date,
-  installedLabel,
+  label,
   measures,
+  badge,
+  badgeStyle,
 }: {
   href: string;
   category: string | null;
   componentName: string;
   date: string;
-  installedLabel: string;
+  label: string;
   measures: string[];
+  badge: React.ReactNode;
+  badgeStyle: string;
 }) {
   return (
     <Link
@@ -174,15 +130,11 @@ function ComponentInstallCard({
         CLICKABLE_CARD_HOVER
       )}
     >
-      <BadgedCategoryIcon
-        category={category}
-        badge={<Check className="size-3" strokeWidth={3} />}
-        badgeStyle={INTERVENTION_TYPE_STYLES.service}
-      />
+      <BadgedCategoryIcon category={category} badge={badge} badgeStyle={badgeStyle} />
       <div className="flex flex-col items-center gap-0.5">
         <p className="text-[13px] leading-tight text-muted-foreground">{formatDate(date)}</p>
         <p className="text-[16px] leading-tight font-semibold">
-          {componentName} · {installedLabel}
+          {componentName} · {label}
         </p>
         {measures.length > 0 && (
           <p className="text-[14px] leading-tight text-muted-foreground">{measures.join(" · ")}</p>
@@ -293,17 +245,42 @@ export function BikeTimeline({
             content = (
               <div className="flex flex-col items-center gap-3">
                 <TimelineDot />
-                <ComponentInstallCard
+                <ComponentMilestoneCard
                   href={`/bikes/${bikeId}/components/${event.id}`}
                   category={event.category}
                   componentName={event.name}
                   date={event.installDate}
-                  installedLabel={dict.bikes.detail.componentInstalled}
+                  label={dict.bikes.detail.componentInstalled}
+                  badge={<Check className="size-3" strokeWidth={3} />}
+                  badgeStyle={INTERVENTION_TYPE_STYLES.service}
                   // Null on components created before the figure was recorded —
                   // the line is left out rather than claiming a zero.
                   measures={[
                     event.initialKm != null ? formatDistance(event.initialKm, distanceUnit, locale) : null,
                     event.initialHours != null ? formatHours(event.initialHours, locale) : null,
+                  ].filter((m): m is string => m != null)}
+                />
+              </div>
+            );
+          } else if (event.kind === "componentArchived") {
+            content = (
+              <div className="flex flex-col items-center gap-3">
+                <TimelineDot />
+                <ComponentMilestoneCard
+                  href={`/bikes/${bikeId}/components/${event.id}`}
+                  category={event.category}
+                  componentName={event.name}
+                  date={event.retiredAt}
+                  label={dict.bikes.detail.componentArchived}
+                  // The badge takes the app's inverted surface rather than one of
+                  // the intervention colours: coming off the bike isn't a kind of
+                  // work, and none of those three greens and purples mean "done".
+                  badge={<Ban className="size-3" strokeWidth={3} />}
+                  badgeStyle="bg-foreground text-background"
+                  // What the part finished on, frozen when it came off.
+                  measures={[
+                    event.km != null ? formatDistance(event.km, distanceUnit, locale) : null,
+                    event.hours != null ? formatHours(event.hours, locale) : null,
                   ].filter((m): m is string => m != null)}
                 />
               </div>
@@ -363,7 +340,9 @@ export function BikeTimeline({
               ? event.id
               : event.kind === "componentInstalled"
                 ? `install-${event.id}`
-                : event.kind;
+                : event.kind === "componentArchived"
+                  ? `archive-${event.id}`
+                  : event.kind;
           return (
             <Fragment key={key}>
               {event.yearLabel && <YearLabel year={event.yearLabel} />}

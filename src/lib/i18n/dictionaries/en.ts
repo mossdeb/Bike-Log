@@ -270,6 +270,7 @@ const en = {
       addedToBikit: "Added to Bikit",
       warrantyExpired: "Warranty Expired",
       componentInstalled: "Installation",
+      componentArchived: "Archived",
       timelineLocked: "Timeline is not available on the Free plan",
       timelinePreview: {
         demo: "Demo",

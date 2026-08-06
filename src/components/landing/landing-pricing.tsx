@@ -45,7 +45,19 @@ export function LandingPricing({ dict }: { dict: LandingDictionary["pricing"] })
                 <span className={`text-sm ${plan.highlighted ? "text-white/50" : "text-[#8A8D93]"}`}>{plan.period}</span>
               </div>
 
-              <ul className="mt-6 flex flex-col gap-3">
+              {/* No tick: it introduces the list rather than being an item in
+                  it, and it carries the full text colour so it reads as the
+                  summary it is instead of as a caption. */}
+              {plan.featuresLead && (
+                <p className={`mt-6 text-sm font-bold ${plan.highlighted ? "text-white" : "text-[#101014]"}`}>
+                  {plan.featuresLead}
+                </p>
+              )}
+
+              {/* flex-1 on the list, not mt-auto on the button: the free space
+                  goes to the list, so the three CTAs line up at the bottom of
+                  the equal-height cards and still keep their mt-8 gap. */}
+              <ul className={`flex flex-1 flex-col gap-3 ${plan.featuresLead ? "mt-3" : "mt-6"}`}>
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2.5">
                     <span

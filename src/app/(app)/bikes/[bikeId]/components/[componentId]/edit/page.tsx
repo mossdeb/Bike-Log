@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { ComponentOptionalFields } from "@/components/component-optional-fields";
+import { InstallDateField } from "@/components/install-date-field";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { kmToUnit } from "@/lib/format";
@@ -35,7 +36,7 @@ export default async function EditComponentPage({
   const [{ data: userData }, { data: bike }, { data: component }, { data: intervals }, manufacturers] =
     await Promise.all([
       supabase.auth.getClaims(),
-      supabase.from("bikes").select("id, name").eq("id", bikeId).single(),
+      supabase.from("bikes").select("id, name, purchase_date").eq("id", bikeId).single(),
       supabase.from("components").select("*").eq("id", componentId).eq("bike_id", bikeId).single(),
       supabase
         .from("component_service_intervals")
@@ -141,10 +142,20 @@ export default async function EditComponentPage({
             addAnotherLabel={dict.components.form.addAnotherReminder}
           />
 
+          <InstallDateField
+            label={dict.components.form.installDate}
+            todayLabel={dict.components.form.installDateToday}
+            bikeLabel={dict.components.form.installDateBike}
+            customLabel={dict.components.form.installDateCustom}
+            notSetLabel={dict.components.form.installDateNotSet}
+            bikePurchaseDate={bike.purchase_date}
+            defaultValue={component.install_date}
+            allowNotSet
+          />
+
           <ComponentOptionalFields
             labels={componentOptionalFieldLabels(dict)}
             defaults={{
-              install_date: component.install_date,
               serial_number: component.serial_number,
               purchase_date: component.purchase_date,
               warranty: component.warranty,

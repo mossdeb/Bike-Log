@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { ComponentOptionalFields } from "@/components/component-optional-fields";
+import { ComponentInstallFields } from "@/components/component-install-fields";
 import { componentOptionalFieldLabels } from "@/lib/component-optional-field-labels";
 import { NewComponentWizard } from "@/components/new-component-wizard";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
+import { kmToUnit } from "@/lib/format";
 
 export default async function NewComponentPage({
   params,
@@ -32,7 +34,7 @@ export default async function NewComponentPage({
   // is an external API call) — fired together instead of one after another.
   const [{ data: userData }, { data: bike }, manufacturers] = await Promise.all([
     supabase.auth.getClaims(),
-    supabase.from("bikes").select("id, name, total_km, total_hours").eq("id", bikeId).single(),
+    supabase.from("bikes").select("id, name, total_km, total_hours, purchase_date").eq("id", bikeId).single(),
     getBikeIndexManufacturers(),
   ]);
 
@@ -40,12 +42,6 @@ export default async function NewComponentPage({
   const dict = getDictionary(localeFromMetadata(userData?.claims?.user_metadata));
 
   if (!bike) notFound();
-
-  // Defaults to 0 — a brand-new part hasn't accrued any wear yet. Only a
-  // used/pre-owned part being logged retroactively needs this raised, which
-  // the owner does by hand.
-  const defaultInitialKm = 0;
-  const defaultInitialHours = 0;
 
   const step1 = (
     <Fragment key="step-1">
@@ -92,19 +88,20 @@ export default async function NewComponentPage({
         </datalist>
       </div>
 
-      <div className="space-y-1.5 sm:col-span-2">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="initial_km">{dict.components.form.totalDistance(distanceUnit)}</Label>
-            <Input id="initial_km" name="initial_km" type="number" step="0.1" defaultValue={defaultInitialKm} />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="initial_hours">{dict.components.form.totalHours}</Label>
-            <Input id="initial_hours" name="initial_hours" type="number" step="0.1" defaultValue={defaultInitialHours} />
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground">{dict.components.form.totalUsageHint}</p>
-      </div>
+      <ComponentInstallFields
+        dateLabel={dict.components.form.installDate}
+        todayLabel={dict.components.form.installDateToday}
+        bikeLabel={dict.components.form.installDateBike}
+        customLabel={dict.components.form.installDateCustom}
+        notSetLabel={dict.components.form.installDateNotSet}
+        withBikeLabel={dict.components.form.installDateWithBike}
+        kmLabel={dict.components.form.totalDistance(distanceUnit)}
+        hoursLabel={dict.components.form.totalHours}
+        usageHint={dict.components.form.totalUsageHint}
+        bikePurchaseDate={bike.purchase_date}
+        bikeTotalKm={bike.total_km != null ? kmToUnit(bike.total_km, distanceUnit) : null}
+        bikeTotalHours={bike.total_hours}
+      />
 
       <ComponentOptionalFields labels={componentOptionalFieldLabels(dict)} />
     </Fragment>

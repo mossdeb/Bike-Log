@@ -7,7 +7,6 @@ import type { ComponentOptionalFieldLabels } from "@/components/component-option
 export function componentOptionalFieldLabels(dict: Dictionary): ComponentOptionalFieldLabels {
   const form = dict.components.form;
   return {
-    installDate: form.installDate,
     serialNumber: form.serialNumber,
     purchaseDate: form.purchaseDate,
     warranty: form.warrantyLabel,

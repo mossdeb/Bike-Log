@@ -18,10 +18,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-type FieldKey = "install_date" | "serial_number" | "purchase_date" | "warranty" | "year" | "notes";
+type FieldKey = "serial_number" | "purchase_date" | "warranty" | "year" | "notes";
 
 export interface ComponentOptionalFieldDefaults {
-  install_date?: string | null;
   serial_number?: string | null;
   purchase_date?: string | null;
   warranty?: string | null;
@@ -33,7 +32,6 @@ export interface ComponentOptionalFieldDefaults {
 // object can't cross the server/client boundary (it also holds
 // function-valued entries for unrelated sections).
 export interface ComponentOptionalFieldLabels {
-  installDate: string;
   serialNumber: string;
   purchaseDate: string;
   warranty: string;
@@ -48,8 +46,10 @@ export interface ComponentOptionalFieldLabels {
   addDetailsSave: string;
 }
 
-// Order the fields appear in the checkbox picker — matches the approved mockup.
-const CHECKBOX_ORDER: FieldKey[] = ["install_date", "serial_number", "purchase_date", "warranty", "year", "notes"];
+// Order the fields appear in the checkbox picker — matches the approved mockup,
+// less the install date, which is now always shown by InstallDateField. Leaving
+// it here too would let the form carry two inputs named `install_date`.
+const CHECKBOX_ORDER: FieldKey[] = ["serial_number", "purchase_date", "warranty", "year", "notes"];
 
 export function ComponentOptionalFields({
   labels,
@@ -62,7 +62,6 @@ export function ComponentOptionalFields({
     FieldKey,
     { label: string; placeholder?: string; type?: string; min?: number; step?: number }
   > = {
-    install_date: { label: labels.installDate, type: "date" },
     serial_number: { label: labels.serialNumber, placeholder: labels.optional },
     purchase_date: { label: labels.purchaseDate, type: "date" },
     warranty: { label: labels.warranty, placeholder: labels.warrantyPlaceholder, type: "number", min: 0, step: 0.5 },
@@ -108,7 +107,6 @@ export function ComponentOptionalFields({
 
   return (
     <>
-      {activeFields.has("install_date") && renderField("install_date", true)}
       {activeFields.has("serial_number") && renderField("serial_number", true)}
       {activeFields.has("purchase_date") && renderField("purchase_date", true)}
       {activeFields.has("warranty") && renderField("warranty", true)}

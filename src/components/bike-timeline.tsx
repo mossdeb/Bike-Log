@@ -91,23 +91,7 @@ function ComponentEventCard({
       href={href}
       className={cn("flex w-full items-center gap-4 rounded-lg bg-card p-5", CLICKABLE_CARD_HOVER)}
     >
-      <span className="relative shrink-0">
-        <ComponentIcon
-          size="flat"
-          icon={COMPONENT_CATEGORY_ICON[category as ComponentCategory]}
-          className="size-11"
-        />
-        {/* Ringed in the card's own colour so the badge reads as sitting on
-            top of the icon rather than merging into its outline. */}
-        <span
-          className={cn(
-            "absolute -right-1 -bottom-1 flex size-[22px] items-center justify-center rounded-full ring-2 ring-card",
-            badgeStyle
-          )}
-        >
-          {badge}
-        </span>
-      </span>
+      <BadgedCategoryIcon category={category} badge={badge} badgeStyle={badgeStyle} />
 
       <div className="min-w-0 flex-1">
         <p className="text-[13px] leading-tight text-muted-foreground">
@@ -123,6 +107,87 @@ function ComponentEventCard({
           ))}
         </div>
       )}
+    </Link>
+  );
+}
+
+/** The part's category glyph with a small badge over it saying what happened
+ * to it. Shared by both card shapes so the mark reads the same either way. */
+function BadgedCategoryIcon({
+  category,
+  badge,
+  badgeStyle,
+}: {
+  category: string | null;
+  badge: React.ReactNode;
+  badgeStyle: string;
+}) {
+  return (
+    <span className="relative shrink-0">
+      <ComponentIcon
+        size="flat"
+        icon={COMPONENT_CATEGORY_ICON[category as ComponentCategory]}
+        className="size-11"
+      />
+      {/* Ringed in the card's own colour so the badge reads as sitting on top
+          of the icon rather than merging into its outline. */}
+      <span
+        className={cn(
+          "absolute -right-1 -bottom-1 flex size-[22px] items-center justify-center rounded-full ring-2 ring-card",
+          badgeStyle
+        )}
+      >
+        {badge}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * An install, told as a stacked card rather than the row an intervention gets.
+ *
+ * The shape is the difference: fitting a part is a milestone in its life, not
+ * work done to it, and it reads as one alongside "Added to Bikit" and
+ * "Purchased" — which is a stronger signal than tinting the same row would be,
+ * and costs no contrast.
+ */
+function ComponentInstallCard({
+  href,
+  category,
+  componentName,
+  date,
+  installedLabel,
+  measures,
+}: {
+  href: string;
+  category: string | null;
+  componentName: string;
+  date: string;
+  installedLabel: string;
+  measures: string[];
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex flex-col items-center gap-2 rounded-lg bg-card px-8 py-6 text-center",
+        CLICKABLE_CARD_HOVER
+      )}
+    >
+      <BadgedCategoryIcon
+        category={category}
+        badge={<Check className="size-3" strokeWidth={3} />}
+        badgeStyle={INTERVENTION_TYPE_STYLES.service}
+      />
+      <div className="flex flex-col items-center gap-0.5">
+        <p className="text-[13px] leading-tight text-muted-foreground">{formatDate(date)}</p>
+        <p className="text-[16px] leading-tight font-semibold">
+          {componentName} · {installedLabel}
+        </p>
+        {measures.length > 0 && (
+          <p className="text-[14px] leading-tight text-muted-foreground">{measures.join(" · ")}</p>
+        )}
+      </div>
     </Link>
   );
 }
@@ -226,18 +291,16 @@ export function BikeTimeline({
             );
           } else if (event.kind === "componentInstalled") {
             content = (
-              <div className="flex w-full flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-3">
                 <TimelineDot />
-                <ComponentEventCard
+                <ComponentInstallCard
                   href={`/bikes/${bikeId}/components/${event.id}`}
                   category={event.category}
                   componentName={event.name}
-                  badge={<Check className="size-3" strokeWidth={3} />}
-                  badgeStyle={INTERVENTION_TYPE_STYLES.service}
                   date={event.installDate}
-                  title={dict.bikes.detail.componentInstalled}
+                  installedLabel={dict.bikes.detail.componentInstalled}
                   // Null on components created before the figure was recorded —
-                  // the column is simply left out rather than claiming a zero.
+                  // the line is left out rather than claiming a zero.
                   measures={[
                     event.initialKm != null ? formatDistance(event.initialKm, distanceUnit, locale) : null,
                     event.initialHours != null ? formatHours(event.initialHours, locale) : null,

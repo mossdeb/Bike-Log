@@ -269,7 +269,7 @@ const pt: Dictionary = {
       purchased: "Comprada",
       addedToBikit: "Adicionada à Bikit",
       warrantyExpired: "Garantia expirada",
-      componentInstalled: "Instalado",
+      componentInstalled: "Instalação",
       timelineLocked: "A linha do tempo não está disponível no plano Grátis",
       timelinePreview: {
         demo: "Demo",

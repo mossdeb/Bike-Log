@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Inbox } from "lucide-react";
+import { Ban, Pencil, Inbox, MoreVertical, RotateCcw } from "lucide-react";
+import { archiveComponent, restoreComponent } from "@/lib/actions/components";
+import { ConfirmActionButton } from "@/components/delete-confirm-button";
+import { FormError } from "@/components/form-error";
 import { ToolIcon } from "@/components/tool-icon";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -15,13 +18,14 @@ import { formatWarranty } from "@/lib/warranty";
 import { cn } from "@/lib/utils";
 import { CLICKABLE_CARD_HOVER } from "@/lib/card-styles";
 import { BikeIcon } from "@/components/bike-icon";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { HealthBadge, HealthPercentBadge } from "@/components/health-badge";
 import { ServiceIntervalBar } from "@/components/service-interval-bar";
 import { MaintenanceIcon } from "@/components/interval-icons";
 import { TypeBadge, INTERVENTION_TYPE_DOT_STYLES } from "@/components/type-badge";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
+import { BadgedCategoryIcon } from "@/components/component-event-visuals";
 import type { ComponentCategory } from "@/lib/constants";
 import { getDictionary, localeFromMetadata } from "@/lib/i18n";
 import { categoryLabel } from "@/lib/component-category";
@@ -50,10 +54,15 @@ const fieldBasis = "shrink-0 grow-0 basis-[calc(33.333%-0.75rem)] sm:basis-[calc
 
 export default async function ComponentDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ bikeId: string; componentId: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { bikeId, componentId } = await params;
+  // Restoring can be refused — a plan limit, or a write that failed — and this
+  // is where the attempt lands back.
+  const { error: actionError } = await searchParams;
   const supabase = await createClient();
 
   // None of these depend on each other's results (all keyed off the URL's
@@ -79,9 +88,13 @@ export default async function ComponentDetailPage({
   if (!bike) notFound();
   if (!component) notFound();
 
+  // An archived part is measured against the bike's odometer as it stood when
+  // the part came off, not as it stands now. Reading it live would have the
+  // part quietly collecting every kilometre ridden since, which is the one
+  // number on this page that has to stay still.
   const usage = calculateComponentUsage({
-    bikeTotalKm: bike.total_km,
-    bikeTotalHours: bike.total_hours,
+    bikeTotalKm: component.retired_at ? component.bike_km_at_retire : bike.total_km,
+    bikeTotalHours: component.retired_at ? component.bike_hours_at_retire : bike.total_hours,
     bikeKmAtInstall: component.bike_km_at_install,
     bikeHoursAtInstall: component.bike_hours_at_install,
   });
@@ -143,6 +156,60 @@ export default async function ComponentDetailPage({
     </Button>
   );
 
+  const isArchived = component.retired_at != null;
+
+  // Archived, the glyph carries the same mark the archive list and the timeline
+  // put on it, so the part is recognisable as retired before any label is read.
+  const componentGlyph = isArchived ? (
+    <BadgedCategoryIcon
+      category={component.category}
+      badge={<Ban className="size-3" strokeWidth={3} />}
+      badgeStyle="bg-foreground text-background"
+    />
+  ) : (
+    <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+  );
+
+  // The same circle as the edit control beside it, so the pair reads as one set
+  // of controls for this part. It opens the confirmation directly rather than a
+  // menu: there is exactly one thing behind it.
+  const archiveControl = isArchived ? (
+    <ConfirmActionButton
+      action={restoreComponent.bind(null, bike.id, component.id)}
+      title={dict.bikes.detail.restoreConfirmTitle}
+      description={dict.bikes.detail.restoreConfirmDesc(component.name)}
+      confirmLabel={dict.bikes.detail.restoreConfirm}
+      cancelLabel={dict.components.form.cancel}
+      variant="inverted"
+      triggerAriaLabel={dict.bikes.detail.restoreAction}
+      triggerClassName={cn(buttonVariants({ variant: "inverted", size: "sm" }), "text-sm")}
+      triggerContent={
+        <>
+          <RotateCcw className="size-3.5" />
+          {dict.bikes.detail.restoreAction}
+        </>
+      }
+    />
+  ) : (
+    <ConfirmActionButton
+      action={archiveComponent.bind(null, bike.id, component.id)}
+      title={dict.bikes.detail.archiveConfirmTitle}
+      description={dict.bikes.detail.archiveConfirmDesc(component.name)}
+      confirmLabel={dict.bikes.detail.archiveConfirm}
+      cancelLabel={dict.components.form.cancel}
+      variant="inverted"
+      triggerAriaLabel={dict.bikes.detail.archiveAction}
+      triggerClassName="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      triggerContent={<MoreVertical className="size-5" />}
+    />
+  );
+
+  const archivedPill = isArchived ? (
+    <span className="inline-block shrink-0 rounded-full bg-muted px-3 py-1.5 text-[11px] leading-none font-semibold tracking-wide text-muted-foreground">
+      {dict.bikes.detail.archivedPill}
+    </span>
+  ) : null;
+
   return (
     <div className="pt-4 sm:pt-8">
       <div className="hidden text-sm text-muted-foreground sm:mb-2 sm:block">
@@ -156,6 +223,8 @@ export default async function ComponentDetailPage({
         <span className="mx-1.5">/</span>
         <span className="text-foreground">{component.name}</span>
       </div>
+
+      <FormError message={actionError} />
 
       {/* Mobile only: a tab peeking out from behind the component card, tying
           the part back to the bike it's fitted to. Desktop already says it in
@@ -175,7 +244,7 @@ export default async function ComponentDetailPage({
         {/* Desktop: icon + name/badge, full details grid inline, edit far right */}
         <div className="hidden sm:flex sm:items-center sm:justify-between sm:gap-6">
           <div className="flex items-center gap-4">
-            <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+            {componentGlyph}
             <div>
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
               <HealthBadge level={healthLevel} dict={dict} className="mt-1.5" />
@@ -210,13 +279,17 @@ export default async function ComponentDetailPage({
               <DetailField label={dict.components.form.notes} value={component.notes} className="min-w-[220px] flex-1" />
             )}
           </div>
-          {editButton}
+          {archivedPill}
+          <div className="flex shrink-0 items-center gap-1">
+            {editButton}
+            {archiveControl}
+          </div>
         </div>
 
         {/* Mobile: icon + name/subtitle, then compact stat rows */}
         <div className="sm:hidden">
           <div className="flex items-center gap-4">
-            <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
+            {componentGlyph}
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
               <p className="mt-0.5 truncate text-sm text-muted-foreground">
@@ -234,15 +307,24 @@ export default async function ComponentDetailPage({
             >
               <Pencil className="size-4" />
             </Link>
+            {!isArchived && archiveControl}
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-6">
             <DetailField label={dict.components.detail.totalDistance} value={distanceDetail} mono />
             <DetailField label={dict.components.detail.totalHours} value={hoursDetail} mono />
+            {archivedPill && <div className="ml-auto">{archivedPill}</div>}
           </div>
+          {/* Restoring is a full-width control on a phone rather than another
+              circle: it is the one thing left to do with an archived part, and
+              it should read as such instead of hiding behind a glyph. */}
+          {isArchived && <div className="mt-6 flex justify-center">{archiveControl}</div>}
         </div>
 
-        {intervals.length > 0 ? (
+        {/* An archived part has no next service and nothing left to log, so the
+            reminders and the maintenance button go. Their rows are kept in the
+            database: putting the part back brings its reminders back with it. */}
+        {isArchived ? null : intervals.length > 0 ? (
           // Pulled out to the card's edges so the rule above spans it whole,
           // then padded back in — half the card's own 24px on mobile, so the
           // pills sit wider than the text above them.
@@ -327,12 +409,12 @@ export default async function ComponentDetailPage({
           <p className="mt-6 text-sm text-muted-foreground">{dict.components.detail.noIntervalsYet}</p>
         )}
 
-        <div className="mt-6 flex justify-center sm:hidden">{logMaintenanceButton}</div>
+        {!isArchived && <div className="mt-6 flex justify-center sm:hidden">{logMaintenanceButton}</div>}
       </div>
 
       <div className="mb-6 flex items-center justify-center sm:mb-3 sm:justify-between">
         <h2 className="font-display font-bold">{dict.components.detail.history}</h2>
-        <div className="hidden sm:block">{logMaintenanceButton}</div>
+        {!isArchived && <div className="hidden sm:block">{logMaintenanceButton}</div>}
       </div>
 
       {!interventions || interventions.length === 0 ? (

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Plus } from "lucide-react";
+import { Ban, Pencil, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { manualSyncStrava } from "@/lib/actions/strava";
 import { selectActiveInterval, calculateComponentUsage, type NamedIntervalStatusInput, type ActiveIntervalResult } from "@/lib/maintenance/calculation";
@@ -19,6 +19,7 @@ import { StravaSyncToast } from "@/components/strava-sync-toast";
 import { StravaSyncButton } from "@/components/strava-sync-button";
 import { ComponentIcon } from "@/components/component-icon";
 import { COMPONENT_CATEGORY_ICON } from "@/components/component-category-icon";
+import { BadgedCategoryIcon, Measure } from "@/components/component-event-visuals";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BikeTimeline } from "@/components/bike-timeline";
 import { buildBikeTimeline, type TimelineIntervention } from "@/lib/timeline";
@@ -418,6 +419,20 @@ export default async function BikeDetailPage({
             >
               {dict.bikes.detail.timelineTab}
             </TabsTrigger>
+            {/* Only once there is something in it. A permanently empty third
+                tab on every bike is a promise the page keeps having to explain,
+                and it costs the other two their room on a phone. */}
+            {archivedComponents.length > 0 && (
+              <TabsTrigger
+                value="archived"
+                className="h-auto flex-none px-0 pt-1 pb-0 text-base font-display font-bold data-active:bg-transparent"
+              >
+                {dict.bikes.detail.archivedTab}
+                <span className="-ml-0.5 font-normal text-muted-foreground">
+                  ({archivedComponents.length})
+                </span>
+              </TabsTrigger>
+            )}
           </TabsList>
           <div className="hidden sm:block">{addComponentButton}</div>
         </div>
@@ -572,6 +587,66 @@ export default async function BikeDetailPage({
                 headLabel={canSeeTimeline ? undefined : dict.bikes.detail.timelinePreview.demo}
               />
             </div>
+          </div>
+        </TabsContent>
+
+        {/* No plan gate, unlike the timeline. Archiving is the gentle way out of
+            a worn part, and charging for the only place you can see what you
+            archived pushes a Free rider straight back to deleting. */}
+        <TabsContent value="archived">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {archivedComponents.map((component) => {
+              // Frozen at the moment it came off: the bike's total then, less
+              // the baseline it started from.
+              const finalKm =
+                component.bike_km_at_retire != null && component.bike_km_at_install != null
+                  ? component.bike_km_at_retire - component.bike_km_at_install
+                  : null;
+              const finalHours =
+                component.bike_hours_at_retire != null && component.bike_hours_at_install != null
+                  ? component.bike_hours_at_retire - component.bike_hours_at_install
+                  : null;
+              const measures = [
+                finalKm != null ? formatDistance(finalKm, distanceUnit, locale) : null,
+                finalHours != null ? formatHours(finalHours, locale) : null,
+              ].filter((m): m is string => m != null);
+              return (
+                <Link
+                  key={component.id}
+                  href={`/bikes/${bike.id}/components/${component.id}`}
+                  className={cn(
+                    "flex items-center gap-4 rounded-[20px] bg-card px-5 py-4 sm:px-6",
+                    CLICKABLE_CARD_HOVER
+                  )}
+                >
+                  <BadgedCategoryIcon
+                    category={component.category}
+                    badge={<Ban className="size-3" strokeWidth={3} />}
+                    badgeStyle="bg-foreground text-background"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] leading-tight text-muted-foreground">
+                      {[formatDate(component.retired_at as string), categoryLabel(dict, component.category)]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                    <p className="mt-1 truncate font-display text-[18px] leading-tight font-semibold">
+                      {component.name}
+                    </p>
+                    <span className="mt-2 inline-block rounded-full bg-muted px-2.5 py-1 text-[11px] leading-none font-semibold tracking-wide text-muted-foreground">
+                      {dict.bikes.detail.archivedPill}
+                    </span>
+                  </div>
+                  {measures.length > 0 && (
+                    <div className="flex shrink-0 flex-col items-end gap-0.5">
+                      {measures.map((m) => (
+                        <Measure key={m} text={m} />
+                      ))}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>

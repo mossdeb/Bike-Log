@@ -271,6 +271,19 @@ const en = {
       warrantyExpired: "Warranty Expired",
       componentInstalled: "Installation",
       componentArchived: "Archived",
+      archivedTab: "Archived",
+      archivedPill: "ARCHIVED",
+      noArchivedYet: "Nothing archived on this bike yet.",
+      archiveAction: "Archive component",
+      archiveConfirmTitle: "Archive this component?",
+      archiveConfirmDesc: (name: string) =>
+        `${name} comes off the bike. Its history and figures are kept, it stops counting towards the bike's health and towards your plan, and no more reminders are sent for it. You can put it back at any time.`,
+      archiveConfirm: "Archive",
+      restoreAction: "Put back on the bike",
+      restoreConfirmTitle: "Put this component back?",
+      restoreConfirmDesc: (name: string) =>
+        `${name} goes back into service and starts counting again from the reading it left on. The distance the bike covered without it is not added to it.`,
+      restoreConfirm: "Put back",
       timelineLocked: "Timeline is not available on the Free plan",
       timelinePreview: {
         demo: "Demo",
@@ -432,8 +445,12 @@ const en = {
       cancel: "Cancel",
       saveNew: "Save component",
       saveEdit: "Save changes",
+      archiveTitle: "Archive this component",
+      archiveDesc: (name: string) =>
+        `Takes ${name} off the bike and keeps everything it did there. You can put it back at any time.`,
       deleteTitle: "Delete this component",
       deleteDesc: (name: string) => `Permanently deletes ${name} and its maintenance history. This can't be undone.`,
+      deleteOrArchive: "If the part is simply worn out, archive it instead — the history is kept.",
       deleteConfirmTitle: "Delete this component?",
       deleteConfirmDesc: (name: string) => `This permanently deletes "${name}" and its maintenance history.`,
       deleteButton: "Delete component",

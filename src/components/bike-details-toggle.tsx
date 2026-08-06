@@ -2,8 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 import { ChevronDown, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Collapsible } from "@/components/collapsible";
 
 /** Mobile-only compact/expanded toggle for bike details. Desktop always
  * renders the full details grid inline in the header row instead.
@@ -48,20 +48,6 @@ export function BikeDetailsToggle({
           </Button>
         </div>
       </Collapsible>
-    </div>
-  );
-}
-
-function Collapsible({ show, children }: { show: boolean; children: ReactNode }) {
-  return (
-    <div
-      inert={!show}
-      className={cn(
-        "grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none",
-        show ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-      )}
-    >
-      <div className="overflow-hidden">{children}</div>
     </div>
   );
 }

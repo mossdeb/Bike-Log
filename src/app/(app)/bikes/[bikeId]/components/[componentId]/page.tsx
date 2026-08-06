@@ -152,6 +152,7 @@ export default async function ComponentDetailPage({
       category={component.category}
       badge={<Ban className="size-3" strokeWidth={3} />}
       badgeStyle="bg-foreground text-background"
+      dimmed
     />
   ) : (
     <ComponentIcon size="flat" icon={COMPONENT_CATEGORY_ICON[component.category as ComponentCategory]} />
@@ -275,8 +276,11 @@ export default async function ComponentDetailPage({
             {componentGlyph}
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-display font-bold">{component.name}</h1>
+              {/* No bike name here: the tab peeking out above the card already
+                  says it, and repeating it costs the line the room the brand
+                  and model need before it truncates. */}
               <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                {[bike.name, categoryLabel(dict, component.category), component.brand, component.model].filter(Boolean).join(" · ") ||
+                {[categoryLabel(dict, component.category), component.brand, component.model].filter(Boolean).join(" · ") ||
                   dict.bikes.noDetailsYet}
               </p>
             </div>

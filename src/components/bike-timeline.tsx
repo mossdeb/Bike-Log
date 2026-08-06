@@ -112,6 +112,7 @@ function ComponentMilestoneCard({
   measures,
   badge,
   badgeStyle,
+  dimmed,
 }: {
   href: string;
   category: string | null;
@@ -119,6 +120,7 @@ function ComponentMilestoneCard({
   date: string;
   label: string;
   measures: string[];
+  dimmed?: boolean;
   badge: React.ReactNode;
   badgeStyle: string;
 }) {
@@ -130,7 +132,7 @@ function ComponentMilestoneCard({
         CLICKABLE_CARD_HOVER
       )}
     >
-      <BadgedCategoryIcon category={category} badge={badge} badgeStyle={badgeStyle} />
+      <BadgedCategoryIcon category={category} badge={badge} badgeStyle={badgeStyle} dimmed={dimmed} />
       <div className="flex flex-col items-center gap-0.5">
         <p className="text-[13px] leading-tight text-muted-foreground">{formatDate(date)}</p>
         <p className="text-[16px] leading-tight font-semibold">
@@ -277,6 +279,7 @@ export function BikeTimeline({
                   // work, and none of those three greens and purples mean "done".
                   badge={<Ban className="size-3" strokeWidth={3} />}
                   badgeStyle="bg-foreground text-background"
+                  dimmed
                   // What the part finished on, frozen when it came off.
                   measures={[
                     event.km != null ? formatDistance(event.km, distanceUnit, locale) : null,

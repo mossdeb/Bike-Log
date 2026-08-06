@@ -18,17 +18,22 @@ export function BadgedCategoryIcon({
   category,
   badge,
   badgeStyle,
+  dimmed,
 }: {
   category: string | null;
   badge: React.ReactNode;
   badgeStyle: string;
+  /** Fades the part itself — used for an archived one, so it reads as out of
+   * service before any label is. The badge deliberately keeps its full weight:
+   * it is the mark saying so, and fading it too would blur the very signal. */
+  dimmed?: boolean;
 }) {
   return (
     <span className="relative shrink-0">
       <ComponentIcon
         size="flat"
         icon={COMPONENT_CATEGORY_ICON[category as ComponentCategory]}
-        className="size-11"
+        className={cn("size-11", dimmed && "text-foreground/30")}
       />
       {/* Ringed in the card's own colour so the badge reads as sitting on top
           of the icon rather than merging into its outline. */}

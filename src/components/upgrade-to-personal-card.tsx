@@ -1,6 +1,22 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { Check } from "lucide-react";
+import { BillingIntervalToggle } from "@/components/billing-interval-toggle";
 import { createCheckoutSession } from "@/lib/actions/billing";
+import type { BillingInterval } from "@/lib/plans";
+
+/** Yearly pricing, when the caller wants the card to offer the choice. The
+ * compact variant ignores it: that whole banner is one submit button, and a
+ * toggle inside it would be a button nested in a button. */
+type YearlyOption = {
+  price: string;
+  priceUnit: string;
+  monthlyLabel: string;
+  yearlyLabel: string;
+  savingLabel: string;
+};
 
 export function UpgradeToPersonalCard({
   heading,
@@ -10,6 +26,7 @@ export function UpgradeToPersonalCard({
   priceUnit,
   cta,
   compact,
+  yearly,
 }: {
   heading: string;
   feature1: string;
@@ -18,7 +35,11 @@ export function UpgradeToPersonalCard({
   priceUnit: string;
   cta: string;
   compact?: boolean;
+  yearly?: YearlyOption;
 }) {
+  const [interval, setInterval] = useState<BillingInterval>("month");
+  const showYearly = Boolean(yearly) && interval === "year";
+
   if (compact) {
     return (
       <div className="border-t border-border p-3">
@@ -93,13 +114,31 @@ export function UpgradeToPersonalCard({
             </li>
           </ul>
           <div className="shrink-0 rounded-[12px] bg-white px-2 py-3 text-center">
-            <span className="font-display text-2xl font-extrabold text-[#101014]">{price}</span>
-            <span className="ml-1 text-sm text-[#101014]/60">{priceUnit}</span>
+            <span className="font-display text-2xl font-extrabold text-[#101014]">
+              {showYearly && yearly ? yearly.price : price}
+            </span>
+            <span className="ml-1 text-sm text-[#101014]/60">
+              {showYearly && yearly ? yearly.priceUnit : priceUnit}
+            </span>
           </div>
         </div>
 
+        {yearly && (
+          <div className="mt-6 flex justify-center">
+            <BillingIntervalToggle
+              value={interval}
+              onChange={setInterval}
+              monthlyLabel={yearly.monthlyLabel}
+              yearlyLabel={yearly.yearlyLabel}
+              savingLabel={yearly.savingLabel}
+              tone="onImage"
+            />
+          </div>
+        )}
+
         <form action={createCheckoutSession} className="mt-6">
           <input type="hidden" name="plan" value="personal" />
+          <input type="hidden" name="interval" value={interval} />
           <button
             type="submit"
             className="flex h-[52px] w-full items-center justify-center rounded-full bg-[#101014] text-sm font-semibold text-white transition-colors hover:bg-[#101014]/90"

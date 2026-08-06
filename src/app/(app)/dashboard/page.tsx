@@ -256,6 +256,13 @@ export default async function DashboardPage({
                 price={dict.bikes.upgradePrice}
                 priceUnit={dict.bikes.upgradePriceUnit}
                 cta={dict.bikes.upgradeCta}
+                yearly={{
+                  price: dict.bikes.upgradePriceYearly,
+                  priceUnit: dict.bikes.upgradePriceUnitYearly,
+                  monthlyLabel: dict.settings.billing.intervalMonthly,
+                  yearlyLabel: dict.settings.billing.intervalYearly,
+                  savingLabel: dict.settings.billing.intervalSaving,
+                }}
               />
             )}
           </BikeCarousel>

@@ -156,6 +156,13 @@ export default async function BikesPage() {
                 price={dict.bikes.upgradePrice}
                 priceUnit={dict.bikes.upgradePriceUnit}
                 cta={dict.bikes.upgradeCta}
+                yearly={{
+                  price: dict.bikes.upgradePriceYearly,
+                  priceUnit: dict.bikes.upgradePriceUnitYearly,
+                  monthlyLabel: dict.settings.billing.intervalMonthly,
+                  yearlyLabel: dict.settings.billing.intervalYearly,
+                  savingLabel: dict.settings.billing.intervalSaving,
+                }}
               />
               <div className="hidden rounded-lg bg-card/30 lg:block" />
             </>

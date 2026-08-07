@@ -63,7 +63,11 @@ export const PLAN_PRODUCT_IDS: Record<PaidPlan, string> = {
   pro: process.env.STRIPE_PRODUCT_PRO ?? "",
 };
 
-export const PRODUCT_TO_PLAN: Record<string, PaidPlan> = {
-  [PLAN_PRODUCT_IDS.personal]: "personal",
-  [PLAN_PRODUCT_IDS.pro]: "pro",
-};
+/** Empty IDs are dropped, for the same reason they are in PRICE_TO_PLAN — and
+ * here it is the normal case rather than a mistake, since both variables are
+ * optional and going live with them unset is a supported state. */
+export const PRODUCT_TO_PLAN: Record<string, PaidPlan> = Object.fromEntries(
+  (Object.entries(PLAN_PRODUCT_IDS) as [PaidPlan, string][])
+    .filter(([, productId]) => productId)
+    .map(([plan, productId]) => [productId, plan]),
+);

@@ -88,6 +88,17 @@ describe("resolvePlanFromSubscription", () => {
     expect(resolve(subscriptionWith({ id: "price_unknown", product: "" }))).toBeNull();
   });
 
+  // The resolver's own `if (!productId)` guard hides this, so the invariant is
+  // asserted on the map itself: going live with both variables unset is a
+  // supported state, and it must not leave a "" key for someone to trip over.
+  it("builds no blank key in PRODUCT_TO_PLAN when the env vars are unset", async () => {
+    vi.stubEnv("STRIPE_PRODUCT_PERSONAL", "");
+    vi.stubEnv("STRIPE_PRODUCT_PRO", "");
+    vi.resetModules();
+    const { PRODUCT_TO_PLAN } = await import("./plans");
+    expect(Object.keys(PRODUCT_TO_PLAN)).toEqual([]);
+  });
+
   it("returns null for a subscription with no items", async () => {
     const resolve = await loadResolver();
     expect(resolve({ items: { data: [] } } as unknown as Stripe.Subscription)).toBeNull();

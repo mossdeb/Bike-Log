@@ -66,7 +66,7 @@ export default async function SignupPage({
       <form action={signup} className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" type="text" placeholder="Miguel Gomes" required />
+          <Input id="name" name="name" type="text" placeholder="Rider Name" required />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="email">Email</Label>

@@ -28,7 +28,6 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
   const sent: string[] = [];
   const isWeeklySummaryDay = new Date().getUTCDay() === 1; // Monday
-  const siteUrl = new URL(request.url).origin;
 
   let page = 1;
   const perPage = 200;
@@ -273,7 +272,6 @@ export async function GET(request: Request) {
                     ? { kind: "amount", amount: amountDetail }
                     : { kind: "date", date: nextDueDate! },
                   componentUrl,
-                  siteUrl,
                 })
               : sendOverdueEmail({
                   to: user.email!,
@@ -285,7 +283,6 @@ export async function GET(request: Request) {
                     : { kind: "days", days: Math.abs(daysRemaining ?? 0) },
                   isPastDue,
                   componentUrl,
-                  siteUrl,
                 })
           ),
           deliver("push", type === "due_soon" ? pushDueSoon : pushOverdue, () =>
@@ -328,7 +325,6 @@ export async function GET(request: Request) {
             locale,
             overdue: overdueItems,
             dueSoon: dueSoonItems,
-            siteUrl,
           });
           if (wasSent) {
             await admin.from("notification_log").insert({ user_id: user.id, component_id: null, type: "weekly_summary" });

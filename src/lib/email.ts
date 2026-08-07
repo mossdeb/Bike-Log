@@ -3,10 +3,19 @@ import { getDictionary, type Locale } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
 
 const FROM = "Bikit <hello@mail.bikit.app>";
-// Absolute and hardcoded rather than derived from the request's origin: an
-// email sent from a local run or a preview deployment would otherwise point
-// the logo at a host the recipient's mail client can't reach, and show a
-// broken image. Links can be origin-relative — the logo can't.
+// Absolute and hardcoded rather than derived from the request's origin.
+//
+// Everything in an email is read somewhere else, on a host the sender never
+// sees, so nothing in here may depend on where the request came from. That was
+// already true of the logo — a local run pointed it at localhost and the image
+// came through broken — and it is just as true of the links: the daily cron is
+// invoked by Vercel at the deployment's own URL, which sits behind Deployment
+// Protection, so every link built from that origin landed the reader on a
+// Vercel login page.
+//
+// www because bikit.app 308s to it, and a link that starts one hop late costs
+// nothing to write correctly.
+const SITE_URL = "https://www.bikit.app";
 const LOGO_URL = "https://bikit.app/icons/icon-192.png";
 
 // Constructed lazily (and only once RESEND_API_KEY exists) so the app and
@@ -50,7 +59,6 @@ export async function sendDueSoonEmail(params: {
   bikeName: string;
   detail: { kind: "date"; date: string } | { kind: "amount"; amount: string };
   componentUrl: string;
-  siteUrl: string;
 }): Promise<boolean> {
   const client = getResendClient();
   if (!client) return false;
@@ -64,7 +72,7 @@ export async function sendDueSoonEmail(params: {
     dict.dueSoon.heading,
     `<p style="margin:0;font-size:15px;line-height:1.5;">${detailText}</p>`,
     dict.cta,
-    `${params.siteUrl}${params.componentUrl}`,
+    `${SITE_URL}${params.componentUrl}`,
     dict.footer
   );
   const { error } = await client.emails.send({
@@ -84,7 +92,6 @@ export async function sendOverdueEmail(params: {
   detail: { kind: "days"; days: number } | { kind: "amount"; amount: string };
   isPastDue: boolean;
   componentUrl: string;
-  siteUrl: string;
 }): Promise<boolean> {
   const client = getResendClient();
   if (!client) return false;
@@ -98,7 +105,7 @@ export async function sendOverdueEmail(params: {
     dict.overdue.heading,
     `<p style="margin:0;font-size:15px;line-height:1.5;">${detailText}</p>`,
     dict.cta,
-    `${params.siteUrl}${params.componentUrl}`,
+    `${SITE_URL}${params.componentUrl}`,
     dict.footer
   );
   const { error } = await client.emails.send({
@@ -122,7 +129,6 @@ export async function sendWeeklySummaryEmail(params: {
   locale: Locale;
   overdue: WeeklySummaryItem[];
   dueSoon: WeeklySummaryItem[];
-  siteUrl: string;
 }): Promise<boolean> {
   const client = getResendClient();
   if (!client) return false;
@@ -134,7 +140,7 @@ export async function sendWeeklySummaryEmail(params: {
     const rows = items
       .map(
         (item) =>
-          `<li style="margin-bottom:8px;"><a href="${params.siteUrl}${item.url}" style="color:#101014;text-decoration:none;font-weight:600;">${item.componentName}</a> — ${item.bikeName} <span style="color:#8a8d93;">(${item.detail})</span></li>`
+          `<li style="margin-bottom:8px;"><a href="${SITE_URL}${item.url}" style="color:#101014;text-decoration:none;font-weight:600;">${item.componentName}</a> — ${item.bikeName} <span style="color:#8a8d93;">(${item.detail})</span></li>`
       )
       .join("");
     return `<h2 style="font-size:14px;margin:20px 0 8px;">${title}</h2><ul style="margin:0;padding-left:18px;font-size:14px;">${rows}</ul>`;
@@ -151,7 +157,7 @@ export async function sendWeeklySummaryEmail(params: {
     dict.weeklySummary.heading,
     body,
     dict.cta,
-    `${params.siteUrl}/dashboard`,
+    `${SITE_URL}/dashboard`,
     dict.footer
   );
 

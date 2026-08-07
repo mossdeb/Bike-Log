@@ -95,16 +95,23 @@ const pt: LandingDictionary = {
   howItWorks: {
     badge: "Como funciona",
     title: "A postos em três passos",
-    subtitle: "Sem configuração complicada — começas a registar em menos de dois minutos.",
+    subtitle: "Começa em menos de dois minutos.",
+    // The closing half of the subtitle, set in bold. Kept as its own string
+    // because these dictionaries carry no markup — the component decides what
+    // is emphasised, the same way the landing already splits its other copy.
+    subtitleStrong: "A BIKIT trata do resto.",
     steps: [
-      { title: "Adiciona a tua bicicleta", description: "Nome, marca, modelo e tipo. Uma ficha por bicicleta, pronta em segundos." },
       {
-        title: "Regista os componentes",
-        description: "O que tens montado, desde quando, e com que intervalo de manutenção.",
+        title: "Adiciona a tua bicicleta",
+        description: "Cria uma ficha para cada bicicleta e começa a acompanhar toda a manutenção.",
       },
       {
-        title: "Deixa o Bikit vigiar",
-        description: "Recebe alertas quando algo se aproxima do limite e mantém o histórico atualizado.",
+        title: "Liga ao Strava",
+        description: "Os quilómetros são atualizados automaticamente após cada atividade.",
+      },
+      {
+        title: "Recebe alertas",
+        description: "Recebe alertas antes do próximo serviço e mantém a bicicleta sempre pronta.",
       },
     ],
   },

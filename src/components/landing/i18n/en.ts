@@ -93,16 +93,23 @@ const en = {
   howItWorks: {
     badge: "How it works",
     title: "Up and running in three steps",
-    subtitle: "No complicated setup — start logging in under two minutes.",
+    subtitle: "Get going in under two minutes.",
+    // The closing half of the subtitle, set in bold. Kept as its own string
+    // because these dictionaries carry no markup — the component decides what
+    // is emphasised, the same way the landing already splits its other copy.
+    subtitleStrong: "BIKIT takes it from there.",
     steps: [
-      { title: "Add your bike", description: "Name, brand, model, and type. One profile per bike, ready in seconds." },
       {
-        title: "Log your components",
-        description: "What's installed, since when, and at what maintenance interval.",
+        title: "Add your bike",
+        description: "Create a profile for each bike and start tracking all of its maintenance.",
       },
       {
-        title: "Let Bikit keep watch",
-        description: "Get alerted when something's approaching its limit, and keep your history up to date.",
+        title: "Connect Strava",
+        description: "Your distance updates automatically after every ride.",
+      },
+      {
+        title: "Get alerts",
+        description: "Hear about the next service before it is due, and keep the bike ready to ride.",
       },
     ],
   },

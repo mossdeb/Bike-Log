@@ -32,7 +32,7 @@ const tabsListVariants = cva(
         line: "gap-1 bg-transparent",
         // Segmented control: white track, the selected tab as a filled pill.
         // The inverse of `default`, which puts the grey on the track.
-        pill: "gap-1 rounded-full bg-card group-data-horizontal/tabs:h-auto",
+        pill: "relative gap-1 rounded-full bg-card group-data-horizontal/tabs:h-auto",
       },
     },
     defaultVariants: {
@@ -44,6 +44,7 @@ const tabsListVariants = cva(
 function TabsList({
   className,
   variant = "default",
+  children,
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
   return (
@@ -51,6 +52,32 @@ function TabsList({
       data-slot="tabs-list"
       data-variant={variant}
       className={cn(tabsListVariants({ variant }), className)}
+      {...props}
+    >
+      {/* The pill's fill is this one moving element rather than a background on
+          each tab — that's what lets it travel across instead of blinking from
+          one side to the other. It ships with the variant so the two can't drift
+          apart: the triggers paint no background of their own. */}
+      {variant === "pill" && <TabsIndicator />}
+      {children}
+    </TabsPrimitive.List>
+  )
+}
+
+function TabsIndicator({ className, ...props }: TabsPrimitive.Indicator.Props) {
+  return (
+    <TabsPrimitive.Indicator
+      data-slot="tabs-indicator"
+      // Without this the pill is missing until React hydrates, which on a
+      // server-rendered page reads as an unselected control.
+      renderBeforeHydration
+      className={cn(
+        "absolute top-[var(--active-tab-top)] left-0 h-[var(--active-tab-height)] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-muted",
+        // Tailwind v4 animates the `translate` property, not `transform` — a
+        // transition on `transform` here would fade nothing and move instantly.
+        "transition-[translate,width] duration-250 ease-out motion-reduce:transition-none",
+        className
+      )}
       {...props}
     />
   )
@@ -63,9 +90,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       className={cn(
         "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 aria-disabled:pointer-events-none aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
-        // The pill sits on a white track, so the selected state is a shade
-        // darker in light mode and a shade lighter in dark — `muted` is both.
-        "group-data-[variant=pill]/tabs-list:h-auto group-data-[variant=pill]/tabs-list:rounded-full group-data-[variant=pill]/tabs-list:data-active:bg-muted dark:group-data-[variant=pill]/tabs-list:data-active:border-transparent dark:group-data-[variant=pill]/tabs-list:data-active:bg-muted",
+        // The fill belongs to TabsIndicator, so the tab itself stays see-through
+        // and only sits above it — `relative` is already in the base classes.
+        "group-data-[variant=pill]/tabs-list:h-auto group-data-[variant=pill]/tabs-list:rounded-full group-data-[variant=pill]/tabs-list:bg-transparent group-data-[variant=pill]/tabs-list:data-active:bg-transparent dark:group-data-[variant=pill]/tabs-list:data-active:border-transparent dark:group-data-[variant=pill]/tabs-list:data-active:bg-transparent",
         "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
         className
@@ -85,4 +112,4 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   )
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
+export { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator, tabsListVariants }

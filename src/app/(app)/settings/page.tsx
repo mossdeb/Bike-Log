@@ -300,11 +300,13 @@ export default async function SettingsPage({
               icon={<SupportIcon className="h-6 w-auto" />}
               title={dict.settings.about.support.title}
               subtitle={dict.settings.about.support.subtitle}
+              href="/support"
             />
             <AboutRow
               icon={<DocsIcon className="h-6 w-auto" />}
               title={dict.settings.about.docs.title}
               subtitle={dict.settings.about.docs.subtitle}
+              href="/docs"
             />
           </div>
         </SettingsSection>

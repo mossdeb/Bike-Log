@@ -233,6 +233,24 @@ const en = {
         subtitle: "Tips, guides and FAQs",
       },
     },
+    supportPage: {
+      metaTitle: "Help & Support — Bikit",
+      metaDescription: "How to reach Bikit for help, feedback or partnerships.",
+      title: "Help & Support",
+      subtitle: "Write to us and we'll answer as soon as we can.",
+      helpHeading: "Something not working",
+      helpBody:
+        "If something is broken or behaving oddly, tell us what happened and what you were doing at the time — it is what makes a problem quick to find.",
+      ideasHeading: "Ideas and partnerships",
+      ideasBody:
+        "Suggestions for Bikit, feedback on what you use, or a partnership proposal — this is the address for all of it.",
+    },
+    docsPage: {
+      metaTitle: "Documentation — Bikit",
+      metaDescription: "Answers to the questions people ask most about Bikit.",
+      title: "Documentation",
+      subtitle: "The questions people ask most, answered.",
+    },
     dangerZone: {
       title: "Danger zone",
       description: "Permanently delete your account and all logged maintenance data.",

@@ -229,6 +229,24 @@ const pt: Dictionary = {
         subtitle: "Dicas, guias e perguntas frequentes",
       },
     },
+    supportPage: {
+      metaTitle: "Ajuda e suporte — Bikit",
+      metaDescription: "Como falar com a Bikit para pedir ajuda, dar sugestões ou propor parcerias.",
+      title: "Ajuda e suporte",
+      subtitle: "Escreve-nos e respondemos assim que pudermos.",
+      helpHeading: "Alguma coisa não funciona",
+      helpBody:
+        "Se algo está avariado ou a comportar-se de forma estranha, conta-nos o que aconteceu e o que estavas a fazer nesse momento — é o que torna um problema rápido de encontrar.",
+      ideasHeading: "Ideias e parcerias",
+      ideasBody:
+        "Sugestões para a Bikit, opiniões sobre o que usas, ou uma proposta de parceria — é este o endereço para tudo isso.",
+    },
+    docsPage: {
+      metaTitle: "Documentação — Bikit",
+      metaDescription: "Respostas às perguntas mais frequentes sobre a Bikit.",
+      title: "Documentação",
+      subtitle: "As perguntas mais frequentes, respondidas.",
+    },
     dangerZone: {
       title: "Zona de perigo",
       description: "Elimina permanentemente a sua conta e todo o histórico de manutenção registado.",

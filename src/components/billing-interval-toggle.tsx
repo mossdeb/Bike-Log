@@ -12,6 +12,7 @@ export function BillingIntervalToggle({
   yearlyLabel,
   savingLabel,
   tone = "light",
+  disabled = false,
 }: {
   value: BillingInterval;
   onChange: (interval: BillingInterval) => void;
@@ -19,6 +20,8 @@ export function BillingIntervalToggle({
   yearlyLabel: string;
   savingLabel: string;
   tone?: "light" | "onImage";
+  /** Set where the prices below are only being shown, not offered. */
+  disabled?: boolean;
 }) {
   const intervals: BillingInterval[] = ["month", "year"];
 
@@ -36,9 +39,12 @@ export function BillingIntervalToggle({
             type="button"
             onClick={() => onChange(interval)}
             aria-pressed={selected}
+            disabled={disabled}
             // 20px line box + 24px of padding is the 44px touch target the
             // rest of the app holds small controls to.
-            className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-colors ${
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-colors ${
+              disabled ? "cursor-default" : "cursor-pointer"
+            } ${
               selected
                 ? "bg-foreground text-background"
                 : tone === "onImage"

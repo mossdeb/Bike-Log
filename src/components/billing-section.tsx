@@ -16,6 +16,9 @@ export function BillingSection({
 }) {
   const planLabel = { free: dict.free, personal: dict.personal, pro: dict.pro }[subscription.plan];
   const isFree = subscription.plan === "free";
+  /** A paid plan with no Stripe customer behind it — given by hand, not bought.
+   * Everything in this card that hands off to Stripe has nowhere to go. */
+  const comped = !isFree && !subscription.hasBillingAccount;
   const otherPaidPlan = subscription.plan === "personal" ? "pro" : "personal";
   const otherPlanLabel = otherPaidPlan === "pro" ? dict.pro : dict.personal;
 
@@ -43,6 +46,11 @@ export function BillingSection({
           </p>
           {subscription.status === "past_due" ? (
             <p className="mt-0.5 text-xs text-destructive">{dict.pastDue}</p>
+          ) : comped ? (
+            // The stored period end is left alone rather than blanked: it is
+            // simply not this plan's renewal date, because there is nothing
+            // renewing it.
+            <p className="mt-0.5 text-xs text-muted-foreground">{dict.compedPlan}</p>
           ) : (
             subscription.currentPeriodEnd &&
             !isFree && (
@@ -58,7 +66,7 @@ export function BillingSection({
             the same box as it — and a free plan has no billing to manage.
             Neither does a comped one: a paid row with no Stripe customer behind
             it would send the portal looking for someone who doesn't exist. */}
-        {!isFree && subscription.hasBillingAccount && (
+        {!isFree && !comped && (
           <form action={createPortalSession}>
             <Button type="submit" variant="outline" size="sm">
               {dict.manageBilling}
@@ -76,6 +84,9 @@ export function BillingSection({
       ) : (
         <BillingPlanChoice
           options={options}
+          // Both paths out of this box need a Stripe customer, so a comped
+          // account gets the plans shown rather than offered, and a note.
+          disabledNote={comped ? dict.compedPlanNote : undefined}
           confirm={
             isFree
               ? undefined

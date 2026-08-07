@@ -97,6 +97,12 @@ const en = {
       cancelsOn: (date: string): string => `Your plan ends on ${date}. You'll keep access until then.`,
       pastDue: "There's a problem with your last payment. Update your payment method to keep your plan.",
       manageBilling: "Manage billing",
+      // For an account given a paid plan by hand: there is no Stripe customer
+      // behind it, so neither the portal nor a plan switch has anywhere to go.
+      // The label replaces the renewal date, which would promise a renewal that
+      // is never coming; the note explains the greyed-out plans below it.
+      compedPlan: "Complimentary plan",
+      compedPlanNote: "There is no billing attached to this account.",
       upgradeToPersonal: "Upgrade to Personal",
       upgradeToPro: "Upgrade to Pro",
       switchToPersonal: "Switch to Personal",

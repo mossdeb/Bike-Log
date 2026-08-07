@@ -50,6 +50,7 @@ function CardContents({ price, label }: { price: PlanPrice; label: string }) {
 export function BillingPlanChoice({
   options,
   confirm,
+  disabledNote,
   monthlyLabel,
   yearlyLabel,
   savingLabel,
@@ -59,50 +60,68 @@ export function BillingPlanChoice({
    * immediate charge or credit, so it goes through a confirmation rather than
    * straight out to Stripe. */
   confirm?: { title: string; description: string; confirmLabel: string; cancelLabel: string };
+  /** Present when the plans are on show but not on offer — a comped account
+   * has no Stripe customer, so neither path here can run. The note is what
+   * keeps the greyed-out prices from reading as a rendering fault. */
+  disabledNote?: string;
   monthlyLabel: string;
   yearlyLabel: string;
   savingLabel: string;
 }) {
   const [interval, setInterval] = useState<BillingInterval>("month");
+  const disabled = Boolean(disabledNote);
 
   return (
     <div className="space-y-4 rounded-lg border border-border p-4">
-      <div className="flex justify-center">
-        <BillingIntervalToggle
-          value={interval}
-          onChange={setInterval}
-          monthlyLabel={monthlyLabel}
-          yearlyLabel={yearlyLabel}
-          savingLabel={savingLabel}
-        />
-      </div>
+      {/* Dimmed together, and pointer-events off so the cards don't light up
+          under the cursor either — `disabled` alone still leaves :hover. */}
+      <div className={disabled ? "pointer-events-none space-y-4 opacity-40" : "contents"}>
+        <div className="flex justify-center">
+          <BillingIntervalToggle
+            value={interval}
+            onChange={setInterval}
+            monthlyLabel={monthlyLabel}
+            yearlyLabel={yearlyLabel}
+            savingLabel={savingLabel}
+            disabled={disabled}
+          />
+        </div>
 
-      <div className={`grid gap-3 ${options.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
-        {options.map((option, index) =>
-          confirm ? (
-            <SwitchPlanButton
-              key={option.plan}
-              action={switchPlan}
-              plan={option.plan}
-              interval={interval}
-              triggerClassName={cardClassName(index === 0)}
-              triggerLabel={<CardContents price={option.prices[interval]} label={option.label} />}
-              title={confirm.title}
-              description={confirm.description}
-              confirmLabel={confirm.confirmLabel}
-              cancelLabel={confirm.cancelLabel}
-            />
-          ) : (
-            <form key={option.plan} action={createCheckoutSession} className="contents">
-              <input type="hidden" name="plan" value={option.plan} />
-              <input type="hidden" name="interval" value={interval} />
-              <button type="submit" className={cardClassName(index === 0)}>
+        <div className={`grid gap-3 ${options.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+          {options.map((option, index) =>
+            disabled ? (
+              <button key={option.plan} type="button" disabled className={cardClassName(index === 0)}>
                 <CardContents price={option.prices[interval]} label={option.label} />
               </button>
-            </form>
-          ),
-        )}
+            ) : confirm ? (
+              <SwitchPlanButton
+                key={option.plan}
+                action={switchPlan}
+                plan={option.plan}
+                interval={interval}
+                triggerClassName={cardClassName(index === 0)}
+                triggerLabel={<CardContents price={option.prices[interval]} label={option.label} />}
+                title={confirm.title}
+                description={confirm.description}
+                confirmLabel={confirm.confirmLabel}
+                cancelLabel={confirm.cancelLabel}
+              />
+            ) : (
+              <form key={option.plan} action={createCheckoutSession} className="contents">
+                <input type="hidden" name="plan" value={option.plan} />
+                <input type="hidden" name="interval" value={interval} />
+                <button type="submit" className={cardClassName(index === 0)}>
+                  <CardContents price={option.prices[interval]} label={option.label} />
+                </button>
+              </form>
+            ),
+          )}
+        </div>
       </div>
+
+      {/* Full strength on purpose: it is the one thing here that has to be
+          read, and dimming it with the cards would defeat the point. */}
+      {disabledNote && <p className="text-center text-xs text-muted-foreground">{disabledNote}</p>}
     </div>
   );
 }

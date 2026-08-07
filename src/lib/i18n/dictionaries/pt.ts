@@ -98,6 +98,8 @@ const pt: Dictionary = {
       cancelsOn: (date: string): string => `O seu plano termina a ${date}. Mantém o acesso até lá.`,
       pastDue: "Há um problema com o seu último pagamento. Atualize o método de pagamento para manter o seu plano.",
       manageBilling: "Gerir faturação",
+      compedPlan: "Plano oferecido",
+      compedPlanNote: "Não há faturação associada a esta conta.",
       upgradeToPersonal: "Mudar para Pessoal",
       upgradeToPro: "Mudar para Pro",
       switchToPersonal: "Mudar para Pessoal",

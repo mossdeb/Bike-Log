@@ -168,12 +168,17 @@ export function LandingFeatures({ dict }: { dict: LandingDictionary["features"] 
           {/* Card 3 - light */}
           <div className="grid grid-cols-1 items-center gap-10 rounded-[32px] border border-[#E9EBF6] bg-[#E9EBF6] p-6 sm:p-12 md:grid-cols-2">
             <div className="relative pt-8">
-              <div className="absolute -top-2 left-10 z-10 flex items-center gap-2.5 rounded-[15px] bg-white p-3.5 shadow-xl">
-                <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#F1F1F1]">
+              {/* Everything inside is `whitespace-nowrap`, so the card is as
+                  wide as its content and takes no notice of the 293px column
+                  it floats over. At 375px that ran 21px past the window and
+                  gave the whole page a horizontal scrollbar. It keeps its size
+                  and its offset from sm; below that it shrinks and tucks in. */}
+              <div className="absolute -top-2 left-2 z-10 flex items-center gap-2 rounded-[15px] bg-white p-2.5 shadow-xl sm:left-10 sm:gap-2.5 sm:p-3.5">
+                <span className="flex h-7 w-7 items-center justify-center rounded-[10px] bg-[#F1F1F1] sm:h-8 sm:w-8">
                   <img src="/landing/icons/shock.svg" alt="" className="h-3.5 w-3.5" />
                 </span>
-                <p className="whitespace-nowrap text-sm font-bold text-[#101014]">{dict.card3.badgeName}</p>
-                <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#2E9E5B]/[0.13] px-2.5 py-1 text-xs font-bold text-[#2E9E5B]">
+                <p className="whitespace-nowrap text-xs font-bold text-[#101014] sm:text-sm">{dict.card3.badgeName}</p>
+                <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#2E9E5B]/[0.13] px-2 py-1 text-[11px] font-bold text-[#2E9E5B] sm:px-2.5 sm:text-xs">
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
                   {dict.card3.badgeStatus}
                 </span>

@@ -407,7 +407,7 @@ export default async function BikeDetailPage({
           <TabsList variant="pill">
             <TabsTrigger
               value="components"
-              className="flex-none px-4 py-1.5 text-base font-display font-medium text-foreground/70"
+              className="flex-none px-5 py-[7px] text-base font-display font-medium text-foreground/70"
             >
               {dict.bikes.detail.componentsTitle}
               {components && components.length > 0 && (
@@ -418,7 +418,7 @@ export default async function BikeDetailPage({
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
-              className="flex-none px-4 py-1.5 text-base font-display font-medium text-foreground/70"
+              className="flex-none px-5 py-[7px] text-base font-display font-medium text-foreground/70"
             >
               {dict.bikes.detail.timelineTab}
             </TabsTrigger>

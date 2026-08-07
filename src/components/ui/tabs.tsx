@@ -106,7 +106,15 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
-      className={cn("flex-1 text-sm outline-none", className)}
+      className={cn(
+        "flex-1 text-sm outline-none",
+        // Base UI unmounts the panel that isn't showing, so the incoming one is
+        // always a fresh mount and this enter animation runs on every switch.
+        // Nothing can fade *out* for the same reason — the old panel is already
+        // gone — which is why this is a plain fade and not a crossfade.
+        "animate-in fade-in duration-200 ease-out motion-reduce:animate-none",
+        className
+      )}
       {...props}
     />
   )

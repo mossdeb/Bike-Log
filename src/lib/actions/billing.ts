@@ -15,6 +15,29 @@ function readInterval(formData: FormData): BillingInterval {
   return formData.get("interval") === "year" ? "year" : "month";
 }
 
+/**
+ * Runs a Stripe call and turns a rejection into `null` plus a log line.
+ *
+ * Every action here already answers its foreseeable failures with a message on
+ * /settings — unknown plan, no billing account, no subscription to switch. The
+ * calls to Stripe answered theirs with a 500 and the generic error page, which
+ * is the worst of both: the reader learns nothing and neither do we, unless
+ * someone goes reading platform logs. It is not a rare path either. Going live
+ * sent live price IDs with the test key still in place, and every upgrade in
+ * production broke that way until the key was swapped.
+ *
+ * Only the Stripe call goes inside. `redirect()` works by throwing, so wrapping
+ * a block that contains one would swallow the redirect itself.
+ */
+async function fromStripe<T>(what: string, run: () => Promise<T>): Promise<T | null> {
+  try {
+    return await run();
+  } catch (error) {
+    console.error(`[billing] ${what}`, error);
+    return null;
+  }
+}
+
 export async function createCheckoutSession(formData: FormData) {
   const supabase = await createClient();
   const { data: userData } = await supabase.auth.getClaims();
@@ -26,13 +49,17 @@ export async function createCheckoutSession(formData: FormData) {
     redirect("/settings?error=Unknown plan");
   }
 
-  const url = await createCheckoutSessionUrl({
-    userId: user.sub as string,
-    email: user.email as string | undefined,
-    plan,
-    interval: readInterval(formData),
-    origin: (await headers()).get("origin"),
-  });
+  const interval = readInterval(formData);
+  const origin = (await headers()).get("origin");
+  const url = await fromStripe("could not create the checkout session", () =>
+    createCheckoutSessionUrl({
+      userId: user.sub as string,
+      email: user.email as string | undefined,
+      plan,
+      interval,
+      origin,
+    })
+  );
 
   if (!url) redirect("/settings?error=Could not start checkout");
   redirect(url);
@@ -58,11 +85,15 @@ export async function createPortalSession() {
   }
 
   const stripe = getStripeClient();
-  const session = await stripe.billingPortal.sessions.create({
-    customer: sub.stripe_customer_id,
-    return_url: `${origin}/settings`,
-  });
+  const session = await fromStripe("could not open the billing portal", () =>
+    stripe.billingPortal.sessions.create({
+      // Non-null past the guard above; the closure loses the narrowing.
+      customer: sub.stripe_customer_id!,
+      return_url: `${origin}/settings`,
+    })
+  );
 
+  if (!session) redirect("/settings?error=Could not open billing right now");
   redirect(session.url);
 }
 
@@ -88,7 +119,10 @@ export async function reactivateSubscription() {
   }
 
   const stripe = getStripeClient();
-  await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: false });
+  const revived = await fromStripe("could not reactivate the subscription", () =>
+    stripe.subscriptions.update(sub.stripe_subscription_id!, { cancel_at_period_end: false })
+  );
+  if (!revived) redirect("/settings?error=Could not reactivate your plan");
 
   // Reflect it immediately rather than waiting on the webhook round trip.
   await admin
@@ -131,8 +165,10 @@ export async function switchPlan(formData: FormData) {
   }
 
   const stripe = getStripeClient();
-  const subscription = await stripe.subscriptions.retrieve(sub.stripe_subscription_id);
-  const item = subscription.items.data[0];
+  const subscription = await fromStripe("could not read the subscription to switch", () =>
+    stripe.subscriptions.retrieve(sub.stripe_subscription_id!)
+  );
+  const item = subscription?.items.data[0];
   if (!item) redirect("/settings?error=Could not find your subscription item");
 
   const interval: BillingInterval = formData.has("interval")
@@ -146,10 +182,15 @@ export async function switchPlan(formData: FormData) {
     redirect("/settings?error=That billing period is not available yet");
   }
 
-  await stripe.subscriptions.update(sub.stripe_subscription_id, {
-    items: [{ id: item.id, price: priceId }],
-    proration_behavior: "create_prorations",
-  });
+  const switched = await fromStripe("could not switch the plan", () =>
+    stripe.subscriptions.update(sub.stripe_subscription_id!, {
+      items: [{ id: item.id, price: priceId }],
+      proration_behavior: "create_prorations",
+    })
+  );
+  // The row is only moved once Stripe has actually moved: writing the new plan
+  // after a failed update would hand out a plan nobody is paying for.
+  if (!switched) redirect("/settings?error=Could not change your plan");
 
   // Reflect it immediately rather than waiting on the webhook round trip.
   await admin.from("subscriptions").update({ plan }).eq("user_id", user.sub as string);

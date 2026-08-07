@@ -70,33 +70,6 @@ function AlertRow({
 }
 
 export function LandingFeatures({ dict }: { dict: LandingDictionary["features"] }) {
-  const historyEntries = [
-    {
-      date: "22 Jul",
-      tag: dict.card3.entry1Tag,
-      tagColor: "bg-[#6F5BE9] text-white",
-      title: dict.card3.entry1Title,
-      note: dict.card3.entry1Note,
-      icon: "/landing/icons/badge-service.svg",
-    },
-    {
-      date: "12 May",
-      tag: dict.card3.entry2Tag,
-      tagColor: "bg-[#101014] text-white",
-      title: dict.card3.entry2Title,
-      note: "",
-      icon: "/landing/icons/badge-swap.svg",
-    },
-    {
-      date: "10 Jan",
-      tag: dict.card3.entry3Tag,
-      tagColor: "bg-[#43F3AF] text-[#101014]",
-      title: dict.card3.entry3Title,
-      note: "",
-      icon: "/landing/icons/badge-repair.svg",
-    },
-  ];
-
   return (
     <section id="funcionalidades" className="bg-white px-4 py-16 sm:px-8 md:py-24">
       <div className="mx-auto max-w-[1160px]">
@@ -165,44 +138,32 @@ export function LandingFeatures({ dict }: { dict: LandingDictionary["features"] 
             </div>
           </div>
 
-          {/* Card 3 - light */}
-          <div className="grid grid-cols-1 items-center gap-10 rounded-[32px] border border-[#E9EBF6] bg-[#E9EBF6] p-6 sm:p-12 md:grid-cols-2">
-            <div className="relative pt-8">
-              {/* Everything inside is `whitespace-nowrap`, so the card is as
-                  wide as its content and takes no notice of the 293px column
-                  it floats over. At 375px that ran 21px past the window and
-                  gave the whole page a horizontal scrollbar. It keeps its size
-                  and its offset from sm; below that it shrinks and tucks in. */}
-              <div className="absolute -top-2 left-2 z-10 flex items-center gap-2 rounded-[15px] bg-white p-2.5 shadow-xl sm:left-10 sm:gap-2.5 sm:p-3.5">
-                <span className="flex h-7 w-7 items-center justify-center rounded-[10px] bg-[#F1F1F1] sm:h-8 sm:w-8">
-                  <img src="/landing/icons/shock.svg" alt="" className="h-3.5 w-3.5" />
-                </span>
-                <p className="whitespace-nowrap text-xs font-bold text-[#101014] sm:text-sm">{dict.card3.badgeName}</p>
-                <span className="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#2E9E5B]/[0.13] px-2 py-1 text-[11px] font-bold text-[#2E9E5B] sm:px-2.5 sm:text-xs">
-                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                  {dict.card3.badgeStatus}
-                </span>
-              </div>
-              <div className="rounded-[22px] bg-white p-5 shadow-lg">
-                <p className="mb-2 text-sm font-bold text-[#101014]">{dict.card3.panelTitle}</p>
-                <div className="mt-2 divide-y divide-[#101014]/[0.06]">
-                  {historyEntries.map((entry) => (
-                    <div key={entry.title} className="flex items-center gap-3 py-3">
-                      <span className="flex h-9 w-14 shrink-0 items-center justify-center rounded-lg bg-[#F1F1F1] text-xs font-bold text-[#101014]">
-                        {entry.date}
-                      </span>
-                      <div>
-                        <span className={`mb-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${entry.tagColor}`}>
-                          <img src={entry.icon} alt="" className="h-2.5 w-2.5" />
-                          {entry.tag}
-                        </span>
-                        <p className="text-sm font-bold text-[#101014]">{entry.title}</p>
-                        {entry.note && <p className="text-xs text-[#8A8D93]">{entry.note}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          {/* Card 3 - light. The phone runs off the bottom edge and is cut by
+              it. It has to overflow to be cut: the card is as tall as its
+              tallest child, so a bigger phone would simply make a bigger card.
+              The negative margin shortens the layout box without shortening the
+              image, and `overflow-hidden` does the cutting.
+
+              Only from md, which is where the two columns appear. Stacked, the
+              order is image-then-text, and a picture sliced through the middle
+              of the card would read as a loading fault rather than a crop. */}
+          <div className="grid grid-cols-1 items-center gap-10 overflow-hidden rounded-[32px] border border-[#E9EBF6] bg-[#E9EBF6] p-6 pb-0 sm:p-12 sm:pb-0 md:h-[446px] md:grid-cols-2 md:pb-12">
+            {/* The phone is always out of flow, which is what lets it be cut:
+                a grid row is as tall as its tallest item, so in flow it would
+                stretch the row to its own 600-odd pixels and there would be
+                nothing to cut it. Stacked, this column carries a height of its
+                own and clips; from md it fills the card's fixed height and the
+                card does the clipping, so the crop follows the rounded corner.
+
+                Stacked, it reads text first and picture underneath, so the
+                column is ordered last below md — the crop then lands on the
+                card's bottom edge rather than mid-card. */}
+            <div className="relative order-last h-[360px] overflow-hidden md:order-none md:h-full md:overflow-visible">
+              <img
+                src="/landing/images/history-phone.webp"
+                alt=""
+                className="absolute top-6 left-1/2 block w-full max-w-[240px] -translate-x-1/2"
+              />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="font-[family-name:var(--font-landing-heading)] text-2xl font-bold leading-snug text-[#101014] sm:text-[28px]">

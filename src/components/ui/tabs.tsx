@@ -74,9 +74,12 @@ function TabsIndicator({ className, ...props }: TabsPrimitive.Indicator.Props) {
       // server-rendered page reads as an unselected control.
       renderBeforeHydration
       className={cn(
-        // Plain white rather than a token: it rides on `sidebar`, which does
-        // not change between themes, so neither can this.
-        "absolute top-[var(--active-tab-top)] left-0 h-[var(--active-tab-height)] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-white",
+        // The page's light background colour, written out rather than taken
+        // from `--background`: it rides on `sidebar`, which is the same dark in
+        // both themes, so the pill has to be too. `bg-background` would follow
+        // the theme down to #17181b and vanish into the track, taking the
+        // near-black label with it.
+        "absolute top-[var(--active-tab-top)] left-0 h-[var(--active-tab-height)] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-[#EFEFEF]",
         // Tailwind v4 animates the `translate` property, not `transform` — a
         // transition on `transform` here would fade nothing and move instantly.
         "transition-[translate,width] duration-250 ease-out motion-reduce:transition-none",

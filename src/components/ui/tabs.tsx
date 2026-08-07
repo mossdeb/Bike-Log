@@ -30,9 +30,11 @@ const tabsListVariants = cva(
       variant: {
         default: "bg-muted",
         line: "gap-1 bg-transparent",
-        // Segmented control: white track, the selected tab as a filled pill.
-        // The inverse of `default`, which puts the grey on the track.
-        pill: "relative gap-1 rounded-full bg-card group-data-horizontal/tabs:h-auto",
+        // Segmented control: a dark track with the selected tab as a white
+        // pill. `sidebar` is the project's fixed dark surface — the same one
+        // the bottom nav uses — so the track stays dark in both themes and the
+        // pill can stay white against it.
+        pill: "relative gap-1 rounded-full bg-sidebar group-data-horizontal/tabs:h-auto",
       },
     },
     defaultVariants: {
@@ -72,7 +74,9 @@ function TabsIndicator({ className, ...props }: TabsPrimitive.Indicator.Props) {
       // server-rendered page reads as an unselected control.
       renderBeforeHydration
       className={cn(
-        "absolute top-[var(--active-tab-top)] left-0 h-[var(--active-tab-height)] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-muted",
+        // Plain white rather than a token: it rides on `sidebar`, which does
+        // not change between themes, so neither can this.
+        "absolute top-[var(--active-tab-top)] left-0 h-[var(--active-tab-height)] w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-white",
         // Tailwind v4 animates the `translate` property, not `transform` — a
         // transition on `transform` here would fade nothing and move instantly.
         "transition-[translate,width] duration-250 ease-out motion-reduce:transition-none",
@@ -93,6 +97,13 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         // The fill belongs to TabsIndicator, so the tab itself stays see-through
         // and only sits above it — `relative` is already in the base classes.
         "group-data-[variant=pill]/tabs-list:h-auto group-data-[variant=pill]/tabs-list:rounded-full group-data-[variant=pill]/tabs-list:bg-transparent group-data-[variant=pill]/tabs-list:data-active:bg-transparent dark:group-data-[variant=pill]/tabs-list:data-active:border-transparent dark:group-data-[variant=pill]/tabs-list:data-active:bg-transparent",
+        // Text colours belong to the variant, not the caller: the track is a
+        // fixed dark surface, so light-on-dark at rest and dark-on-white when
+        // selected hold in both themes. The base classes underneath aim the
+        // other way — `hover:text-foreground` alone would paint near-black on
+        // near-black the moment the pointer arrived — and a plain colour at the
+        // call site cannot displace a variant-scoped one.
+        "group-data-[variant=pill]/tabs-list:text-white/70 group-data-[variant=pill]/tabs-list:hover:text-white group-data-[variant=pill]/tabs-list:data-active:text-[#101014] dark:group-data-[variant=pill]/tabs-list:text-white/70 dark:group-data-[variant=pill]/tabs-list:hover:text-white dark:group-data-[variant=pill]/tabs-list:data-active:text-[#101014]",
         "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
         className

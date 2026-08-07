@@ -14,8 +14,21 @@ import { BikeIcon } from "@/components/bike-icon";
 import type { Dictionary } from "@/lib/i18n/dictionaries/en";
 import type { Locale } from "@/lib/i18n";
 
+/** A mint node with a softer mint halo around it — the halo is a second circle
+ * rather than a ring utility, so it stays a glow at any zoom. `primary` is the
+ * same colour in both themes, which is what lets the whole thread be written
+ * once. */
 function TimelineDot({ large }: { large?: boolean }) {
-  return <span className={cn("shrink-0 rounded-full bg-foreground", large ? "size-3" : "size-2.5")} />;
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-full bg-primary/25",
+        large ? "p-[5px]" : "p-1"
+      )}
+    >
+      <span className={cn("rounded-full bg-primary", large ? "size-3" : "size-2.5")} />
+    </span>
+  );
 }
 
 function MilestonePill({
@@ -211,7 +224,7 @@ export function BikeTimeline({
 }) {
   return (
     <div className="relative mx-auto max-w-xl">
-      <div className="absolute top-3 bottom-3 left-1/2 -translate-x-1/2 border-l border-dashed border-foreground/30" />
+      <div className="absolute top-3 bottom-3 left-1/2 -translate-x-1/2 border-l border-dashed border-primary/70" />
       <div className="relative flex flex-col items-center gap-12">
         <div className="flex flex-col items-center gap-3">
           <TimelineDot large />

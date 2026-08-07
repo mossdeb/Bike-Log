@@ -224,7 +224,11 @@ export function BikeTimeline({
 }) {
   return (
     <div className="relative mx-auto max-w-xl">
-      <div className="absolute top-3 bottom-3 left-1/2 -translate-x-1/2 border-l border-dashed border-primary/70" />
+      {/* Grey rather than mint: the thread has to read against the page, and
+          the mint that suits a node is too pale for a hairline. A dark grey in
+          light mode needs a light one in dark — a fixed #404040 there would sit
+          on #17181b and disappear. */}
+      <div className="absolute top-3 bottom-3 left-1/2 -translate-x-1/2 border-l border-dashed border-[#404040] dark:border-[#8A8D93]" />
       <div className="relative flex flex-col items-center gap-12">
         <div className="flex flex-col items-center gap-3">
           <TimelineDot large />

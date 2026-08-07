@@ -74,8 +74,12 @@ export function BillingPlanChoice({
   return (
     <div className="space-y-4 rounded-lg border border-border p-4">
       {/* Dimmed together, and pointer-events off so the cards don't light up
-          under the cursor either — `disabled` alone still leaves :hover. */}
-      <div className={disabled ? "pointer-events-none space-y-4 opacity-40" : "contents"}>
+          under the cursor either — `disabled` alone still leaves :hover.
+          A real box in both states, never `display: contents`: the parent
+          spaces its direct children, and a contents wrapper leaves it with one
+          child to space instead of two, which quietly closed the gap between
+          the toggle and the cards. */}
+      <div className={`space-y-4 ${disabled ? "pointer-events-none opacity-40" : ""}`}>
         <div className="flex justify-center">
           <BillingIntervalToggle
             value={interval}

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { LANDING_LOCALE_COOKIE, type LandingLocale } from "@/components/landing/i18n";
+import { SUPPORT_EMAIL } from "@/lib/contact";
 
 /**
  * Who is legally responsible for Bikit.
@@ -11,7 +12,7 @@ import { LANDING_LOCALE_COOKIE, type LandingLocale } from "@/components/landing/
  */
 export const LEGAL_ENTITY = {
   name: "Miguel Gomes",
-  email: "miguelgomesdzn@gmail.com",
+  email: SUPPORT_EMAIL,
   country: "Portugal",
 } as const;
 

@@ -305,7 +305,7 @@ const en = {
         `every ${value} ${type === "km" ? unit : type === "hours" ? "h" : "mo"}`,
       logIntervention: "Log intervention",
       logInterventionFor: (name: string) => `Log intervention for ${name}`,
-      timelineTab: "Timeline",
+      timelineTab: "Bike Log",
       today: "Today",
       manufactured: "Manufactured",
       purchased: "Purchased",
@@ -326,7 +326,7 @@ const en = {
       restoreConfirmDesc: (name: string) =>
         `${name} goes back on the bike and resumes on the reading it left.`,
       restoreConfirm: "Put back",
-      timelineLocked: "Timeline is not available on the Free plan",
+      timelineLocked: "Bike Log is not available on the Free plan",
       timelinePreview: {
         demo: "Demo",
         brand: "Bikit Components",

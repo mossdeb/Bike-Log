@@ -301,7 +301,7 @@ const pt: Dictionary = {
         `a cada ${value} ${type === "km" ? unit : type === "hours" ? "h" : "meses"}`,
       logIntervention: "Registar manutenção",
       logInterventionFor: (name: string) => `Registar manutenção para ${name}`,
-      timelineTab: "Linha do tempo",
+      timelineTab: "Bike Log",
       today: "Hoje",
       manufactured: "Fabricada",
       purchased: "Comprada",
@@ -322,7 +322,7 @@ const pt: Dictionary = {
       restoreConfirmDesc: (name: string) =>
         `${name} volta à bicicleta e retoma nos números que tinha.`,
       restoreConfirm: "Repor",
-      timelineLocked: "A linha do tempo não está disponível no plano Grátis",
+      timelineLocked: "O Bike Log não está disponível no plano Grátis",
       timelinePreview: {
         demo: "Demo",
         brand: "Bikit Components",

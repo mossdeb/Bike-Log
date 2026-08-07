@@ -363,8 +363,10 @@ export default async function BikeDetailPage({
       </div>
 
       {/* No radius while the card is full bleed — the corners had nothing to
-          sit against. Desktop gets its margins back, and the radius with them. */}
-      <div className="-mx-5 mb-6 bg-card px-[30px] pt-[37px] pb-6 sm:mx-0 sm:rounded-lg sm:px-6 sm:pt-6">
+          sit against. Desktop gets its margins back, and the radius with them.
+          The bottom margin is 32px on a phone, to match the 32px the tab row
+          leaves under itself (its mb-6 plus the 8px gap on the Tabs root). */}
+      <div className="-mx-5 mb-8 bg-card px-[30px] pt-[37px] pb-6 sm:mx-0 sm:mb-6 sm:rounded-lg sm:px-6 sm:pt-6">
         {/* 12px between the name and the health badge on mobile, not 24: with
             30px of card padding the longest status ("Serviço Necessário")
             needs every pixel to stay on the name's line. Desktop, where the
@@ -402,10 +404,10 @@ export default async function BikeDetailPage({
 
       <Tabs defaultValue="components">
         <div className="mb-6 flex items-center justify-center sm:mb-3 sm:justify-between">
-          <TabsList variant="line" className="h-auto gap-12 bg-transparent p-0">
+          <TabsList variant="pill">
             <TabsTrigger
               value="components"
-              className="h-auto flex-none px-0 pt-1 pb-0 text-base font-display font-bold data-active:bg-transparent"
+              className="flex-none px-4 py-1.5 text-base font-display font-medium text-foreground/70"
             >
               {dict.bikes.detail.componentsTitle}
               {components && components.length > 0 && (
@@ -416,7 +418,7 @@ export default async function BikeDetailPage({
             </TabsTrigger>
             <TabsTrigger
               value="timeline"
-              className="h-auto flex-none px-0 pt-1 pb-0 text-base font-display font-bold data-active:bg-transparent"
+              className="flex-none px-4 py-1.5 text-base font-display font-medium text-foreground/70"
             >
               {dict.bikes.detail.timelineTab}
             </TabsTrigger>

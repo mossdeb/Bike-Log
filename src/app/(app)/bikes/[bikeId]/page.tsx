@@ -102,6 +102,7 @@ export default async function BikeDetailPage({
             status: "active" as const,
             currentPeriodEnd: null,
             cancelAtPeriodEnd: false,
+            hasBillingAccount: false,
           }),
       userId
         ? supabase

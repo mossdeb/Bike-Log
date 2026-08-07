@@ -68,6 +68,7 @@ export default async function DashboardPage({
             status: "active" as const,
             currentPeriodEnd: null,
             cancelAtPeriodEnd: false,
+            hasBillingAccount: false,
           }),
       supabase
         .from("bikes")

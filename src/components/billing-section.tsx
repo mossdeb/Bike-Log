@@ -55,8 +55,10 @@ export function BillingSection({
           )}
         </div>
         {/* Managing billing belongs to the plan you already have, so it sits in
-            the same box as it — and a free plan has no billing to manage. */}
-        {!isFree && (
+            the same box as it — and a free plan has no billing to manage.
+            Neither does a comped one: a paid row with no Stripe customer behind
+            it would send the portal looking for someone who doesn't exist. */}
+        {!isFree && subscription.hasBillingAccount && (
           <form action={createPortalSession}>
             <Button type="submit" variant="outline" size="sm">
               {dict.manageBilling}

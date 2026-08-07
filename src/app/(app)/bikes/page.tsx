@@ -31,6 +31,7 @@ export default async function BikesPage() {
           status: "active" as const,
           currentPeriodEnd: null,
           cancelAtPeriodEnd: false,
+          hasBillingAccount: false,
         }),
     // Most recently ridden first, same as the dashboard carousel:
     // usage_updated_at only moves when a bike's km/hours change (manual edit

@@ -114,6 +114,7 @@ export default async function SettingsPage({
           status: "active" as const,
           currentPeriodEnd: null,
           cancelAtPeriodEnd: false,
+          hasBillingAccount: false,
         }),
   ]);
   const isStravaConnected = !!stravaConnection;

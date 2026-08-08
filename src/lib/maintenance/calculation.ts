@@ -88,7 +88,16 @@ function calculateUsageStatus(
   const reference = atLastService ?? atInstall;
   if (current == null || reference == null || !intervalValue) return NOT_CONFIGURED;
 
-  const usedSinceService = current - reference;
+  // A baseline above the bike's current total is impossible: it means the
+  // odometer was corrected downwards while an older snapshot kept its
+  // pre-correction reading. Left alone it inverts the whole calculation —
+  // usage goes negative, so "remaining" comes out LARGER than the interval
+  // itself and the bar reads a confident, full, green 100%. A 50h reminder
+  // announcing 2720h left is not a number a reader can act on. Floored at
+  // zero the part reads as freshly serviced instead, which is the same
+  // correction calculateComponentUsage already makes to the total it shows
+  // on the same card.
+  const usedSinceService = Math.max(current - reference, 0);
   const amountRemaining = intervalValue - usedSinceService;
   const dueSoonThreshold = intervalValue * DUE_SOON_THRESHOLD_FRACTION;
   const status: ServiceStatus =

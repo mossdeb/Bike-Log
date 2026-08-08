@@ -238,6 +238,47 @@ describe("calculateComponentStatus — hours", () => {
   });
 });
 
+describe("calculateComponentStatus — baseline above the bike's current total", () => {
+  // The real case this came from: a service snapshotted at 3000h on a bike
+  // whose totals were later corrected to ~330h, leaving the reminder
+  // announcing 2720h left on a 50h interval, at a full green 100%.
+  it("never reports more remaining than the interval itself", () => {
+    const result = calculateComponentStatus({
+      ...BASE,
+      intervalType: "hours",
+      intervalValue: 50,
+      currentHours: 329.6,
+      bikeHoursAtInstall: 320,
+      bikeHoursAtLastService: 3000,
+    });
+    expect(result.amountRemaining).toBe(50);
+    expect(result.status).toBe("ok");
+  });
+
+  it("never reports negative usage on the progress bar", () => {
+    const result = calculateComponentStatus({
+      ...BASE,
+      intervalType: "km",
+      intervalValue: 800,
+      currentKm: 900,
+      bikeKmAtInstall: 5000,
+    });
+    expect(result.fractionUsed).toBe(0);
+  });
+
+  it("leaves a baseline equal to the current total alone", () => {
+    const result = calculateComponentStatus({
+      ...BASE,
+      intervalType: "km",
+      intervalValue: 800,
+      currentKm: 900,
+      bikeKmAtInstall: 900,
+    });
+    expect(result.amountRemaining).toBe(800);
+    expect(result.fractionUsed).toBe(0);
+  });
+});
+
 describe("rebaseBaselineOverAbsence", () => {
   it("adds back exactly what the bike rode without the part", () => {
     // Fitted at 3000, archived with the bike on 3300 (so it had done 300).
